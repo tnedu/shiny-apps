@@ -3,6 +3,8 @@ library(ggvis)
 library(dplyr)
 library(tidyr)
 
+options(warn = 0)
+
 df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE)
 
 # District characteristics for x variable
@@ -20,7 +22,7 @@ district_char <- c("Student Enrollment" = "Enrollment",
                    "Percent Expelled" = "Pct_Expelled")
 
 # Outcomes for y variable
-district_out <- c("Math Percent Proficient or Advanced" = "Math",
+district_out <- c("Math Percent Proficient/Advanced" = "Math",
                   "English Percent Language Arts Proficient or Advanced" = "ELA",
                   "Science Percent Proficient or Advanced" = "Science",
                   "Algebra I Percent Proficient or Advanced" = "AlgI",
@@ -36,6 +38,7 @@ district_out <- c("Math Percent Proficient or Advanced" = "Math",
                   "Percent Expelled" = "Pct_Expelled")
 
 district_list <- df[2:nrow(df), ]$system_name
+district_list <- c(" " = "State of Tennessee", district_list)
 
 # Variables to assign State different color, opacity
 df$state <- as.numeric(df$system_name == "State of Tennessee")
