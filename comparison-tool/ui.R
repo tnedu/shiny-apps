@@ -32,15 +32,16 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                                        "Per-Pupil Expenditures" = "Per_Pupil_Expenditures"),
                                            selected = c("Enrollment", "Pct_EL", "Pct_ED", "Pct_SWD", 
                                                         "Per_Pupil_Expenditures")
-                                           ),
-                        br(),
-                        actionButton("execute", "Go!")
+                                           )
                     )
                 ),
                 column(7,
+                    h4(textOutput("statement")),
+                    br(),
                     ggvisOutput("plot"),
                     br(),
-                    selectInput("outcome", label = "Select an Outcome:", choices = outcome_list)
+                    selectInput("outcome", label = "Select an Outcome:", choices = outcome_list,
+                                selected = "Math", width = 400)
                 )
             ),
             br(),
@@ -51,7 +52,9 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                     hr(),
                     p("Designed by Alexander Poon in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), 
                       "for the Tennessee Department of Education.",
-                      tags$a(href = "https://github.com/alexander-poon/shiny-apps/tree/master/data-explorer", "Source Code"), style = "font-size: 8pt")
+                      tags$a(href = "https://github.com/alexander-poon/shiny-apps/tree/master/data-explorer", "Source Code"), style = "font-size: 8pt"),
+                    br(),
+                    br()
                 )
             )
         )

@@ -22,8 +22,8 @@ district_char <- c("Student Enrollment" = "Enrollment",
                    "Percent Expelled" = "Pct_Expelled")
 
 # Outcomes for y variable
-district_out <- c("Math Percent Proficient/Advanced" = "Math",
-                  "English Percent Language Arts Proficient or Advanced" = "ELA",
+district_out <- c("Math Percent Proficient or Advanced" = "Math",
+                  "English Percent Language Arts Percent Proficient or Advanced" = "ELA",
                   "Science Percent Proficient or Advanced" = "Science",
                   "Algebra I Percent Proficient or Advanced" = "AlgI",
                   "Algebra II Percent Proficient or Advanced" = "AlgII",

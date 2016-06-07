@@ -44,6 +44,14 @@ shinyServer(function(input, output, session) {
         xvar <- prop("x", as.symbol(input$char))
         yvar <- prop("y", as.symbol(input$outcome))
         
+        # Scale vertical axis to [0, 100] if outcome is a %P/A, otherwise, scale to min/max of variable
+        if (grepl("Percent Proficient or Advanced", yvar_name)) {
+            y_scale <- c(0, 100)
+        } else {
+            y_scale <- c(min(df_highlight()[names(df_highlight()) == input$outcome]), 
+                         ceiling(max(df_highlight()[names(df_highlight()) == input$outcome])))
+        }
+        
         df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
             layer_points(fill = ~factor(state),
@@ -51,6 +59,7 @@ shinyServer(function(input, output, session) {
                          opacity = ~factor(opac), opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
+            scale_numeric("y", domain = y_scale) %>%
             add_tooltip(tooltip_scatter, on = "hover") %>%
             scale_nominal("opacity", range = c(0.3, 1)) %>%
             scale_nominal("fill", range = c("blue", "red", "orange")) %>%

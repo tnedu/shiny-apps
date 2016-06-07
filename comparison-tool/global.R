@@ -4,6 +4,9 @@ library(ggvis)
 
 df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE)
 
+df[is.na(df$Pct_Chronically_Absent), ]$Pct_Chronically_Absent <- 0
+df[is.na(df$ACT_composite), ]$ACT_composite <- 0
+
 # Drop State observation, standardize characteristic variables
 df_std <- df %>%
     filter(system != 0) %>%
@@ -27,7 +30,7 @@ outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
                   "English I Percent Proficient or Advanced" = "EngI",
                   "English II Percent Proficient or Advanced" = "EngII",
                   "English III Percent Proficient or Advanced" = "EngIII",
-                  "ACT Composite Average" = "ACT_composite",
+                  "Average ACT Composite Score" = "ACT_composite",
                   "Chronic Absenteeism" = "Pct_Chronically_Absent",
                   "Suspension Rate" = "Pct_Suspended",
                   "Expulsion Rate" = "Pct_Expelled")
