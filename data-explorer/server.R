@@ -107,7 +107,7 @@ shinyServer(function(input, output, session) {
     
     # Secondary plot 2 - Bar chart of proficiency for selected district
     plot3 <- reactive({
-        
+
         district_data <- df_highlight() %>%
                             filter(system_name == input$highlight_dist) %>%
                             select(one_of(c("system_name", "AlgI", "AlgII", "BioI", "Chemistry", 

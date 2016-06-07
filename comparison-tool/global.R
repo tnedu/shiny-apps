@@ -8,20 +8,26 @@ df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE)
 df_std <- df %>%
     filter(system != 0) %>%
     mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-                                       "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures", "Pct_BHN"))
+                                       "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures", "Pct_BHN")) %>%
+    select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
+                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures", "Pct_BHN")))
 
-df_achievement <- df %>%
-    select(one_of(c("system_name", "Math", "ELA", "Science",
-                    "AlgI", "AlgII", "BioI", "Chemistry", "EngI", "EngII", "EngIII")))
+df_outcomes <- df %>%
+    select(one_of(c("system_name", "Math", "ELA", "Science", "AlgI", "AlgII", "BioI", "Chemistry",
+                    "EngI", "EngII", "EngIII", "ACT_composite", "Pct_Chronically_Absent", "Pct_Suspended", "Pct_Expelled")))
 
-# Subject vector for select input
-subject_list <- c("Math" = "Math",
-                  "English Language Arts" = "ELA",
-                  "Science" = "Science",
-                  "Algebra I" = "AlgI",
-                  "Algebra II" = "AlgII",
-                  "Biology I" = "BioI",
-                  "Chemistry" = "Chemistry",
-                  "English I" = "EngI",
-                  "English II" = "EngII",
-                  "English III" = "EngIII")
+# Outcome vector for select input
+outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
+                  "English Language Arts Percent Proficient or Advanced" = "ELA",
+                  "Science Percent Proficient or Advanced" = "Science",
+                  "Algebra I Percent Proficient or Advanced" = "AlgI",
+                  "Algebra II Percent Proficient or Advanced" = "AlgII",
+                  "Biology I Percent Proficient or Advanced" = "BioI",
+                  "Chemistry Percent Proficient or Advanced" = "Chemistry",
+                  "English I Percent Proficient or Advanced" = "EngI",
+                  "English II Percent Proficient or Advanced" = "EngII",
+                  "English III Percent Proficient or Advanced" = "EngIII",
+                  "ACT Composite Average" = "ACT_composite",
+                  "Chronic Absenteeism" = "Pct_Chronically_Absent",
+                  "Suspension Rate" = "Pct_Suspended",
+                  "Expulsion Rate" = "Pct_Expelled")

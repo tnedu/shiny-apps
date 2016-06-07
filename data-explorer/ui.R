@@ -31,24 +31,33 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
                     selectInput("char", label = "Select a District Characteristic:", 
                                 choices = district_char, selected = "Pct_ED", width = 500),
                     selectInput("highlight_dist", label = "Optional: Highlight a District", 
-                                choices = c(district_list), selected = NULL, width = 500)
+                                choices = district_list, selected = NULL, width = 500)
                 ),
                 column(3,
                     selectInput("outcome", label = "Select an Outcome:", 
                                 choices = district_out, selected = "Math", width = 500)
                 ),
                 column(4,
-                    wellPanel("This tool is designed to help users explore the relationships between
-                              district characteristics and outcomes for school districts in the State
-                              of Tennessee.",
+                    wellPanel(strong("This tool is designed to help users explore relationships between
+                              district characteristics and outcomes for Tennessee school districts."),
                               tags$br(),
                               tags$br(),
                               "Use the dropdowns on the left to select a district characteristic 
                               and an outcome to plot.",
                               tags$br(),
                               tags$br(),
-                              "You may also click on any point on the graph for more information
-                              on that district.")
+                              "Click on any point on the graph for more information on that district.")
+                )
+            ),
+            br(),
+            br(),
+            br(),
+            fluidRow(
+                column(10, offset = 1,
+                       hr(),
+                       p("Designed by Alexander Poon in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), 
+                         "for the Tennessee Department of Education.",
+                         tags$a(href = "https://github.com/alexander-poon/shiny-apps/tree/master/comparison-tool", "Source Code"), style = "font-size: 8pt")
                 )
             )
         ) 
