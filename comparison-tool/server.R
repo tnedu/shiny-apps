@@ -5,6 +5,8 @@ shinyServer(function(input, output) {
 
     similarityData <- reactive({
 
+        req(input$district_chars)
+
         chars <- select(df_std, one_of(c("system_name", input$district_chars)))
         df2 <- chars[complete.cases(chars), ]
 

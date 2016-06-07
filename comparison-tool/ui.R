@@ -30,8 +30,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                                        "% Economically Disadvantaged" = "Pct_ED",
                                                        "% Students with Disabilities" = "Pct_SWD",
                                                        "Per-Pupil Expenditures" = "Per_Pupil_Expenditures"),
-                                           selected = c("Enrollment", "Pct_EL", "Pct_ED", "Pct_SWD", 
-                                                        "Per_Pupil_Expenditures")
+                                           selected = c("Enrollment", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
                                            )
                     )
                 ),
