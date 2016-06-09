@@ -2,7 +2,7 @@
 # ui.R
 
 shinyUI(navbarPage("Data Explorer", position = "fixed-top",
-    
+
     tabPanel("District",
         fluidPage(
             fluidRow(
@@ -40,12 +40,12 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
                 column(4,
                     wellPanel(strong("This tool is designed to help users explore relationships between
                               district characteristics and outcomes for Tennessee school districts."),
-                              tags$br(),
-                              tags$br(),
+                              br(),
+                              br(),
                               "Use the dropdowns on the left to select a district characteristic 
                               and an outcome to plot.",
-                              tags$br(),
-                              tags$br(),
+                              br(),
+                              br(),
                               "Click on any point on the graph for more information on that district.")
                 )
             ),
@@ -57,7 +57,9 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
                        hr(),
                        p("Designed by Alexander Poon in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), 
                          "for the Tennessee Department of Education.",
-                         tags$a(href = "https://github.com/alexander-poon/shiny-apps/tree/master/comparison-tool", "Source Code"), style = "font-size: 8pt")
+                         tags$a(href = "https://github.com/alexander-poon/shiny-apps/tree/master/comparison-tool", "Source Code"), style = "font-size: 8pt"),
+                       br(),
+                       br()
                 )
             )
         ) 

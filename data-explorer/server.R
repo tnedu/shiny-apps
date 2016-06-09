@@ -43,7 +43,7 @@ shinyServer(function(input, output, session) {
         # Convert input (string) to variable name
         xvar <- prop("x", as.symbol(input$char))
         yvar <- prop("y", as.symbol(input$outcome))
-        
+
         # Scale vertical axis to [0, 100] if outcome is a %P/A, otherwise, scale to min/max of variable
         if (grepl("Percent Proficient or Advanced", yvar_name)) {
             y_scale <- c(0, 100)
@@ -51,7 +51,7 @@ shinyServer(function(input, output, session) {
             y_scale <- c(min(df_highlight()[names(df_highlight()) == input$outcome]), 
                          ceiling(max(df_highlight()[names(df_highlight()) == input$outcome])))
         }
-        
+
         df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
             layer_points(fill = ~factor(state),
@@ -88,13 +88,13 @@ shinyServer(function(input, output, session) {
             add_axis("y", title = "", grid = FALSE) %>%
             scale_numeric("x", domain = c(0, 100)) %>%
             set_options(width = 'auto', height = 350)
-    
+
     })
 
     plot2 %>% bind_shiny("plot2")
 
     output$text1 <- renderText({paste(input$highlight_dist, "Demographics", sep = " ")})
-    
+
     # Create tooltip for bar chart with subject, proficiency percentages
     tooltip_bar <- function(x) {
         if (is.null(x)) return(NULL)
@@ -104,16 +104,16 @@ shinyServer(function(input, output, session) {
                             "EngI", "EngII", "EngIII", "Math", "ELA", "Science"))) %>%
             gather("subject", "Pct_Prof_Adv", 2:11) %>%
             filter(subject == x$subject)
-        
+
         paste0("<b>", long$subject, "</b><br>",
                "Percent Proficient/Advanced: ", long$Pct_Prof_Adv, "%")
     }
-    
+
     # Extract subject of clicked bar to update main plot
     click_subject <- function(data, ...) {
         updateSelectInput(session, "outcome", selected = as.character(data$subject))
     }
-    
+
     # Secondary plot 2 - Bar chart of proficiency for selected district
     plot3 <- reactive({
 

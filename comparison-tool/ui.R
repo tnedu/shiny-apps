@@ -2,7 +2,7 @@
 # ui.R
 
 shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
-                   
+
     tabPanel("District",
         fluidPage(
             br(),
@@ -31,21 +31,23 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                                        "% Students with Disabilities" = "Pct_SWD",
                                                        "Per-Pupil Expenditures" = "Per_Pupil_Expenditures"),
                                            selected = c("Enrollment", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
-                                           )
+                        ),
+                        br(),
+                        selectInput("outcome", label = "Select an Outcome:", choices = outcome_list, selected = "Math", width = 400)
                     )
                 ),
                 column(7,
-                    h4(textOutput("statement")),
-                    br(),
-                    ggvisOutput("plot"),
-                    br(),
-                    selectInput("outcome", label = "Select an Outcome:", choices = outcome_list,
-                                selected = "Math", width = 400)
+                    h4(textOutput("header")),
+                    ggvisOutput("plot_prof"),
+                    br()
                 )
             ),
-            br(),
-            br(),
-            br(),
+            fluidRow(
+                column(7, offset = 4,
+                    h4(textOutput("header2")),
+                    formattableOutput("table")
+                )
+            ),
             fluidRow(
                 column(10, offset = 1,
                     hr(),
