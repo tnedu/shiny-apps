@@ -41,8 +41,6 @@ shinyServer(function(input, output) {
     clicked <- reactiveValues(district = "")
     click_district <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
-        
-        str(clicked$district)
     }
     
     # Column chart of proficiency for selected, similar districts
@@ -94,33 +92,31 @@ shinyServer(function(input, output) {
             spread("system_name", "value")
 
         if (clicked$district != "" & clicked$district != input$district) {
-
             temp$Difference <- temp[, names(temp) == input$district] - temp[, names(temp) == clicked$district]
-
         }
-        
+
         order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", 
                    "Percent Students with Disabilities", "Percent English Learners", "Percent Black",
                    "Percent Hispanic", "Percent Native American")
         temp <- temp[match(order, temp$Characteristic), ]
         rownames(temp) <- NULL
-        
+
         temp
 
     })
 
-    output$table <- renderFormattable({formattable(comparisonTable())})
-    
+    output$table <- renderFormattable({
+        formattable(comparisonTable(), list(
+            Difference = formatter("span", style = x ~ style(color = ifelse(x > 0, "green", "red")),
+                                   x ~ sprintf("%.1f", x))
+        ))
+    })
+
     output$header2 <- renderText({
-
         if (clicked$district == "" | clicked$district == input$district) {
-
             paste("District Profile Data for", input$district, sep = " ")
-
         } else {
-            
             paste("District Profile Data for", input$district, "and", clicked$district, sep = " ")
-            
         }
     })
 

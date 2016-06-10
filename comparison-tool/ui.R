@@ -38,6 +38,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                 ),
                 column(7,
                     h4(textOutput("header")),
+                    br(),
                     ggvisOutput("plot_prof"),
                     br()
                 )
@@ -45,6 +46,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
             fluidRow(
                 column(7, offset = 4,
                     h4(textOutput("header2")),
+                    br(),
                     formattableOutput("table")
                 )
             ),
