@@ -4,26 +4,33 @@ library(formattable)
 library(ggvis)
 library(shiny)
 
-df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE)
+# Read in all data, drop state observation
+df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE) %>% 
+    filter(system != 0)
 
 df[is.na(df$Pct_Chronically_Absent), ]$Pct_Chronically_Absent <- 0
 df[is.na(df$ACT_Composite), ]$ACT_Composite <- 0
 
-# Drop State observation, standardize characteristic variables
+# Separate district characteristics and outcomes into separate data frames, standardize characteristic variables
 df_std <- df %>%
-    filter(system != 0) %>%
     mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-                                       "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures", "Pct_BHN")) %>%
+                                       "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
     select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures", "Pct_BHN")))
+                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
 
 df_chars <- df %>% 
     select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures", "Pct_BHN")))
+                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
 
 df_outcomes <- df %>%
     select(one_of(c("system_name", "Math", "ELA", "Science", "AlgI", "AlgII", "BioI", "Chemistry",
                     "EngI", "EngII", "EngIII", "ACT_Composite", "Pct_Chronically_Absent", "Pct_Suspended", "Pct_Expelled")))
+
+# Calculate standard deviation of each characteristic variable
+standard_devs <- df_chars %>%
+    summarise_each_(funs(sd(., na.rm = TRUE)), names(.)[-1]) %>%
+    gather("Characteristic", "SD", 1:8) %>%
+    mutate(SD = sprintf("%.2f", SD))
 
 # Outcome vector for select input
 outcome_list <- c("Math Percent Proficient or Advanced" = "Math",

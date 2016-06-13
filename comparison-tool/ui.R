@@ -12,8 +12,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
             fluidRow(
                 column(3, offset = 1,
                     wellPanel(
-                        strong("Select a school district and one or more district characteristics below."),
-                        br(),
+                        strong(p("Select a school district and one or more district characteristics below.")),
                         br(),
                         p("For the selected district, this tool will identify the most similar districts
                           based on the selected characteristics and display data for a selected outcome."),
@@ -33,7 +32,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                            selected = c("Enrollment", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
                         ),
                         br(),
-                        selectInput("outcome", label = "Select an Outcome:", choices = outcome_list, selected = "Math", width = 400)
+                        selectInput("outcome", label = "Select an outcome to plot:", choices = outcome_list, selected = "Math", width = 400)
                     )
                 ),
                 column(7,

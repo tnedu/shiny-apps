@@ -1,7 +1,7 @@
-library(shiny)
-library(ggvis)
-library(dplyr)
 library(tidyr)
+library(dplyr)
+library(ggvis)
+library(shiny)
 
 options(warn = 0)
 

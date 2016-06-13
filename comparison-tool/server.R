@@ -15,9 +15,7 @@ shinyServer(function(input, output) {
 
         # Compute vector of similarity scores against selected district
         for (i in 1:nrow(df2)) {
-
             similarity[i, 2] <- sqrt(sum((df2[i,2:ncol(df2)] - df2[which(df2$system_name == input$district), 2:ncol(df2)])^2))
-
         }
 
         similarity %>%
@@ -42,7 +40,7 @@ shinyServer(function(input, output) {
     click_district <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
     }
-    
+
     # Column chart of proficiency for selected, similar districts
     plot_prof <- reactive({
 
@@ -77,11 +75,11 @@ shinyServer(function(input, output) {
 
     output$header <- renderText({paste(names(outcome_list[outcome_list == input$outcome]), 
                                           "for districts most similar to", input$district, sep = " ")})
-    
+
     # Table with profile data for selected, clicked districts
     comparisonTable <- reactive({
 
-        temp <- df_chars %>%
+        df_comparison <- df_chars %>%
             select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_ED", "Pct_SWD", "Pct_EL", "Per_Pupil_Expenditures"))) %>%
             rename("Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
                    "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
@@ -91,17 +89,18 @@ shinyServer(function(input, output) {
             gather("Characteristic", "value", 2:9) %>%
             spread("system_name", "value")
 
+        # Create new column with differences between selected, clicked districts
         if (clicked$district != "" & clicked$district != input$district) {
-            temp$Difference <- temp[, names(temp) == input$district] - temp[, names(temp) == clicked$district]
+            df_comparison$Difference <- df_comparison[, names(df_comparison) == input$district] - df_comparison[, names(df_comparison) == clicked$district]
         }
 
         order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", 
                    "Percent Students with Disabilities", "Percent English Learners", "Percent Black",
                    "Percent Hispanic", "Percent Native American")
-        temp <- temp[match(order, temp$Characteristic), ]
-        rownames(temp) <- NULL
+        df_comparison <- df_comparison[match(order, df_comparison$Characteristic), ]
+        rownames(df_comparison) <- NULL
 
-        temp
+        return(df_comparison)
 
     })
 
