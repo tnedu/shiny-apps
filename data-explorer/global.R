@@ -1,6 +1,7 @@
 library(tidyr)
 library(dplyr)
 library(ggvis)
+library(shinyURL)
 library(shiny)
 
 options(warn = 0)
@@ -32,6 +33,8 @@ district_out <- c("Math Percent Proficient or Advanced" = "Math",
                   "English I Percent Proficient or Advanced" = "EngI",
                   "English II Percent Proficient or Advanced" = "EngII",
                   "English III Percent Proficient or Advanced" = "EngIII",
+                  "Graduation Rate" = "Graduation",
+                  "Dropout Rate" = "Dropout",
                   "Average ACT Composite Score" = "ACT_Composite",
                   "Percent Chronically Absent" = "Pct_Chronically_Absent", 
                   "Percent Suspended" = "Pct_Suspended",

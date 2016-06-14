@@ -55,7 +55,7 @@ shinyServer(function(input, output, session) {
         df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
             layer_points(fill = ~factor(state),
-                         size := 100, size.hover := 200,
+                         size := 125, size.hover := 300,
                          opacity = ~factor(opac), opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
@@ -140,5 +140,8 @@ shinyServer(function(input, output, session) {
 
     output$text2 <- renderText({paste(input$highlight_dist, "Proficiency in All Subjects", sep = " ")})
 
+    # ShinyURL function to save link
+    shinyURL.server()
+    
     }
 )

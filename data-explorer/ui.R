@@ -46,17 +46,19 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
                               and an outcome to plot.",
                               br(),
                               br(),
-                              "Click on any point on the graph for more information on that district.")
+                              "Click on any point on the graph for more information on that district.",
+                              br(),
+                              br(),
+                              shinyURL.ui(label = "Link to this plot:"))
                 )
             ),
-            br(),
             br(),
             br(),
             fluidRow(
                 column(10, offset = 1,
                        hr(),
-                       p("Designed by Alexander Poon in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), 
-                         "for the Tennessee Department of Education.",
+                       p("Designed by", tags$a(href = "mailto:alex.poon@tn.gov", "Alexander Poon"), 
+                         "in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), "for the Tennessee Department of Education.",
                          tags$a(href = "https://github.com/alexander-poon/shiny-apps/tree/master/comparison-tool", "Source Code"), style = "font-size: 8pt"),
                        br(),
                        br()
