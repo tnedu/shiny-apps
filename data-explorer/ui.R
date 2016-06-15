@@ -30,7 +30,7 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
                 column(3, offset = 1,
                     selectInput("char", label = "Select a District Characteristic:", 
                                 choices = district_char, selected = "Pct_ED", width = 500),
-                    selectInput("highlight_dist", label = "Optional: Highlight a District", 
+                    selectInput("highlight", label = "Optional: Highlight a District", 
                                 choices = district_list, selected = NULL, width = 500)
                 ),
                 column(3,

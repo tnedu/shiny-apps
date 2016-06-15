@@ -6,9 +6,9 @@ shinyServer(function(input, output, session) {
     # Adjust color, opacity of highlighted district
     df_highlight <- reactive({
 
-        if (input$highlight_dist != "") {
-            df[df$system_name == input$highlight_dist, ]$state <- 2
-            df[df$system_name == input$highlight_dist, ]$opac <- 1
+        if (input$highlight != "") {
+            df[df$system_name == input$highlight, ]$state <- 2
+            df[df$system_name == input$highlight, ]$opac <- 1
         }
 
         # Filter for missing data based on input
@@ -30,7 +30,7 @@ shinyServer(function(input, output, session) {
 
     # Extract district of clicked point for secondary graphs; Update highlighted district on point click
     click_district <- function(data, ...) {
-        updateSelectInput(session, "highlight_dist", selected = as.character(data$system_name))
+        updateSelectInput(session, "highlight", selected = as.character(data$system_name))
     }
 
     # Main plot - Scatterplot of district characteristic X outcome
@@ -75,7 +75,7 @@ shinyServer(function(input, output, session) {
     plot2 <- reactive({
 
         district_data <- df_highlight() %>%
-            filter(system_name == input$highlight_dist) %>%
+            filter(system_name == input$highlight) %>%
             select(one_of(c("system_name", "Pct_BHN", "Pct_ED", "Pct_EL", "Pct_SWD"))) %>%
             rename("Black/Hispanic/Native American" = Pct_BHN, "Economically Disadvantaged" = Pct_ED, "English Learners" = Pct_EL, "Students with Disabilities" = Pct_SWD) %>%
             gather("demographic", "Percentage", 2:5)
@@ -93,13 +93,13 @@ shinyServer(function(input, output, session) {
 
     plot2 %>% bind_shiny("plot2")
 
-    output$text1 <- renderText({paste(input$highlight_dist, "Demographics", sep = " ")})
+    output$text1 <- renderText({paste(input$highlight, "Demographics", sep = " ")})
 
     # Create tooltip for bar chart with subject, proficiency percentages
     tooltip_bar <- function(x) {
         if (is.null(x)) return(NULL)
         long <- df %>%
-            filter(system_name == input$highlight_dist) %>%
+            filter(system_name == input$highlight) %>%
             select(one_of(c("system_name", "AlgI", "AlgII", "BioI", "Chemistry", 
                             "EngI", "EngII", "EngIII", "Math", "ELA", "Science"))) %>%
             gather("subject", "Pct_Prof_Adv", 2:11) %>%
@@ -118,7 +118,7 @@ shinyServer(function(input, output, session) {
     plot3 <- reactive({
 
         district_data <- df_highlight() %>%
-                            filter(system_name == input$highlight_dist) %>%
+                            filter(system_name == input$highlight) %>%
                             select(one_of(c("system_name", "AlgI", "AlgII", "BioI", "Chemistry", 
                                 "ELA", "EngI", "EngII", "EngIII", "Math", "Science"))) %>%
                             gather("subject", "Pct_Prof_Adv", 2:11)
@@ -138,7 +138,7 @@ shinyServer(function(input, output, session) {
 
     plot3 %>% bind_shiny("plot3")
 
-    output$text2 <- renderText({paste(input$highlight_dist, "Proficiency in All Subjects", sep = " ")})
+    output$text2 <- renderText({paste(input$highlight, "Proficiency in All Subjects", sep = " ")})
 
     # ShinyURL function to save link
     shinyURL.server()
