@@ -2,7 +2,7 @@
 
 Shiny applications for visualizing Tennessee education data.
 
-To access these applications, please visit https://tdoe.shinyapps.io/[app-name], where app-name is one of the following:
+To access these applications, please visit https://tdoe.shinyapps.io/[app-name], where [app-name] is one of the following:
 
 * [**data-explorer**](https://tdoe.shinyapps.io/data-explorer)
 
