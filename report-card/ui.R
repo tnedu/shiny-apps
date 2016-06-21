@@ -36,19 +36,19 @@ dashboardPage(
                     column(6,
                         box(title = "Participation Data", status = "primary", solidHeader = TRUE, 
                             width = 12, collapsible = TRUE, collapsed = TRUE,
-                            formattableOutput("table"),
+                            formattableOutput("table_participation"),
                             tags$b("BHN"), "= Black/Hispanic/Native American", br(),
                             tags$b("ED"), "= Economically Disadvantaged", br(),
                             tags$b("SWD"), "= Students with Disabilities", br(),
                             tags$b("EL"), "= English Learners", br(),
-                            tags$b("Super"), "= Super Subgroup, which consists of any student who is a member of the BHN, ED, SWD, or ELL subgroups", br(),
+                            tags$b("Super"), "= Super Subgroup, which consists of any student who is a member of the BHN, ED, SWD, or EL subgroups", br(),
                             hr(),
                             tags$b("Notes:"), br(),
                             "- A district is eligible for the participation test for a subgroup/subject
-                            combination if it has at least 30 valid tests in the current year. Subgroup/
-                            Subject combinations with fewer than 30 valid tests are denoted with NA.",
+                            combination if it has at least 30 valid tests in the current year. 
+                            Subgroup/Subject combinations with fewer than 30 valid tests are denoted with NA.",
                             br(),
-                            "- For eligible subgroup/subject combinations, a district must have a
+                            "- For each eligible subgroup/subject combination, a district must have a
                             participation rate of 95% or greater to pass the participation test.",
                             br(),
                             "- A district which fails the participation test for any subgroup/subject
@@ -56,8 +56,8 @@ dashboardPage(
                         )
                     ),
                     column(6,
-                           box(title = "Minimum Performance Goal Data", status = "primary", solidHeader = TRUE, 
-                               width = 12, collapsible = TRUE, collapsed = TRUE)
+                        box(title = "Minimum Performance Data", status = "primary", solidHeader = TRUE, 
+                                width = 12, collapsible = TRUE, collapsed = TRUE)
                     )
                 ),
                 fluidRow(
@@ -69,7 +69,9 @@ dashboardPage(
                 fluidRow(
                     column(6,
                         box(title = "Achievement Data", status = "primary", solidHeader = TRUE, 
-                               width = 12, collapsible = TRUE, collapsed = TRUE)
+                                width = 12, collapsible = TRUE, collapsed = TRUE,
+                            tableOutput("ach_heatmap")
+                        )
                     ),
                     column(6,
                         box(title = "Gap Closure Data", status = "primary", solidHeader = TRUE, 

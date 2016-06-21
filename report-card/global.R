@@ -1,11 +1,18 @@
 library(dplyr)
 library(ggvis)
 library(formattable)
+library(ReporteRs)
 library(shinydashboard)
 
 participation <- read.csv("data/participation_master.csv", stringsAsFactors = FALSE)
 performance_gate <- read.csv("data/performance_gate_master.csv", stringsAsFactors = FALSE)
 achievement <- read.csv("data/achievement_master.csv", stringsAsFactors = FALSE)
+
+achievement[achievement$subject == "ELA" & achievement$grade == "3rd through 5th", ]$subject <- "3-5 ELA"
+achievement[achievement$subject == "ELA" & achievement$grade == "6th through 8th", ]$subject <- "6-8 ELA"
+achievement[achievement$subject == "Math" & achievement$grade == "3rd through 5th", ]$subject <- "3-5 Math"
+achievement[achievement$subject == "Math" & achievement$grade == "6th through 8th", ]$subject <- "6-8 Math"
+
 gap_closure <- read.csv("data/gap_closure_master.csv", stringsAsFactors = FALSE)
 
 determinations <- read.csv("data/final_determinations.csv", stringsAsFactors = FALSE) %>%
