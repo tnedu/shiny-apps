@@ -66,7 +66,11 @@ dashboardPage(
                     ),
                     column(6,
                         box(title = "Minimum Performance Data", status = "primary", solidHeader = TRUE, 
-                                width = 12, collapsible = TRUE, collapsed = TRUE)
+                                width = 12, collapsible = TRUE, collapsed = TRUE,
+                            tableOutput("gate_heatmap"),
+                            br(),
+                            tags$b("A district must meet all three goals to progress to the Achievement and Gap Closure Determinations")
+                        )
                     )
                 ),
                 fluidRow(
@@ -79,6 +83,7 @@ dashboardPage(
                     column(6,
                         box(title = "Achievement Heat Map", status = "primary", solidHeader = TRUE, 
                                 width = 12, collapsible = TRUE, collapsed = TRUE,
+                            br(),
                             tableOutput("ach_heatmap"),
                             br(),
                             hr(),
@@ -102,11 +107,25 @@ dashboardPage(
                                width = 12, collapsible = TRUE, collapsed = TRUE,
                             tabBox(width = 12,
                                    tabPanel("Overall", tableOutput("final_gap")),
-                                   tabPanel("BHN", tableOutput("gap_bhn")),
-                                   tabPanel("ED", tableOutput("gap_ed")),
-                                   tabPanel("EL", tableOutput("gap_el")),
-                                   tabPanel("SWD", tableOutput("gap_swd"))),
-                            "Here is some content."
+                                   tabPanel("BHN", tableOutput("bhn_gap")),
+                                   tabPanel("ED", tableOutput("ed_gap")),
+                                   tabPanel("EL", tableOutput("ell_gap")),
+                                   tabPanel("SWD", tableOutput("swd_gap"))),
+                            tags$b("For the Subgroup Achievement and TVAAS Goals, districts are assigned 0-4 
+                                   points as per the following rules:"),
+                            br(),
+                            br(),
+                            tableOutput("gap_legend"),
+                            br(),
+                            br(),
+                            tags$b("A subgroup's Achievement Score is the average of its Best Score across 
+                                   content areas. The four subgroup Achievement Scores are averaged to produce
+                                   an Overall Gap Closure Score. For districts who meet the Minimum Performance
+                                   Goal, the Overall Gap Closure Score is then mapped to an achievement determination
+                                   as follows:"),
+                            br(),
+                            br(),
+                            tableOutput("gap_map")
                         )
                     )
                 ),
