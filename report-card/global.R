@@ -39,3 +39,23 @@ color_list <- c("Met" = "blue",
                 "Progressing" = "yellow",
                 "Achieving" = "green",
                 "Exemplary" = "blue")
+
+ach_profile <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE) %>% 
+    filter(system != 0)
+
+outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
+                  "English Language Arts Percent Proficient or Advanced" = "ELA",
+                  "Science Percent Proficient or Advanced" = "Science",
+                  "Algebra I Percent Proficient or Advanced" = "AlgI",
+                  "Algebra II Percent Proficient or Advanced" = "AlgII",
+                  "Biology I Percent Proficient or Advanced" = "BioI",
+                  "Chemistry Percent Proficient or Advanced" = "Chemistry",
+                  "English I Percent Proficient or Advanced" = "EngI",
+                  "English II Percent Proficient or Advanced" = "EngII",
+                  "English III Percent Proficient or Advanced" = "EngIII",
+                  "Graduation Rate" = "Graduation",
+                  "Dropout Rate" = "Dropout",
+                  "Average ACT Composite Score" = "ACT_Composite",
+                  "Chronic Absenteeism" = "Pct_Chronically_Absent",
+                  "Suspension Rate" = "Pct_Suspended",
+                  "Expulsion Rate" = "Pct_Expelled")

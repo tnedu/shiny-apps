@@ -24,8 +24,8 @@ df_chars <- df %>%
 
 df_outcomes <- df %>%
     select(one_of(c("system_name", "Math", "ELA", "Science", "AlgI", "AlgII", "BioI", "Chemistry",
-                    "EngI", "EngII", "EngIII", "Graduation", "Dropout",
-                    "ACT_Composite", "Pct_Chronically_Absent", "Pct_Suspended", "Pct_Expelled")))
+                    "EngI", "EngII", "EngIII", "Graduation", "Dropout", "ACT_Composite",
+                    "Pct_Chronically_Absent", "Pct_Suspended", "Pct_Expelled")))
 
 # Calculate standard deviation of each characteristic variable
 standard_devs <- df_chars %>%

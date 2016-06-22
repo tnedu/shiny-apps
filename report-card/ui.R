@@ -16,6 +16,20 @@ dashboardPage(
             conditionalPanel("input.sidebarmenu == 'district_profile' | input.sidebarmenu == 'district_acct' | input.sidebarmenu == 'district_comp'",
                 selectInput("district", label = "Select a District:", choices = district_list)
             ),
+            conditionalPanel("input.sidebarmenu == 'district_comp'",
+                checkboxGroupInput("district_chars", label = "Select One or More District Characteristics:",
+                    choices = c("Student Enrollment" = "Enrollment", 
+                                "% Black Students" = "Pct_Black",
+                                "% Hispanic Students" = "Pct_Hispanic",
+                                "% Native American Students" = "Pct_Native_American",
+                                "% English Learner Students" = "Pct_EL",
+                                "% Economically Disadvantaged" = "Pct_ED",
+                                "% Students with Disabilities" = "Pct_SWD",
+                                "Per-Pupil Expenditures" = "Per_Pupil_Expenditures"),
+                             selected = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
+                ),
+                selectInput("outcome", label = "Select an outcome to plot:", choices = outcome_list, selected = "Math", width = 300)
+            ),
             menuItem("School", icon = icon("graduation-cap"),
                 menuSubItem(text = 'Accountability', tabName = 'school_acct', icon = icon("bar-chart"))
             )

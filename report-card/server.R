@@ -103,7 +103,7 @@ shinyServer(function(input, output) {
                                                          "Did the district demonstrate growth through TVAAS in at least 25% of eligible content areas?",
                                                          "Did the district either 
                                                          1) decrease its relative percentile rank for its Super Subgroup in terms of % BB in at least 25% of eligible content areas OR 
-                                                         2) demonstrate growth through a Super Subgroup TVAAS level 3 or higher"),
+                                                         2) demonstrate growth through a Super Subgroup TVAAS level 3 or higher?"),
                                                         colspan = c(1, 1, 1, 2))
 
         return(gate_table)
