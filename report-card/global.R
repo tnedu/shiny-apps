@@ -5,6 +5,7 @@ library(ReporteRs)
 library(shinydashboard)
 
 participation <- read.csv("data/participation_master.csv", stringsAsFactors = FALSE)
+
 performance_gate <- read.csv("data/performance_gate_master.csv", stringsAsFactors = FALSE)
 achievement <- read.csv("data/achievement_master.csv", stringsAsFactors = FALSE)
 
@@ -14,6 +15,11 @@ achievement[achievement$subject == "Math" & achievement$grade == "3rd through 5t
 achievement[achievement$subject == "Math" & achievement$grade == "6th through 8th", ]$subject <- "6-8 Math"
 
 gap_closure <- read.csv("data/gap_closure_master.csv", stringsAsFactors = FALSE)
+
+gap_closure[gap_closure$subject == "ELA" & gap_closure$grade == "3rd through 5th", ]$subject <- "3-5 ELA"
+gap_closure[gap_closure$subject == "ELA" & gap_closure$grade == "6th through 8th", ]$subject <- "6-8 ELA"
+gap_closure[gap_closure$subject == "Math" & gap_closure$grade == "3rd through 5th", ]$subject <- "3-5 Math"
+gap_closure[gap_closure$subject == "Math" & gap_closure$grade == "6th through 8th", ]$subject <- "6-8 Math"
 
 determinations <- read.csv("data/final_determinations.csv", stringsAsFactors = FALSE) %>%
     select(one_of(c("system_name", "minimum_performance_goal", "achievement_determination", 

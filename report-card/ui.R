@@ -2,28 +2,38 @@
 # ui.R
 
 dashboardPage(
+
     dashboardHeader(title = "Accountability Data Tool", titleWidth = 300),
 
     dashboardSidebar(width = 300,
         sidebarMenu(id = "sidebarmenu",
             menuItem("District", icon = icon("institution"),
+                menuSubItem(text = "Data Explorer", tabName = "district_explorer", icon = icon("search")),
+                menuSubItem(text = "District Profile", tabName = "district_profile", icon = icon("dashboard")),
                 menuSubItem(text = "Accountability", tabName = "district_acct", icon = icon("bar-chart")),
-                menuSubItem(text = "Comparison", tabName = "district_comp", icon = icon("exchange"))
+                menuSubItem(text = "District Comparison", tabName = "district_comp", icon = icon("exchange"))
             ),
-            conditionalPanel("input.sidebarmenu == 'district_acct' | input.sidebarmenu == 'district_comp'",
-                selectInput("district", label = "Select a District:", choices = district_list)),
+            conditionalPanel("input.sidebarmenu == 'district_profile' | input.sidebarmenu == 'district_acct' | input.sidebarmenu == 'district_comp'",
+                selectInput("district", label = "Select a District:", choices = district_list)
+            ),
             menuItem("School", icon = icon("graduation-cap"),
-                menuSubItem(text = 'Accountability', tabName = 'school_acct', icon = icon("bar-chart")))
+                menuSubItem(text = 'Accountability', tabName = 'school_acct', icon = icon("bar-chart"))
+            )
         )
     ),
 
     dashboardBody(
         tabItems(
+            tabItem(tabName = "district_explorer",
+                    h1("District Data Explorer")
+            ),
+            tabItem(tabName = "district_profile",
+                    h1("District Profile")
+            ),
             tabItem(tabName = "district_acct",
                 fluidRow(
                     column(12,
                         h1(textOutput("header_dist")),
-                        br(),
                         br()
                     )
                 ),
@@ -45,8 +55,7 @@ dashboardPage(
                             hr(),
                             tags$b("Notes:"), br(),
                             "- A district is eligible for the participation test for a subgroup/subject
-                            combination if it has at least 30 valid tests in the current year. 
-                            Subgroup/Subject combinations with fewer than 30 valid tests are denoted with NA.",
+                            combination if it has at least 30 valid tests in the current year.",
                             br(),
                             "- For each eligible subgroup/subject combination, a district must have a
                             participation rate of 95% or greater to pass the participation test.",
@@ -68,14 +77,37 @@ dashboardPage(
                 ),
                 fluidRow(
                     column(6,
-                        box(title = "Achievement Data", status = "primary", solidHeader = TRUE, 
+                        box(title = "Achievement Heat Map", status = "primary", solidHeader = TRUE, 
                                 width = 12, collapsible = TRUE, collapsed = TRUE,
-                            tableOutput("ach_heatmap")
+                            tableOutput("ach_heatmap"),
+                            br(),
+                            hr(),
+                            tags$b("For the Achievement and TVAAS Goals, districts are assigned 0-4 
+                                   points as per the following rules:"),
+                            br(),
+                            br(),
+                            tableOutput("ach_legend"),
+                            br(),
+                            br(),
+                            tags$b("A district's Achievement Score is the average of its Best Score across 
+                                   content areas. For districts who meet the Minimum Performance Goal, the
+                                   Achievement Score is then mapped to an achievement determination as follows:"),
+                            br(),
+                            br(),
+                            tableOutput("ach_map")
                         )
                     ),
                     column(6,
-                        box(title = "Gap Closure Data", status = "primary", solidHeader = TRUE, 
-                               width = 12, collapsible = TRUE, collapsed = TRUE)
+                        box(title = "Gap Closure Heat Map", status = "primary", solidHeader = TRUE, 
+                               width = 12, collapsible = TRUE, collapsed = TRUE,
+                            tabBox(width = 12,
+                                   tabPanel("Overall", tableOutput("final_gap")),
+                                   tabPanel("BHN", tableOutput("gap_bhn")),
+                                   tabPanel("ED", tableOutput("gap_ed")),
+                                   tabPanel("EL", tableOutput("gap_el")),
+                                   tabPanel("SWD", tableOutput("gap_swd"))),
+                            "Here is some content."
+                        )
                     )
                 ),
                 fluidRow(
