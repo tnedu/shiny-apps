@@ -45,12 +45,8 @@ dashboardPage(
                     h1("District Profile")
             ),
             tabItem(tabName = "district_acct",
-                fluidRow(
-                    column(12,
-                        h1(textOutput("header_dist")),
-                        br()
-                    )
-                ),
+                h1(textOutput("header_dist_acct")),
+                br(),
                 fluidRow(
                     column(12,
                         valueBoxOutput("gateBox", width = 12)
@@ -82,8 +78,13 @@ dashboardPage(
                         box(title = "Minimum Performance Data", status = "primary", solidHeader = TRUE, 
                                 width = 12, collapsible = TRUE, collapsed = TRUE,
                             tableOutput("gate_heatmap"),
+                            hr(),
+                            tags$b("Notes:"), br(),
+                            "- A district must meet all three goals to progress to the Achievement and Gap 
+                            Closure Determinations",
                             br(),
-                            tags$b("A district must meet all three goals to progress to the Achievement and Gap Closure Determinations")
+                            "- A district which fails any of the Minimum Performance Goals automatically 
+                            receives a final determination of In Need of Improvement"
                         )
                     )
                 ),
@@ -101,16 +102,16 @@ dashboardPage(
                             tableOutput("ach_heatmap"),
                             br(),
                             hr(),
-                            tags$b("For the Achievement and TVAAS Goals, districts are assigned 0-4 
-                                   points as per the following rules:"),
+                            tags$b("Notes:"), br(),
+                            "- For the Achievement and TVAAS Goals, districts are assigned 0-4 
+                            points as per the following rules:",
                             br(),
                             br(),
                             tableOutput("ach_legend"),
                             br(),
-                            br(),
-                            tags$b("A district's Achievement Score is the average of its Best Score across 
-                                   content areas. For districts who meet the Minimum Performance Goal, the
-                                   Achievement Score is then mapped to an achievement determination as follows:"),
+                            "- A district's Achievement Score is the average of its Best Score across 
+                            content areas. For districts who meet the Minimum Performance Goal, the
+                            Achievement Score is then mapped to an achievement determination as follows:",
                             br(),
                             br(),
                             tableOutput("ach_map")
@@ -125,18 +126,18 @@ dashboardPage(
                                    tabPanel("ED", tableOutput("ed_gap")),
                                    tabPanel("EL", tableOutput("ell_gap")),
                                    tabPanel("SWD", tableOutput("swd_gap"))),
-                            tags$b("For the Subgroup Achievement and TVAAS Goals, districts are assigned 0-4 
-                                   points as per the following rules:"),
+                            tags$b("Notes:"), br(),
+                            "- For the Subgroup Achievement and TVAAS Goals, districts are assigned 0-4 
+                            points as per the following rules:",
                             br(),
                             br(),
                             tableOutput("gap_legend"),
                             br(),
-                            br(),
-                            tags$b("A subgroup's Achievement Score is the average of its Best Score across 
-                                   content areas. The four subgroup Achievement Scores are averaged to produce
-                                   an Overall Gap Closure Score. For districts who meet the Minimum Performance
-                                   Goal, the Overall Gap Closure Score is then mapped to an achievement determination
-                                   as follows:"),
+                            "- A subgroup's Achievement Score is the average of its Best Score across 
+                            content areas. The four subgroup Achievement Scores are averaged to produce
+                            an Overall Gap Closure Score. For districts who meet the Minimum Performance
+                            Goal, the Overall Gap Closure Score is then mapped to an achievement determination
+                            as follows:",
                             br(),
                             br(),
                             tableOutput("gap_map")
@@ -150,7 +151,29 @@ dashboardPage(
                 )
             ),
             tabItem(tabName = "district_comp",
-                h1("District Comparison Tool")
+                h1("District Comparison Tool"),
+                br(),
+                fluidRow(
+                    column(12,
+                        box(width = 11, status = "primary", title = textOutput("header_comp"),
+                               br(),
+                               ggvisOutput("plot_prof"),
+                               br()
+                        )
+                    )
+                ),
+                fluidRow(
+                    column(12,
+                        box(width = 11, status = "warning", title = textOutput("header_comp_profile"),
+                               br(),
+                               tableOutput("table"),
+                               br(),
+                               tags$b("Click on any bar to compare district profile data."),
+                               br(),
+                               "Differences of more than half and a full standard deviation are highlighted in yellow and orange, respectively."
+                        )
+                    )
+                )
             ),
             tabItem(tabName = "school_acct",
                 h1("School Accountability")

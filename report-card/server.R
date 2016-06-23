@@ -3,9 +3,10 @@
 
 shinyServer(function(input, output) {
 
-    output$header_dist <- renderText({paste("District Accountability for", input$district, sep = " ")})
+    ## District Accountability Tab
+    # District determinations
+    output$header_dist_acct <- renderText({paste("District Accountability for", input$district, sep = " ")})
 
-    # District determination valueBoxes
     district_determ <- reactive({
         filter(determinations, system_name == input$district)
     })
@@ -32,10 +33,10 @@ shinyServer(function(input, output) {
 
     # District accountability participation table
     output$table_participation <- renderFormattable({
-        
+
         filter(participation, system_name == input$district) %>%
             select(-c(system, system_name, participation_test_eligible, grade)) %>%
-            tidyr::spread(subgroup, participation_test) %>%
+            spread(subgroup, participation_test) %>%
             rename("Content Area" = subject, "BHN" = `Black/Hispanic/Native American`, 
                    "ED" = `Economically Disadvantaged`, "SWD" = `Students with Disabilities`, 
                    "EL" = `English Language Learners`, "Super" = `Super Subgroup`) %>%
@@ -58,13 +59,13 @@ shinyServer(function(input, output) {
 
     # District accountability minimum performance goal
     output$gate_heatmap <- renderFlexTable({
-        
+
         gate_data <- performance_gate %>%
             filter(system_name == input$district) %>%
             select(one_of(c("subject", "achievement_key", "tvaas_key", "gap_BB_reduction_key", "gap_tvaas_key"))) %>%
             rename("Content Area" = subject, "Achievement Goal" = achievement_key, "TVAAS Goal" = tvaas_key,
                    "Below Basic Reduction" = gap_BB_reduction_key, "Super Subgroup TVAAS" = gap_tvaas_key)
-        
+
         gate_table <- FlexTable(data = gate_data, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
         setFlexTableWidths(gate_table, widths = c(4, 4, 4, 4, 4))
 
@@ -75,10 +76,10 @@ shinyServer(function(input, output) {
 
         gate_table[gate_data$`TVAAS Goal` == "Yes", 3] <- chprop(myCellProps, background.color = "blue")
         gate_table[gate_data$`TVAAS Goal` == "No", 3] <- chprop(myCellProps, background.color = "red")
-        
+
         gate_table[gate_data$`Below Basic Reduction` == "Yes", 4] <- chprop(myCellProps, background.color = "blue")
         gate_table[gate_data$`Below Basic Reduction` == "No", 4] <- chprop(myCellProps, background.color = "red")
-        
+
         gate_table[gate_data$`Super Subgroup TVAAS` == "Yes", 5] <- chprop(myCellProps, background.color = "blue")
         gate_table[gate_data$`Super Subgroup TVAAS` == "No", 5] <- chprop(myCellProps, background.color = "red")
 
@@ -89,8 +90,8 @@ shinyServer(function(input, output) {
                                             colspan = c(1, 1, 1, 2))
         addFooterRow(gate_table, value = c("Eligible Measures",
                                             paste(nrow(filter(performance_gate, system_name == input$district & achievement_key != "."))),
-                                            paste(nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key != "." | gap_tvaas_key != "."))))),
                                             paste(nrow(filter(performance_gate, system_name == input$district & tvaas_key != "."))),
+                                            paste(nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key != "." | gap_tvaas_key != "."))))),
                                             colspan = c(1, 1, 1, 2))
         addFooterRow(gate_table, value = c("Percent of Measures Met",
                                             paste(sprintf("%.1f", 100 * nrow(filter(performance_gate, system_name == input$district & achievement_key == "Yes"))/
@@ -100,11 +101,11 @@ shinyServer(function(input, output) {
                                             paste(sprintf("%.1f", 100 * nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key == "Yes" | gap_tvaas_key == "Yes")))/
                                                nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key != "." | gap_tvaas_key != ".")))), "%")),
                                             colspan = c(1, 1, 1 ,2))
-        addFooterRow(gate_table, value = c("Minimum Performance Goals", 
+        addFooterRow(gate_table, value = c("Minimum Performance Goals",
                                             "Did the district maintain or improve its relative percentile rank in terms of % P/A in at least 25% of eligible content areas?",
                                             "Did the district demonstrate growth through TVAAS in at least 25% of eligible content areas?",
-                                            "Did the district either 
-                                            1) decrease its relative percentile rank for its Super Subgroup in terms of % BB in at least 25% of eligible content areas OR 
+                                            "Did the district either
+                                            1) decrease its relative percentile rank for its Super Subgroup in terms of % BB in at least 25% of eligible content areas OR
                                             2) demonstrate growth through a Super Subgroup TVAAS level 3 or higher?"),
                                             colspan = c(1, 1, 1, 2))
 
@@ -194,10 +195,10 @@ shinyServer(function(input, output) {
 
         final_gap <- gap_closure %>%
             filter(system_name == input$district) %>%
-            tidyr::unite(subject_grade, subject, grade) %>%
+            unite(subject_grade, subject, grade) %>%
             select(one_of(c("subject_grade", "subgroup", "best_score"))) %>%
-            tidyr::spread("subgroup", "best_score") %>%
-            tidyr::separate(subject_grade, c("subject", "grade"), sep = "_") %>%
+            spread("subgroup", "best_score") %>%
+            separate(subject_grade, c("subject", "grade"), sep = "_") %>%
             arrange(grade, desc(subject)) %>%
             select(-grade) %>%
             rename("Content Area" = subject)
@@ -439,6 +440,150 @@ shinyServer(function(input, output) {
 
         return(gap_map_table)
 
+    })
+
+    ## District Comparison Tab
+    # Identify most similar districts based on vector of selected characteristics
+    similarityData <- reactive({
+
+        req(input$district_chars)
+
+        chars <- select(profile_std, one_of(c("system_name", input$district_chars)))
+        df2 <- chars[complete.cases(chars), ]
+
+        similarity <- data.frame(system_name = df2[, 1], similarity_score = NA, stringsAsFactors = FALSE)
+
+        # Compute vector of similarity scores against selected district
+        for (i in 1:nrow(df2)) {
+            similarity[i, 2] <- sqrt(sum((df2[i,2:ncol(df2)] - df2[which(df2$system_name == input$district), 2:ncol(df2)])^2))
+        }
+
+        # Select 8 most similar districts
+        similarity %>%
+            arrange(similarity_score) %>%
+            inner_join(df_outcomes, by = "system_name") %>%
+            slice(1:9)
+
+    })
+
+    # Create tooltip with district name and proficiency %
+    tooltip_comp <- function(x) {
+        if (is.null(x)) return(NULL)
+        row <- ach_profile[ach_profile$system_name == x$system_name, ]
+
+        paste0("<b>", row$system_name, "</b><br>",
+               names(outcome_list)[outcome_list == input$outcome], ": ",
+               row[names(row) == input$outcome])
+    }
+
+    # Extract district number of clicked point for secondary table
+    clicked <- reactiveValues(district = "")
+    click_district <- function(data, ...) {
+        clicked$district <- as.character(data$system_name)
+    }
+
+    # Column chart of proficiency for selected, similar districts
+    plot_prof <- reactive({
+
+        # Label for vertical axis
+        yvar_name <- names(outcome_list[outcome_list == input$outcome])
+
+        # Convert subject input (string) to variable name
+        yvar <- prop("y", as.symbol(input$outcome))
+
+        # Scale vertical axis to [0, 100] if outcome is a % P/A, otherwise, scale to min/max of variable
+        if (grepl("Percent Proficient or Advanced", yvar_name)) {
+            y_scale <- c(0, 100)
+        } else {
+            y_scale <- c(floor(min(df_outcomes[names(df_outcomes) == input$outcome])), 
+                         ceiling(max(df_outcomes[names(df_outcomes) == input$outcome])))
+        }
+
+        similarityData() %>%
+            ggvis(~system_name, yvar, key := ~system_name) %>%
+            layer_bars(fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
+            add_axis("x", title = "District", grid = FALSE) %>%
+            add_axis("y", title = yvar_name, grid = FALSE) %>%
+            add_tooltip(tooltip_comp, on = "hover") %>%
+            scale_ordinal("x", domain = similarityData()$system_name) %>%
+            scale_numeric("y", domain = y_scale) %>%
+            set_options(width = 'auto', height = 600) %>%
+            handle_click(click_district)
+
+    })
+
+    plot_prof %>% bind_shiny("plot_prof")
+
+    output$header_comp <- renderText({paste(names(outcome_list[outcome_list == input$outcome]), "for districts most similar to", input$district, sep = " ")})
+
+    # Table with profile data for selected, clicked districts
+    output$table <- renderFlexTable({
+        
+        df_comparison <- df_profile %>%
+            select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_ED", "Pct_SWD", "Pct_EL", "Per_Pupil_Expenditures"))) %>%
+            rename("Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
+                   "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
+                   "Percent Economically Disadvantaged" = Pct_ED, "Percent Students with Disabilities" = Pct_SWD,
+                   "Percent English Learners" = Pct_EL) %>%
+            filter(system_name == input$district | system_name == clicked$district) %>%
+            gather("Characteristic", "value", 2:9) %>%
+            spread("system_name", "value")
+        
+        # Create new column with differences between selected, clicked districts
+        if (clicked$district != "" & clicked$district != input$district) {
+            df_comparison$Difference <- df_comparison[, names(df_comparison) == input$district] - df_comparison[, names(df_comparison) == clicked$district]
+        }
+        
+        order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", "Percent Students with Disabilities", 
+                   "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
+        df_comparison <- df_comparison[match(order, df_comparison$Characteristic), ]
+        rownames(df_comparison) <- NULL
+        
+        comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
+        
+        if (ncol(df_comparison) == 4) {
+            setFlexTableWidths(comp_table, widths = c(5, 3, 3, 3))
+            
+            myCellProps <- cellProperties()
+            
+            comp_table[df_comparison$Characteristic == "Enrollment" & abs(df_comparison$Difference) >= standard_devs$Enrollment, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Enrollment" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Enrollment & abs(df_comparison$Difference) < standard_devs$Enrollment, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Per-Pupil Expenditures" & abs(df_comparison$Difference) >= standard_devs$Per_Pupil_Expenditures, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Per-Pupil Expenditures" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Per_Pupil_Expenditures & abs(df_comparison$Difference) < standard_devs$Per_Pupil_Expenditures, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Economically Disadvantaged" & abs(df_comparison$Difference) >= standard_devs$Pct_ED, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Economically Disadvantaged" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_ED & abs(df_comparison$Difference) < standard_devs$Pct_ED, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Students with Disabilities" & abs(df_comparison$Difference) >= standard_devs$Pct_SWD, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Students with Disabilities" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_SWD & abs(df_comparison$Difference) < standard_devs$Pct_SWD, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_EL & abs(df_comparison$Difference) < standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Native American" & abs(df_comparison$Difference) >= standard_devs$Pct_Native_American, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Native American" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Native_American & abs(df_comparison$Difference) < standard_devs$Pct_Native_American, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Hispanic & abs(df_comparison$Difference) < standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Black & abs(df_comparison$Difference) < standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "yellow")
+            
+        } else {
+            setFlexTableWidths(comp_table, widths = c(5, 3))
+        }
+        
+        return(comp_table)
+        
+    })
+
+    output$header_comp_profile <- renderText({
+        if (clicked$district == "" | clicked$district == input$district) {
+            paste("District Profile Data for", input$district, sep = " ")
+        } else {
+            paste("District Profile Data for", input$district, "and", clicked$district, sep = " ")
+        }
     })
 
 })

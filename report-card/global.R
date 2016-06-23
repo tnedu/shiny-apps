@@ -1,12 +1,15 @@
+library(tidyr)
 library(dplyr)
 library(ggvis)
 library(formattable)
 library(ReporteRs)
 library(shinydashboard)
 
+# Accountability heat maps
 participation <- read.csv("data/participation_master.csv", stringsAsFactors = FALSE)
 
 performance_gate <- read.csv("data/performance_gate_master.csv", stringsAsFactors = FALSE)
+
 achievement <- read.csv("data/achievement_master.csv", stringsAsFactors = FALSE)
 
 achievement[achievement$subject == "ELA" & achievement$grade == "3rd through 5th", ]$subject <- "3-5 ELA"
@@ -40,8 +43,31 @@ color_list <- c("Met" = "blue",
                 "Achieving" = "green",
                 "Exemplary" = "blue")
 
+# District achievement, profile data for district comparison tool
 ach_profile <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE) %>% 
     filter(system != 0)
+
+ach_profile[is.na(ach_profile$Pct_Chronically_Absent), ]$Pct_Chronically_Absent <- 0
+ach_profile[is.na(ach_profile$ACT_Composite), ]$ACT_Composite <- 0
+
+profile_std <- ach_profile %>%
+    mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
+                                       "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
+    select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
+                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
+
+df_profile <- ach_profile %>% 
+    select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
+                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
+
+df_outcomes <- ach_profile %>%
+    select(one_of(c("system_name", "Math", "ELA", "Science", "AlgI", "AlgII", "BioI", "Chemistry",
+                    "EngI", "EngII", "EngIII", "Graduation", "Dropout", "ACT_Composite",
+                    "Pct_Chronically_Absent", "Pct_Suspended", "Pct_Expelled")))
+
+# Calculate standard deviation of each characteristic variable
+standard_devs <- df_profile %>%
+    summarise_each_(funs(sd(., na.rm = TRUE)), names(.)[-1])
 
 outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
                   "English Language Arts Percent Proficient or Advanced" = "ELA",
