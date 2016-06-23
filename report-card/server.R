@@ -32,6 +32,7 @@ shinyServer(function(input, output) {
 
     # District accountability participation table
     output$table_participation <- renderFormattable({
+        
         filter(participation, system_name == input$district) %>%
             select(-c(system, system_name, participation_test_eligible, grade)) %>%
             tidyr::spread(subgroup, participation_test) %>%
@@ -52,6 +53,7 @@ shinyServer(function(input, output) {
                 Super = formatter("span", style = x ~ style(color = ifelse(x == 1, "green", "red")), 
                                   x ~ icontext(ifelse(x == 1, "ok", "remove"), ifelse(x == 1, "Met", "Missed")))
             ))
+
     })
 
     # District accountability minimum performance goal
@@ -64,7 +66,7 @@ shinyServer(function(input, output) {
                    "Below Basic Reduction" = gap_BB_reduction_key, "Super Subgroup TVAAS" = gap_tvaas_key)
         
         gate_table <- FlexTable(data = gate_data, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        gate_table <- setFlexTableWidths(gate_table, widths = c(4, 4, 4, 4, 4))
+        setFlexTableWidths(gate_table, widths = c(4, 4, 4, 4, 4))
 
         myCellProps <- cellProperties()
 
@@ -80,31 +82,31 @@ shinyServer(function(input, output) {
         gate_table[gate_data$`Super Subgroup TVAAS` == "Yes", 5] <- chprop(myCellProps, background.color = "blue")
         gate_table[gate_data$`Super Subgroup TVAAS` == "No", 5] <- chprop(myCellProps, background.color = "red")
 
-        gate_table <- addFooterRow(gate_table, value = c("Measures Met",
-                                                         paste(nrow(filter(performance_gate, system_name == input$district & achievement_key == "Yes"))),
-                                                         paste(nrow(filter(performance_gate, system_name == input$district & tvaas_key == "Yes"))),
-                                                         paste(nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key == "Yes" | gap_tvaas_key == "Yes"))))),
-                                                         colspan = c(1, 1, 1, 2))
-        gate_table <- addFooterRow(gate_table, value = c("Eligible Measures",
-                                                        paste(nrow(filter(performance_gate, system_name == input$district & achievement_key != "."))),
-                                                        paste(nrow(filter(performance_gate, system_name == input$district & tvaas_key != "."))),
-                                                        paste(nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key != "." | gap_tvaas_key != "."))))),
-                                                        colspan = c(1, 1, 1, 2))
-        gate_table <- addFooterRow(gate_table, value = c("Percent of Measures Met",
-                                                         paste(sprintf("%.1f", 100 * nrow(filter(performance_gate, system_name == input$district & achievement_key == "Yes"))/
-                                                                   nrow(filter(performance_gate, system_name == input$district & achievement_key != "."))), "%"),
-                                                         paste(sprintf("%.1f", 100 * nrow(filter(performance_gate, system_name == input$district & tvaas_key == "Yes"))/
-                                                                   nrow(filter(performance_gate, system_name == input$district & tvaas_key != "."))), "%"),
-                                                         paste(sprintf("%.1f", 100 * nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key == "Yes" | gap_tvaas_key == "Yes")))/
-                                                                   nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key != "." | gap_tvaas_key != ".")))), "%")),
-                                                         colspan = c(1, 1, 1 ,2))
-        gate_table <- addFooterRow(gate_table, value = c("Minimum Performance Goals", 
-                                                         "Did the district maintain or improve its relative percentile rank in terms of % P/A in at least 25% of eligible content areas?",
-                                                         "Did the district demonstrate growth through TVAAS in at least 25% of eligible content areas?",
-                                                         "Did the district either 
-                                                         1) decrease its relative percentile rank for its Super Subgroup in terms of % BB in at least 25% of eligible content areas OR 
-                                                         2) demonstrate growth through a Super Subgroup TVAAS level 3 or higher?"),
-                                                        colspan = c(1, 1, 1, 2))
+        addFooterRow(gate_table, value = c("Measures Met",
+                                            paste(nrow(filter(performance_gate, system_name == input$district & achievement_key == "Yes"))),
+                                            paste(nrow(filter(performance_gate, system_name == input$district & tvaas_key == "Yes"))),
+                                            paste(nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key == "Yes" | gap_tvaas_key == "Yes"))))),
+                                            colspan = c(1, 1, 1, 2))
+        addFooterRow(gate_table, value = c("Eligible Measures",
+                                            paste(nrow(filter(performance_gate, system_name == input$district & achievement_key != "."))),
+                                            paste(nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key != "." | gap_tvaas_key != "."))))),
+                                            paste(nrow(filter(performance_gate, system_name == input$district & tvaas_key != "."))),
+                                            colspan = c(1, 1, 1, 2))
+        addFooterRow(gate_table, value = c("Percent of Measures Met",
+                                            paste(sprintf("%.1f", 100 * nrow(filter(performance_gate, system_name == input$district & achievement_key == "Yes"))/
+                                               nrow(filter(performance_gate, system_name == input$district & achievement_key != "."))), "%"),
+                                            paste(sprintf("%.1f", 100 * nrow(filter(performance_gate, system_name == input$district & tvaas_key == "Yes"))/
+                                               nrow(filter(performance_gate, system_name == input$district & tvaas_key != "."))), "%"),
+                                            paste(sprintf("%.1f", 100 * nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key == "Yes" | gap_tvaas_key == "Yes")))/
+                                               nrow(filter(performance_gate, system_name == input$district & (gap_BB_reduction_key != "." | gap_tvaas_key != ".")))), "%")),
+                                            colspan = c(1, 1, 1 ,2))
+        addFooterRow(gate_table, value = c("Minimum Performance Goals", 
+                                            "Did the district maintain or improve its relative percentile rank in terms of % P/A in at least 25% of eligible content areas?",
+                                            "Did the district demonstrate growth through TVAAS in at least 25% of eligible content areas?",
+                                            "Did the district either 
+                                            1) decrease its relative percentile rank for its Super Subgroup in terms of % BB in at least 25% of eligible content areas OR 
+                                            2) demonstrate growth through a Super Subgroup TVAAS level 3 or higher?"),
+                                            colspan = c(1, 1, 1, 2))
 
         return(gate_table)
 
@@ -120,7 +122,7 @@ shinyServer(function(input, output) {
             rename("Content Area" = subject, "Achievement Goal" = achievement_goal, "TVAAS Goal" = tvaas_goal, "Best Score" = best_score)
 
         ach_table <- FlexTable(data = ach_data, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        ach_table <- setFlexTableWidths(ach_table, widths = c(4, 4, 4, 4))
+        setFlexTableWidths(ach_table, widths = c(4, 4, 4, 4))
 
         myCellProps <- cellProperties()
 
@@ -142,8 +144,8 @@ shinyServer(function(input, output) {
         ach_table[ach_data$`Best Score` == 3, 4] <- chprop(myCellProps, background.color = "green")
         ach_table[ach_data$`Best Score` == 4, 4] <- chprop(myCellProps, background.color = "blue")
 
-        ach_table <- addFooterRow(ach_table, value = c("Achievement Score", paste(sprintf("%.2f", mean(ach_data$`Best Score`, na.rm = TRUE)))),
-                                colspan = c(1, 3))
+        addFooterRow(ach_table, value = c("Achievement Score", paste(sprintf("%.2f", mean(ach_data$`Best Score`, na.rm = TRUE)))),
+                   colspan = c(1, 3))
 
         return(ach_table)
 
@@ -164,7 +166,7 @@ shinyServer(function(input, output) {
         names(ach_legend) <- c("Points", "Relative Achievement Goal", "TVAAS Goal", "Definition")
 
         ach_legend_table <- FlexTable(ach_legend, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        ach_legend_table <- setFlexTableWidths(ach_legend_table, widths = c(4, 4, 4, 4))
+        setFlexTableWidths(ach_legend_table, widths = c(4, 4, 4, 4))
 
         return(ach_legend_table)
 
@@ -180,7 +182,7 @@ shinyServer(function(input, output) {
         names(ach_map) <- c("Determination", "Progressing", "Achieving", "Exemplary")
 
         ach_map_table <- FlexTable(ach_map, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        ach_map_table <- setFlexTableWidths(ach_map_table, widths = c(4, 4, 4, 4))
+        setFlexTableWidths(ach_map_table, widths = c(4, 4, 4, 4))
         ach_map_table[, 1] <- textProperties(font.weight = "bold")
 
         return(ach_map_table)
@@ -201,7 +203,7 @@ shinyServer(function(input, output) {
             rename("Content Area" = subject)
 
         final_gap_table <- FlexTable(final_gap, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        final_gap_table <- setFlexTableWidths(final_gap_table, widths = c(3, 3, 3, 3, 3))
+        setFlexTableWidths(final_gap_table, widths = c(3, 3, 3, 3, 3))
 
         myCellProps <- cellProperties()
 
@@ -229,35 +231,35 @@ shinyServer(function(input, output) {
         final_gap_table[final_gap$`Students with Disabilities` == 3, 5] <- chprop(myCellProps, background.color = "green")
         final_gap_table[final_gap$`Students with Disabilities` == 4, 5] <- chprop(myCellProps, background.color = "blue")
 
-        final_gap_table <- addFooterRow(final_gap_table, 
-                                        value = c("Subgroup Average", 
-                                                  paste(sprintf("%.2f", mean(final_gap$`Black/Hispanic/Native American`, na.rm = TRUE))),
-                                                  paste(sprintf("%.2f", mean(final_gap$`Economically Disadvantaged`, na.rm = TRUE))),
-                                                  paste(sprintf("%.2f", mean(final_gap$`English Language Learners`, na.rm = TRUE))),
-                                                  paste(sprintf("%.2f", mean(final_gap$`Students with Disabilities`, na.rm = TRUE)))), 
-                                        colspan = c(1, 1, 1, 1, 1))
-        final_gap_table <- addFooterRow(final_gap_table, 
-                                        value = c("Overall Gap Closure Score", 
-                                                 paste(sprintf("%.2f", mean(c(mean(final_gap$`Black/Hispanic/Native American`, na.rm = TRUE),
-                                                                              mean(final_gap$`Economically Disadvantaged`, na.rm = TRUE), 
-                                                                              mean(final_gap$`English Language Learners`, na.rm = TRUE), 
-                                                                              mean(final_gap$`Students with Disabilities`, na.rm = TRUE)), na.rm = TRUE)))), colspan = c(1, 4))
+        addFooterRow(final_gap_table, 
+                     value = c("Subgroup Average", 
+                               paste(sprintf("%.2f", mean(final_gap$`Black/Hispanic/Native American`, na.rm = TRUE))),
+                               paste(sprintf("%.2f", mean(final_gap$`Economically Disadvantaged`, na.rm = TRUE))),
+                               paste(sprintf("%.2f", mean(final_gap$`English Language Learners`, na.rm = TRUE))),
+                               paste(sprintf("%.2f", mean(final_gap$`Students with Disabilities`, na.rm = TRUE)))), 
+                     colspan = c(1, 1, 1, 1, 1))
+        addFooterRow(final_gap_table, 
+                     value = c("Overall Gap Closure Score", 
+                              paste(sprintf("%.2f", mean(c(mean(final_gap$`Black/Hispanic/Native American`, na.rm = TRUE),
+                                                           mean(final_gap$`Economically Disadvantaged`, na.rm = TRUE), 
+                                                           mean(final_gap$`English Language Learners`, na.rm = TRUE), 
+                                                           mean(final_gap$`Students with Disabilities`, na.rm = TRUE)), na.rm = TRUE)))), colspan = c(1, 4))
 
         return(final_gap_table)
 
     })
 
     output$bhn_gap <- renderFlexTable({
-        
+
         bhn_gap <- gap_closure %>%
             filter(system_name == input$district & subgroup == "Black/Hispanic/Native American") %>%
             arrange(grade, desc(subject)) %>%
             select(one_of(c("subject", "subgroup_achievement_goal", "subgroup_tvaas_goal", "best_score"))) %>%
             rename("Content Area" = subject, "Subgroup Achievement Goal" = subgroup_achievement_goal, 
                    "Subgroup TVAAS Goal" = subgroup_tvaas_goal, "Best Score" = best_score)
-        
+
         bhn_table <- FlexTable(data = bhn_gap, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        bhn_table <- setFlexTableWidths(bhn_table, widths = c(4, 4, 4, 4))
+        setFlexTableWidths(bhn_table, widths = c(4, 4, 4, 4))
 
         myCellProps <- cellProperties()
 
@@ -272,15 +274,15 @@ shinyServer(function(input, output) {
         bhn_table[bhn_gap$`Subgroup TVAAS Goal` == 2, 3] <- chprop(myCellProps, background.color = "yellow")
         bhn_table[bhn_gap$`Subgroup TVAAS Goal` == 3, 3] <- chprop(myCellProps, background.color = "green")
         bhn_table[bhn_gap$`Subgroup TVAAS Goal` == 4, 3] <- chprop(myCellProps, background.color = "blue")
-        
+
         bhn_table[bhn_gap$`Best Score` == 0, 4] <- chprop(myCellProps, background.color = "red")
         bhn_table[bhn_gap$`Best Score` == 1, 4] <- chprop(myCellProps, background.color = "orange")
         bhn_table[bhn_gap$`Best Score` == 2, 4] <- chprop(myCellProps, background.color = "yellow")
         bhn_table[bhn_gap$`Best Score` == 3, 4] <- chprop(myCellProps, background.color = "green")
         bhn_table[bhn_gap$`Best Score` == 4, 4] <- chprop(myCellProps, background.color = "blue")
 
-        bhn_table <- addFooterRow(bhn_table, value = c("BHN Achievement Score", paste(sprintf("%.2f", mean(bhn_gap$`Best Score`, na.rm = TRUE)))),
-                                  colspan = c(1, 3))
+        addFooterRow(bhn_table, value = c("BHN Achievement Score", paste(sprintf("%.2f", mean(bhn_gap$`Best Score`, na.rm = TRUE)))),
+                     colspan = c(1, 3))
 
         return(bhn_table)
 
@@ -296,7 +298,7 @@ shinyServer(function(input, output) {
                    "Subgroup TVAAS Goal" = subgroup_tvaas_goal, "Best Score" = best_score)
 
         ed_table <- FlexTable(data = ed_gap, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        ed_table <- setFlexTableWidths(ed_table, widths = c(4, 4, 4, 4))
+        setFlexTableWidths(ed_table, widths = c(4, 4, 4, 4))
 
         myCellProps <- cellProperties()
 
@@ -318,8 +320,8 @@ shinyServer(function(input, output) {
         ed_table[ed_gap$`Best Score` == 3, 4] <- chprop(myCellProps, background.color = "green")
         ed_table[ed_gap$`Best Score` == 4, 4] <- chprop(myCellProps, background.color = "blue")
 
-        ed_table <- addFooterRow(ed_table, value = c("ED Achievement Score", paste(sprintf("%.2f", mean(ed_gap$`Best Score`, na.rm = TRUE)))),
-                                  colspan = c(1, 3))
+        addFooterRow(ed_table, value = c("ED Achievement Score", paste(sprintf("%.2f", mean(ed_gap$`Best Score`, na.rm = TRUE)))),
+                      colspan = c(1, 3))
 
         return(ed_table)
 
@@ -335,7 +337,7 @@ shinyServer(function(input, output) {
                    "Subgroup TVAAS Goal" = subgroup_tvaas_goal, "Best Score" = best_score)
 
         swd_table <- FlexTable(data = swd_gap, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        swd_table <- setFlexTableWidths(swd_table, widths = c(4, 4, 4, 4))
+        setFlexTableWidths(swd_table, widths = c(4, 4, 4, 4))
 
         myCellProps <- cellProperties()
 
@@ -357,46 +359,46 @@ shinyServer(function(input, output) {
         swd_table[swd_gap$`Best Score` == 3, 4] <- chprop(myCellProps, background.color = "green")
         swd_table[swd_gap$`Best Score` == 4, 4] <- chprop(myCellProps, background.color = "blue")
 
-        swd_table <- addFooterRow(swd_table, value = c("SWD Achievement Score", paste(sprintf("%.2f", mean(swd_gap$`Best Score`, na.rm = TRUE)))),
-                                  colspan = c(1, 3))
+        addFooterRow(swd_table, value = c("SWD Achievement Score", paste(sprintf("%.2f", mean(swd_gap$`Best Score`, na.rm = TRUE)))),
+                     colspan = c(1, 3))
 
         return(swd_table)
     })
 
     output$ell_gap <- renderFlexTable({
-        
+
         ell_gap <- gap_closure %>%
             filter(system_name == input$district & subgroup == "English Language Learners") %>%
             arrange(grade, desc(subject)) %>%
             select(one_of(c("subject", "subgroup_achievement_goal", "subgroup_tvaas_goal", "best_score"))) %>%
             rename("Content Area" = subject, "Subgroup Achievement Goal" = subgroup_achievement_goal, 
                    "Subgroup TVAAS Goal" = subgroup_tvaas_goal, "Best Score" = best_score)
-        
+
         ell_table <- FlexTable(data = ell_gap, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        ell_table <- setFlexTableWidths(ell_table, widths = c(4, 4, 4, 4))
-        
+        setFlexTableWidths(ell_table, widths = c(4, 4, 4, 4))
+
         myCellProps <- cellProperties()
-        
+
         ell_table[ell_gap$`Subgroup Achievement Goal` == 0, 2] <- chprop(myCellProps, background.color = "red")
         ell_table[ell_gap$`Subgroup Achievement Goal` == 1, 2] <- chprop(myCellProps, background.color = "orange")
         ell_table[ell_gap$`Subgroup Achievement Goal` == 2, 2] <- chprop(myCellProps, background.color = "yellow")
         ell_table[ell_gap$`Subgroup Achievement Goal` == 3, 2] <- chprop(myCellProps, background.color = "green")
         ell_table[ell_gap$`Subgroup Achievement Goal` == 4, 2] <- chprop(myCellProps, background.color = "blue")
-        
+
         ell_table[ell_gap$`Subgroup TVAAS Goal` == 0, 3] <- chprop(myCellProps, background.color = "red")
         ell_table[ell_gap$`Subgroup TVAAS Goal` == 1, 3] <- chprop(myCellProps, background.color = "orange")
         ell_table[ell_gap$`Subgroup TVAAS Goal` == 2, 3] <- chprop(myCellProps, background.color = "yellow")
         ell_table[ell_gap$`Subgroup TVAAS Goal` == 3, 3] <- chprop(myCellProps, background.color = "green")
         ell_table[ell_gap$`Subgroup TVAAS Goal` == 4, 3] <- chprop(myCellProps, background.color = "blue")
-        
+
         ell_table[ell_gap$`Best Score` == 0, 4] <- chprop(myCellProps, background.color = "red")
         ell_table[ell_gap$`Best Score` == 1, 4] <- chprop(myCellProps, background.color = "orange")
         ell_table[ell_gap$`Best Score` == 2, 4] <- chprop(myCellProps, background.color = "yellow")
         ell_table[ell_gap$`Best Score` == 3, 4] <- chprop(myCellProps, background.color = "green")
         ell_table[ell_gap$`Best Score` == 4, 4] <- chprop(myCellProps, background.color = "blue")
-        
-        ell_table <- addFooterRow(ell_table, value = c("ELL Achievement Score", paste(sprintf("%.2f", mean(ell_gap$`Best Score`, na.rm = TRUE)))),
-                                  colspan = c(1, 3))
+
+        addFooterRow(ell_table, value = c("ELL Achievement Score", paste(sprintf("%.2f", mean(ell_gap$`Best Score`, na.rm = TRUE)))),
+                     colspan = c(1, 3))
         
         return(ell_table)
     })
@@ -416,7 +418,7 @@ shinyServer(function(input, output) {
         names(gap_legend) <- c("Points", "Subgroup Relative Achievement Goal", "Subgroup TVAAS Goal", "Definition")
 
         gap_legend_table <- FlexTable(gap_legend, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        gap_legend_table <- setFlexTableWidths(gap_legend_table, widths = c(4, 4, 4, 4))
+        setFlexTableWidths(gap_legend_table, widths = c(4, 4, 4, 4))
 
         return(gap_legend_table)
 
@@ -432,7 +434,7 @@ shinyServer(function(input, output) {
         names(gap_map) <- c("Determination", "Progressing", "Achieving", "Exemplary")
 
         gap_map_table <- FlexTable(gap_map, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        gap_map_table <- setFlexTableWidths(gap_map_table, widths = c(4, 4, 4, 4))
+        setFlexTableWidths(gap_map_table, widths = c(4, 4, 4, 4))
         gap_map_table[, 1] <- textProperties(font.weight = "bold")
 
         return(gap_map_table)
