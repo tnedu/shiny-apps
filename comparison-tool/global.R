@@ -1,6 +1,6 @@
 library(tidyr)
 library(dplyr)
-library(formattable)
+library(ReporteRs)
 library(ggvis)
 library(shiny)
 
@@ -29,10 +29,8 @@ df_outcomes <- df %>%
 
 # Calculate standard deviation of each characteristic variable
 standard_devs <- df_chars %>%
-    summarise_each_(funs(sd(., na.rm = TRUE)), names(.)[-1]) %>%
-    gather("Characteristic", "SD", 1:8) %>%
-    mutate(SD = sprintf("%.2f", SD))
-
+    summarise_each_(funs(sd(., na.rm = TRUE)), names(.)[-1])
+    
 # Outcome vector for select input
 outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
                   "English Language Arts Percent Proficient or Advanced" = "ELA",

@@ -18,6 +18,7 @@ shinyServer(function(input, output) {
             similarity[i, 2] <- sqrt(sum((df2[i,2:ncol(df2)] - df2[which(df2$system_name == input$district), 2:ncol(df2)])^2))
         }
 
+        # Select 8 most similar districts
         similarity %>%
             arrange(similarity_score) %>%
             inner_join(df_outcomes, by = "system_name") %>%
@@ -73,11 +74,10 @@ shinyServer(function(input, output) {
 
     plot_prof %>% bind_shiny("plot_prof")
 
-    output$header <- renderText({paste(names(outcome_list[outcome_list == input$outcome]), 
-                                          "for districts most similar to", input$district, sep = " ")})
+    output$header <- renderText({paste(names(outcome_list[outcome_list == input$outcome]), "for districts most similar to", input$district, sep = " ")})
 
     # Table with profile data for selected, clicked districts
-    comparisonTable <- reactive({
+    output$table <- renderFlexTable({
 
         df_comparison <- df_chars %>%
             select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_ED", "Pct_SWD", "Pct_EL", "Per_Pupil_Expenditures"))) %>%
@@ -94,21 +94,48 @@ shinyServer(function(input, output) {
             df_comparison$Difference <- df_comparison[, names(df_comparison) == input$district] - df_comparison[, names(df_comparison) == clicked$district]
         }
 
-        order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", 
-                   "Percent Students with Disabilities", "Percent English Learners", "Percent Black",
-                   "Percent Hispanic", "Percent Native American")
+        order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", "Percent Students with Disabilities", 
+                   "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
         df_comparison <- df_comparison[match(order, df_comparison$Characteristic), ]
         rownames(df_comparison) <- NULL
 
-        return(df_comparison)
+        comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
 
-    })
+        if (ncol(df_comparison) == 4) {
+            setFlexTableWidths(comp_table, widths = c(5, 3, 3, 3))
 
-    output$table <- renderFormattable({
-        formattable(comparisonTable(), list(
-            Difference = formatter("span", style = x ~ style(color = ifelse(x > 0, "green", "red")),
-                                   x ~ sprintf("%.1f", x))
-        ))
+            myCellProps <- cellProperties()
+            
+            comp_table[df_comparison$Characteristic == "Enrollment" & abs(df_comparison$Difference) >= standard_devs$Enrollment, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Enrollment" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Enrollment & abs(df_comparison$Difference) < standard_devs$Enrollment, 4] = chprop(myCellProps, background.color = "yellow")
+
+            comp_table[df_comparison$Characteristic == "Per-Pupil Expenditures" & abs(df_comparison$Difference) >= standard_devs$Per_Pupil_Expenditures, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Per-Pupil Expenditures" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Per_Pupil_Expenditures & abs(df_comparison$Difference) < standard_devs$Per_Pupil_Expenditures, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Economically Disadvantaged" & abs(df_comparison$Difference) >= standard_devs$Pct_ED, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Economically Disadvantaged" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_ED & abs(df_comparison$Difference) < standard_devs$Pct_ED, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Students with Disabilities" & abs(df_comparison$Difference) >= standard_devs$Pct_SWD, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Students with Disabilities" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_SWD & abs(df_comparison$Difference) < standard_devs$Pct_SWD, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_EL & abs(df_comparison$Difference) < standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Native American" & abs(df_comparison$Difference) >= standard_devs$Pct_Native_American, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Native American" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Native_American & abs(df_comparison$Difference) < standard_devs$Pct_Native_American, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Hispanic & abs(df_comparison$Difference) < standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "yellow")
+            
+            comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "orange")
+            comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Black & abs(df_comparison$Difference) < standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "yellow")
+            
+        } else {
+            setFlexTableWidths(comp_table, widths = c(5, 3))
+        }
+
+        return(comp_table)
+
     })
 
     output$header2 <- renderText({
@@ -119,5 +146,4 @@ shinyServer(function(input, output) {
         }
     })
 
-    }
-)
+})

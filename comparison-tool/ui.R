@@ -46,7 +46,11 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                 column(7, offset = 4,
                     h4(textOutput("header2")),
                     br(),
-                    formattableOutput("table")
+                    tableOutput("table"),
+                    br(),
+                    tags$b("Click on any bar to compare district profile data."),
+                    br(),
+                    "Differences of more than half and a full a standard deviation are highlighted in yellow and orange, respectively."
                 )
             ),
             fluidRow(
