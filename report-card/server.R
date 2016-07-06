@@ -1,7 +1,79 @@
 ## Report Card
 # server.R
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
+
+    ## District Data Explorer
+    df_highlight <- reactive({
+
+        ach_profile$state <- as.numeric(ach_profile$system_name == "State of Tennessee")
+        ach_profile$opac <- 0.3
+        ach_profile[ach_profile$system_name == "State of Tennessee", ]$opac <- 1
+
+        if (input$highlight_dist != "") {
+            ach_profile[ach_profile$system_name == input$highlight_dist, ]$state <- 2
+            ach_profile[ach_profile$system_name == input$highlight_dist, ]$opac <- 1
+        }
+
+        # Filter for missing data based on input
+        ach_profile[!is.na(ach_profile[names(ach_profile) == input$exp_out]), ]
+
+    })
+
+    # Create tooltip with district name, selected x and y variables
+    tooltip_scatter <- function(x) {
+        if (is.null(x)) return(NULL)
+        row <- ach_profile[ach_profile$system_name == x$system_name, ]
+        
+        paste0("<b>", row$system_name, "</b><br>",
+               names(district_char)[district_char == input$exp_char], ": ", 
+               row[names(row) == input$exp_char], "<br>",
+               names(outcome_list)[outcome_list == input$exp_out], ": ",
+               row[names(row) == input$exp_out])
+    }
+
+    # Extract district of clicked point for secondary graphs; Update highlighted district on point click
+    click_district <- function(data, ...) {
+        updateSelectInput(session, "highlight_dist", selected = as.character(data$system_name))
+    }
+
+    # Main plot - Scatterplot of district characteristic X outcome
+    exp_plot <- reactive({
+
+        # Axis Labels
+        xvar_name <- names(district_char)[district_char == input$exp_char]
+        yvar_name <- names(outcome_list)[outcome_list == input$exp_out]
+
+        # Convert input (string) to variable name
+        xvar <- prop("x", as.symbol(input$exp_char))
+        yvar <- prop("y", as.symbol(input$exp_out))
+
+        # Scale vertical axis to [0, 100] if outcome is a %P/A, otherwise, scale to min/max of variable
+        if (grepl("Percent Proficient or Advanced", yvar_name)) {
+            y_scale <- c(0, 100)
+        } else {
+            y_scale <- c(min(df_highlight()[names(df_highlight()) == input$exp_out]), 
+                         ceiling(max(df_highlight()[names(df_highlight()) == input$exp_out])))
+        }
+        
+        df_highlight() %>%
+            ggvis(xvar, yvar, key := ~system_name) %>%
+            layer_points(fill = ~factor(state),
+                         size := 125, size.hover := 300,
+                         opacity = ~factor(opac), opacity.hover := 0.8) %>%
+            add_axis("x", title = xvar_name, grid = FALSE) %>%
+            add_axis("y", title = yvar_name, grid = FALSE) %>%
+            scale_numeric("y", domain = y_scale) %>%
+            add_tooltip(tooltip_scatter, on = "hover") %>%
+            scale_nominal("opacity", range = c(0.3, 1)) %>%
+            scale_nominal("fill", range = c("blue", "red", "orange")) %>%
+            hide_legend("fill") %>%
+            set_options(width = 'auto', height = 725) %>%
+            handle_click(click_district)
+
+    })
+
+    exp_plot %>% bind_shiny("exp_plot")
 
     ## District Accountability Tab
     # District determinations
@@ -113,7 +185,7 @@ shinyServer(function(input, output) {
 
     })
 
-    # District accountability achievement heatmap
+    # District accountability achievement heat map
     output$ach_heatmap <- renderFlexTable({
 
         ach_data <- achievement %>%
@@ -190,7 +262,7 @@ shinyServer(function(input, output) {
 
     })
 
-    # District accountability gap heatmaps
+    # District accountability gap heat maps
     output$final_gap <- renderFlexTable({
 
         final_gap <- gap_closure %>%
@@ -406,8 +478,8 @@ shinyServer(function(input, output) {
 
     output$gap_legend <- renderFlexTable({
         
-        gap_legend <- data.frame(0:4, c("Rank increased by more than 10 points compraed to the previous year",
-                                        "Rank increased by more than 2 points and fewer than 10 points compraed to the previous year",
+        gap_legend <- data.frame(0:4, c("Rank increased by more than 10 points compared to the previous year",
+                                        "Rank increased by more than 2 points and fewer than 10 points compared to the previous year",
                                         "Rank stayed the same or increased by no more than 2 points compared to the previous year",
                                         "Rank decreased by fewer than 10 points compared to the previous year OR district has percentile rank of 95% or higher in both the current and previous year",
                                         "Rank decreased by 10 or more points compared to the previous year"),
@@ -443,7 +515,7 @@ shinyServer(function(input, output) {
     })
 
     ## District Comparison Tab
-    # Identify most similar districts based on vector of selected characteristics
+    # Similar districts based on vector of selected characteristics
     similarityData <- reactive({
 
         req(input$district_chars)
@@ -466,7 +538,7 @@ shinyServer(function(input, output) {
 
     })
 
-    # Create tooltip with district name and proficiency %
+    # Tooltip with district name and proficiency %
     tooltip_comp <- function(x) {
         if (is.null(x)) return(NULL)
         row <- ach_profile[ach_profile$system_name == x$system_name, ]
@@ -478,6 +550,7 @@ shinyServer(function(input, output) {
 
     # Extract district number of clicked point for secondary table
     clicked <- reactiveValues(district = "")
+
     click_district <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
     }

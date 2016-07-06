@@ -13,6 +13,11 @@ dashboardPage(
                 menuSubItem(text = "Accountability", tabName = "district_acct", icon = icon("bar-chart")),
                 menuSubItem(text = "District Comparison", tabName = "district_comp", icon = icon("exchange"))
             ),
+            conditionalPanel("input.sidebarmenu == 'district_explorer'",
+                selectInput("exp_char", label = "Select a District Characteristic:", choices = district_char),
+                selectInput("exp_out", label = "Select a District Outcome:", choices = outcome_list),
+                selectInput("highlight_dist", label = "Optional: Highlight a District", choices = c(" " = "State of Tennessee", district_list))
+            ),
             conditionalPanel("input.sidebarmenu == 'district_profile' | input.sidebarmenu == 'district_acct' | input.sidebarmenu == 'district_comp'",
                 selectInput("district", label = "Select a District:", choices = district_list)
             ),
@@ -39,10 +44,18 @@ dashboardPage(
     dashboardBody(
         tabItems(
             tabItem(tabName = "district_explorer",
-                    h1("District Data Explorer")
+                h1("District Data Explorer"),
+                br(),
+                fluidRow(
+                    column(12,
+                        box(width = 11, status = "primary",
+                            ggvisOutput("exp_plot")
+                        )
+                    )
+                )
             ),
             tabItem(tabName = "district_profile",
-                    h1("District Profile")
+                h1("District Profile")
             ),
             tabItem(tabName = "district_acct",
                 h1(textOutput("header_dist_acct")),

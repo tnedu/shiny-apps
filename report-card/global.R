@@ -5,6 +5,20 @@ library(formattable)
 library(ReporteRs)
 library(shinydashboard)
 
+# District characteristics for data explorer
+district_char <- c("Student Enrollment" = "Enrollment", 
+                   "Percent Black Students" = "Pct_Black",
+                   "Percent Hispanic Students" = "Pct_Hispanic",
+                   "Percent Native American Students" = "Pct_Native_American",
+                   "Percent English Learner Students" = "Pct_EL",
+                   "Percent Economically Disadvantaged" = "Pct_ED",
+                   "Percent Students with Disabilities" = "Pct_SWD",
+                   "Per-Pupil Expenditures ($)" = "Per_Pupil_Expenditures",
+                   "Percent Black/Hispanic/Native American Students" = "Pct_BHN",
+                   "Percent Chronically Absent" = "Pct_Chronically_Absent", 
+                   "Percent Suspended" = "Pct_Suspended",
+                   "Percent Expelled" = "Pct_Expelled")
+
 # Accountability heat maps
 participation <- read.csv("data/participation_master.csv", stringsAsFactors = FALSE)
 
@@ -44,23 +58,25 @@ color_list <- c("Met" = "blue",
                 "Exemplary" = "blue")
 
 # District achievement, profile data for district comparison tool
-ach_profile <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE) %>% 
-    filter(system != 0)
+ach_profile <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE)
 
 ach_profile[is.na(ach_profile$Pct_Chronically_Absent), ]$Pct_Chronically_Absent <- 0
 ach_profile[is.na(ach_profile$ACT_Composite), ]$ACT_Composite <- 0
 
 profile_std <- ach_profile %>%
+    filter(system != 0) %>%
     mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
                                        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
     select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
                     "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
 
 df_profile <- ach_profile %>% 
+    filter(system != 0) %>%
     select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
                     "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
 
 df_outcomes <- ach_profile %>%
+    filter(system != 0) %>%
     select(one_of(c("system_name", "Math", "ELA", "Science", "AlgI", "AlgII", "BioI", "Chemistry",
                     "EngI", "EngII", "EngIII", "Graduation", "Dropout", "ACT_Composite",
                     "Pct_Chronically_Absent", "Pct_Suspended", "Pct_Expelled")))
