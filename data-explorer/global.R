@@ -4,8 +4,6 @@ library(ggvis)
 library(shinyURL)
 library(shiny)
 
-options(warn = 0)
-
 df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE)
 
 # District characteristics for x variable
@@ -40,11 +38,4 @@ district_out <- c("Math Percent Proficient or Advanced" = "Math",
                   "Percent Suspended" = "Pct_Suspended",
                   "Percent Expelled" = "Pct_Expelled")
 
-district_list <- df[2:nrow(df), ]$system_name
-district_list <- c(" " = "State of Tennessee", district_list)
-
-# Variables to assign State different color, opacity
-df$state <- as.numeric(df$system_name == "State of Tennessee")
-
-df$opac <- 0.3
-df[df$system_name == "State of Tennessee", ]$opac <- 1
+district_list <- c(" " = "State of Tennessee", df[2:nrow(df), ]$system_name)

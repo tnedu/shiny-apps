@@ -5,7 +5,13 @@ shinyServer(function(input, output, session) {
 
     # Adjust color, opacity of highlighted district
     df_highlight <- reactive({
-
+    
+        # Variables to assign State different color, opacity
+        df$state <- as.numeric(df$system_name == "State of Tennessee")
+        
+        df$opac <- 0.3
+        df[df$system_name == "State of Tennessee", ]$opac <- 1
+        
         if (input$highlight != "") {
             df[df$system_name == input$highlight, ]$state <- 2
             df[df$system_name == input$highlight, ]$opac <- 1
@@ -119,7 +125,7 @@ shinyServer(function(input, output, session) {
 
         district_data <- df_highlight() %>%
                             filter(system_name == input$highlight) %>%
-                            select(one_of(c("system_name", "AlgI", "AlgII", "BioI", "Chemistry", 
+                            select(one_of(c("system_name", "AlgI", "AlgII", "BioI", "Chemistry",
                                 "ELA", "EngI", "EngII", "EngIII", "Math", "Science"))) %>%
                             gather("subject", "Pct_Prof_Adv", 2:11)
 
@@ -142,6 +148,6 @@ shinyServer(function(input, output, session) {
 
     # ShinyURL function to save link
     shinyURL.server()
-    
+
     }
 )
