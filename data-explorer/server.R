@@ -8,7 +8,6 @@ shinyServer(function(input, output, session) {
     
         # Variables to assign State different color, opacity
         df$state <- as.numeric(df$system_name == "State of Tennessee")
-        
         df$opac <- 0.3
         df[df$system_name == "State of Tennessee", ]$opac <- 1
         

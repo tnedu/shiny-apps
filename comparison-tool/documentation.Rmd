@@ -1,0 +1,87 @@
+---
+title: "District Comparison Tool"
+output: github_document
+---
+
+Last Updated: `r format(Sys.Date(), "%B %d, %Y")`
+
+### Methodology
+
+This document outlines our procedure for identifying similar districts. We begin with district profile data, available [here](http://www.tn.gov/education/topic/data-downloads). 
+
+We select the following information from this data:
+
+``` {r echo = FALSE, message = FALSE, warning = FALSE}
+library(tidyr)
+library(dplyr)
+
+ach_profile <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE) %>%
+    filter(system != 0)
+
+ach_profile %>% 
+    select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
+                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures"))) %>%
+    rename("District" = system_name, "Percent Black" = Pct_Black, "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, "Percent English Learners" = Pct_EL, "Percent Students with Disabilities" = Pct_SWD, "Percent Economically Disadvantaged" = Pct_ED, "Per-Pupil Expenditures" = Per_Pupil_Expenditures) %>%
+    head(5) %>%
+    ReporteRs::vanilla.table()
+
+```
+
+We first standardize the district characteristic variables by subtracting each variable by its mean and dividing by its standard deviation. This puts variables on a common scale so that we can compare magnitudes of difference across district characteristics.
+
+Next, based on the user's selected characteristics, the tool computes similarity scores between the selected district and all other districts. For a set of n selected characteristics {$char_1, char_2, ..., char_n$}, the similarity score between district *i* and district *j* is the following:
+
+$Similarity_{ij} = ((char_{1i} - char_{1j})^2 + (char_{2i} - char_{2j})^2 + ... + (char_{ni} - char_{nj})^2)^{1/2}$
+
+where $char_{ni}$ is the standardized value of characteristic n for district i.
+
+A similarity score between two identical districts based on the selected characteristics is zero, and a higher similarity score signifies more dissimilar districts. Thus, a district *i*'s most similar districts are those that have the lowest similarity scores. 
+
+This tool presents data for the 8 most similar districts based on the selected characteristics for comparison of outcomes, ordered left to right from most to least similar. However, a district's most similar districts do not necessarily carry a high degree of similarity. The tool's secondary table presents profile data so that users can determine whether the identified most similar districts present valid comparison points. The secondary table highlights differences in characteristics of more than half and one standard deviation in yellow and orange, respectively. Other factors that are not accounted for by the comparison tool may also make comparison with similar districts inappropriate.
+
+### Worked Example
+
+We will compute a similarity score between Davidson County and Shelby County based on the following characteristics: Enrollment, Percent Economically Disadvantaged, and Per-Pupil Expenditures. After standardizing, the district profile data for the two districts is as follows:
+
+``` {r echo = FALSE, message = FALSE, warning = FALSE}
+
+standardized <- ach_profile %>%
+    mutate_each_(funs(scale), vars = c("Enrollment", "Pct_ED", "Per_Pupil_Expenditures")) %>%
+    select(one_of(c("system_name", "Enrollment", "Pct_ED", "Per_Pupil_Expenditures"))) %>%
+    rename("District" = system_name, "Percent Economically Disadvantaged" = Pct_ED, "Per-Pupil Expenditures" = Per_Pupil_Expenditures)
+
+standardized$Enrollment <- as.numeric(standardized$Enrollment)
+standardized$`Percent Economically Disadvantaged` <- as.numeric(standardized$`Percent Economically Disadvantaged`)
+standardized$`Per-Pupil Expenditures` <- as.numeric(standardized$`Per-Pupil Expenditures`)
+
+standardized %>%
+    filter(District == "Davidson County" | District == "Shelby County") %>%
+    ReporteRs::vanilla.table()
+
+```
+
+Based on the selected characteristics of Enrollment, Percent Economically Disadvantaged, and Per-Pupil Expenditures, the similarity score for Davidson County and Shelby County is the following:
+
+$((`r standardized[standardized$District == "Davidson County", 2]` - `r standardized[standardized$District == "Shelby County", 2]`)^2 + (`r standardized[standardized$District == "Davidson County", 3]` - `r standardized[standardized$District == "Shelby County", 3]`)^2 + (`r standardized[standardized$District == "Davidson County", 4]` - `r standardized[standardized$District == "Shelby County", 4]`)^2)^{1/2}$
+
+= $`r sqrt((standardized[standardized$District == "Davidson County", 2] - standardized[standardized$District == "Shelby County", 2])^2 + (standardized[standardized$District == "Davidson County", 3] - standardized[standardized$District == "Shelby County", 3])^2 + (standardized[standardized$District == "Davidson County", 4] - standardized[standardized$District == "Shelby County", 4])^2)`$
+
+Using Enrollment, Percent Economically Disadvantaged, and Per-Pupil Expenditures as our selected characteristics, we find that Davidson County and Shelby County are each other's most similar district. However, using the secondary table we see that there are large differences between Davidson County and Shelby County in terms of Enrollment and Percent Black, Hispanic, and English Learner students:
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+ach_profile %>%
+    select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_ED", "Pct_SWD", "Pct_EL", "Per_Pupil_Expenditures"))) %>%
+            rename("Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
+                   "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
+                   "Percent Economically Disadvantaged" = Pct_ED, "Percent Students with Disabilities" = Pct_SWD, "Percent English Learners" = Pct_EL) %>%
+    filter(system_name == "Davidson County" | system_name == "Shelby County") %>%
+    gather("Characteristic", "value", 2:9) %>%
+            spread("system_name", "value") %>%
+    mutate(Difference = `Davidson County` - `Shelby County`) %>%
+    ReporteRs::vanilla.table()
+
+
+```
+
+Thus, we may wish to consider additional characteristics in identifying similar districts. However, regardless of the selected characteristics, Davidson County and Shelby County represent two relatively unique cases for which there are not many good comparison points among school districts in Tennessee.

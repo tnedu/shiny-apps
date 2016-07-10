@@ -44,7 +44,7 @@ shinyServer(function(input, output) {
 
     # Column chart of proficiency for selected, similar districts
     plot_prof <- reactive({
-
+        
         # Label for vertical axis
         yvar_name <- names(outcome_list[outcome_list == input$outcome])
 
