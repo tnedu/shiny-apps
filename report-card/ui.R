@@ -14,8 +14,8 @@ dashboardPage(
                 menuSubItem(text = "District Comparison", tabName = "district_comp", icon = icon("exchange"))
             ),
             conditionalPanel("input.sidebarmenu == 'district_explorer'",
-                selectInput("exp_char", label = "Select a District Characteristic:", choices = district_char),
-                selectInput("exp_out", label = "Select a District Outcome:", choices = outcome_list),
+                selectInput("exp_char", label = "Select a District Characteristic:", choices = district_char, selected = "Pct_ED"),
+                selectInput("exp_outcome", label = "Select a District Outcome:", choices = outcome_list),
                 selectInput("highlight_dist", label = "Optional: Highlight a District", choices = c(" " = "State of Tennessee", district_list))
             ),
             conditionalPanel("input.sidebarmenu == 'district_profile' | input.sidebarmenu == 'district_acct' | input.sidebarmenu == 'district_comp'",
@@ -48,14 +48,41 @@ dashboardPage(
                 br(),
                 fluidRow(
                     column(12,
-                        box(width = 11, status = "primary",
+                        box(title = textOutput("header_explorer"), width = 9, status = "primary",
                             ggvisOutput("exp_plot")
+                        ),
+                        box(title = "Directions", width = 3, status = "info", solidHeader = TRUE,
+                            tags$b("This tool is designed to help users explore relationships between
+                            district characteristics and outcomes for Tennessee school districts."),
+                            br(),
+                            br(),
+                            "Use the dropdowns on the left sidebar to select a district
+                            characteristic and an outcome to plot.",
+                            br(),
+                            br(),
+                            "Each blue dot represents one district. The solid red dot represents the State of Tennessee.",
+                            br(),
+                            br(),
+                            "Hover over any dot to identify that district."
                         )
                     )
                 )
             ),
             tabItem(tabName = "district_profile",
-                h1("District Profile")
+                h1("District Profile"),
+                br(),
+                fluidRow(
+                    column(12,
+                        box(title = "Achievement in Accountability Subjects", width = 7, status = "primary", solidHeader = TRUE,
+                            ggvisOutput("profile_ach"),
+                            hr(),
+                            tags$b("Notes:"), br(), 
+                            "High School Math includes Algebra I, Algebra II, and Geometry OR Integrated Math I, II, and III End of Course Examinations",
+                            br(),
+                            "High School English includes English I, II, and III End of Course Examinations"),
+                        box(title = "College and Career Readiness", width = 5, status = "success", solidHeader = TRUE)
+                    )
+                )
             ),
             tabItem(tabName = "district_acct",
                 h1(textOutput("header_dist_acct")),
@@ -168,16 +195,28 @@ dashboardPage(
                 br(),
                 fluidRow(
                     column(12,
-                        box(width = 11, status = "primary", title = textOutput("header_comp"),
+                        box(title = textOutput("header_comp"), width = 9, status = "primary",
                                br(),
                                ggvisOutput("plot_prof"),
                                br()
+                        ),
+                        box(title = "Directions", width = 3, status = "info", solidHeader = TRUE,
+                            tags$b("Using the input widgets on the left sidebar, select a district and one or
+                            more district charactertistics."),
+                            br(),
+                            br(),
+                            "For the selected district, this tool will identify the most similar districts 
+                            based on the selected characteristics and display data for a selected outcome.",
+                            br(),
+                            br(),
+                            "For more information on how this tool identifies similar districts, please visit",
+                            tags$a(href = "https://github.com/alexander-poon/shiny-apps/blob/master/comparison-tool/documentation.md", "this page"), "."
                         )
                     )
                 ),
                 fluidRow(
                     column(12,
-                        box(width = 11, status = "warning", title = textOutput("header_comp_profile"),
+                        box(title = textOutput("header_comp_profile"), width = 9, status = "warning",
                                br(),
                                tableOutput("table"),
                                br(),

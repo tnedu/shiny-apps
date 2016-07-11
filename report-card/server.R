@@ -4,6 +4,7 @@
 shinyServer(function(input, output, session) {
 
     ## District Data Explorer
+    # Data frame with selected district characteristic, outcome
     df_highlight <- reactive({
 
         ach_profile$state <- as.numeric(ach_profile$system_name == "State of Tennessee")
@@ -16,7 +17,7 @@ shinyServer(function(input, output, session) {
         }
 
         # Filter for missing data based on input
-        ach_profile[!is.na(ach_profile[names(ach_profile) == input$exp_out]), ]
+        ach_profile[!is.na(ach_profile[names(ach_profile) == input$exp_outcome]), ]
 
     })
 
@@ -28,12 +29,12 @@ shinyServer(function(input, output, session) {
         paste0("<b>", row$system_name, "</b><br>",
                names(district_char)[district_char == input$exp_char], ": ", 
                row[names(row) == input$exp_char], "<br>",
-               names(outcome_list)[outcome_list == input$exp_out], ": ",
-               row[names(row) == input$exp_out])
+               names(outcome_list)[outcome_list == input$exp_outcome], ": ",
+               row[names(row) == input$exp_outcome])
     }
 
-    # Extract district of clicked point for secondary graphs; Update highlighted district on point click
-    click_district <- function(data, ...) {
+    # Update highlighted district on point click
+    highlight_district <- function(data, ...) {
         updateSelectInput(session, "highlight_dist", selected = as.character(data$system_name))
     }
 
@@ -42,24 +43,23 @@ shinyServer(function(input, output, session) {
 
         # Axis Labels
         xvar_name <- names(district_char)[district_char == input$exp_char]
-        yvar_name <- names(outcome_list)[outcome_list == input$exp_out]
+        yvar_name <- names(outcome_list)[outcome_list == input$exp_outcome]
 
         # Convert input (string) to variable name
         xvar <- prop("x", as.symbol(input$exp_char))
-        yvar <- prop("y", as.symbol(input$exp_out))
+        yvar <- prop("y", as.symbol(input$exp_outcome))
 
         # Scale vertical axis to [0, 100] if outcome is a %P/A, otherwise, scale to min/max of variable
         if (grepl("Percent Proficient or Advanced", yvar_name)) {
             y_scale <- c(0, 100)
         } else {
-            y_scale <- c(min(df_highlight()[names(df_highlight()) == input$exp_out]), 
-                         ceiling(max(df_highlight()[names(df_highlight()) == input$exp_out])))
+            y_scale <- c(min(df_highlight()[names(df_highlight()) == input$exp_outcome]), 
+                         ceiling(max(df_highlight()[names(df_highlight()) == input$exp_outcome])))
         }
         
         df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
-            layer_points(fill = ~factor(state),
-                         size := 125, size.hover := 300,
+            layer_points(fill = ~factor(state), size := 125, size.hover := 300,
                          opacity = ~factor(opac), opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
@@ -68,16 +68,49 @@ shinyServer(function(input, output, session) {
             scale_nominal("opacity", range = c(0.3, 1)) %>%
             scale_nominal("fill", range = c("blue", "red", "orange")) %>%
             hide_legend("fill") %>%
-            set_options(width = 'auto', height = 725) %>%
-            handle_click(click_district)
+            set_options(width = 'auto', height = 600) %>%
+            handle_click(highlight_district)
 
     })
 
     exp_plot %>% bind_shiny("exp_plot")
+    
+    output$header_explorer <- renderText({paste(names(outcome_list[outcome_list == input$exp_outcome]), "against", 
+                                        names(district_char[district_char == input$exp_char]))})
+
+    ## District Profile Tab
+    # Tooltip with district name and proficiency %
+    tooltip_profile <- function(x) {
+        if (is.null(x)) return(NULL)
+        row <- numeric_proficiency[numeric_proficiency$system_name == input$district & numeric_proficiency$subgroup == "All Students", ]
+
+        paste("<b>", x$subject, "Percent Proficient or Advanced" ,"</b><br>", 
+              input$district, ":", row[names(row) == x$subject], sep = " ")
+        
+    }
+        
+    # Achievement in accountability subjects
+    profile_ach <- reactive({
+
+        system_numeric %>%
+            filter(system_name == input$district & subgroup == "All Students") %>%
+            filter(subject != "ACT Composite" & subject != "Graduation Rate") %>%
+            ggvis(~subject, ~pct_prof_adv, key := ~subject) %>%
+            layer_bars(fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
+            add_tooltip(tooltip_profile, on = "hover") %>%
+            add_axis("x", title = "Subject", grid = FALSE) %>%
+            add_axis("y", title = "Percent Proficient or Advanced", grid = FALSE) %>%
+            scale_numeric("y", domain = c(0, 100)) %>%
+            set_options(width = 'auto', height = 500)
+
+    })
+    
+    profile_ach %>% bind_shiny("profile_ach")
 
     ## District Accountability Tab
     # District determinations
-    output$header_dist_acct <- renderText({paste("District Accountability for", input$district, sep = " ")})
+    output$header_dist_acct <- renderText({paste("District Accountability for", 
+                                         input$district, sep = " ")})
 
     district_determ <- reactive({
         filter(determinations, system_name == input$district)
@@ -539,7 +572,7 @@ shinyServer(function(input, output, session) {
     })
 
     # Tooltip with district name and proficiency %
-    tooltip_comp <- function(x) {
+    tooltip_comparison <- function(x) {
         if (is.null(x)) return(NULL)
         row <- ach_profile[ach_profile$system_name == x$system_name, ]
 
@@ -577,7 +610,7 @@ shinyServer(function(input, output, session) {
             layer_bars(fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
             add_axis("x", title = "District", grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
-            add_tooltip(tooltip_comp, on = "hover") %>%
+            add_tooltip(tooltip_comparison, on = "hover") %>%
             scale_ordinal("x", domain = similarityData()$system_name) %>%
             scale_numeric("y", domain = y_scale) %>%
             set_options(width = 'auto', height = 600) %>%
@@ -587,10 +620,15 @@ shinyServer(function(input, output, session) {
 
     plot_prof %>% bind_shiny("plot_prof")
 
-    output$header_comp <- renderText({paste(names(outcome_list[outcome_list == input$outcome]), "for districts most similar to", input$district, sep = " ")})
+    output$header_comp <- renderText({paste(names(outcome_list[outcome_list == input$outcome]),
+                                    "for districts most similar to", input$district, sep = " ")})
 
     # Table with profile data for selected, clicked districts
     output$table <- renderFlexTable({
+
+        # Calculate standard deviation of each characteristic variable
+        standard_devs <- df_profile %>%
+            summarise_each_(funs(sd(., na.rm = TRUE)), names(.)[-1])
         
         df_comparison <- df_profile %>%
             select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_ED", "Pct_SWD", "Pct_EL", "Per_Pupil_Expenditures"))) %>%
@@ -601,7 +639,7 @@ shinyServer(function(input, output, session) {
             filter(system_name == input$district | system_name == clicked$district) %>%
             gather("Characteristic", "value", 2:9) %>%
             spread("system_name", "value")
-        
+
         # Create new column with differences between selected, clicked districts
         if (clicked$district != "" & clicked$district != input$district) {
             df_comparison$Difference <- df_comparison[, names(df_comparison) == input$district] - df_comparison[, names(df_comparison) == clicked$district]
@@ -615,7 +653,7 @@ shinyServer(function(input, output, session) {
         comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
         
         if (ncol(df_comparison) == 4) {
-            setFlexTableWidths(comp_table, widths = c(5, 3, 3, 3))
+            setFlexTableWidths(comp_table, widths = c(4, 3, 3, 3))
             
             myCellProps <- cellProperties()
             
@@ -644,7 +682,7 @@ shinyServer(function(input, output, session) {
             comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Black & abs(df_comparison$Difference) < standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "yellow")
             
         } else {
-            setFlexTableWidths(comp_table, widths = c(5, 3))
+            setFlexTableWidths(comp_table, widths = c(4, 3))
         }
         
         return(comp_table)
