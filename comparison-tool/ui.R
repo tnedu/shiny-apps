@@ -12,7 +12,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
             fluidRow(
                 column(3, offset = 1,
                     wellPanel(
-                        strong(p("Select a school district and one or more district characteristics below.")),
+                        tags$b(p("Select a school district and one or more district characteristics below.")),
                         br(),
                         p("For the selected district, this tool will identify the most similar districts
                           based on the selected characteristics and display data for a selected outcome."),

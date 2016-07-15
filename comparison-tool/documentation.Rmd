@@ -41,7 +41,7 @@ This tool presents data for the 8 most similar districts based on the selected c
 
 ### Worked Example
 
-We will compute a similarity score between Davidson County and Shelby County based on the following characteristics: Enrollment, Percent Economically Disadvantaged, and Per-Pupil Expenditures. After standardizing, the district profile data for the two districts is as follows:
+Using 2015 profile data, we will compute a similarity score between Davidson County and Shelby County based on the following characteristics: Enrollment, Percent Economically Disadvantaged, and Per-Pupil Expenditures. After standardizing, the district profile data for the two districts is as follows:
 
 ``` {r echo = FALSE, message = FALSE, warning = FALSE}
 

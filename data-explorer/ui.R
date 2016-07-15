@@ -38,7 +38,7 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
                                 choices = district_out, selected = "Math", width = 500)
                 ),
                 column(4,
-                    wellPanel(strong("This tool is designed to help users explore relationships between
+                    wellPanel(tags$b("This tool is designed to help users explore relationships between
                               district characteristics and outcomes for Tennessee school districts."),
                               br(),
                               br(),
