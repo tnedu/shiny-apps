@@ -39,12 +39,11 @@ outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
                   "Expulsion Rate" = "Pct_Expelled")
 
 # System numeric for profile tab
-system_numeric <- read_csv("data/system_numeric_with_super_subgroup.csv")
-
-system_numeric[system_numeric$subject == "ELA" & system_numeric$grade == "3rd through 5th", ]$subject <- "3-5 ELA"
-system_numeric[system_numeric$subject == "ELA" & system_numeric$grade == "6th through 8th", ]$subject <- "6-8 ELA"
-system_numeric[system_numeric$subject == "Math" & system_numeric$grade == "3rd through 5th", ]$subject <- "3-5 Math"
-system_numeric[system_numeric$subject == "Math" & system_numeric$grade == "6th through 8th", ]$subject <- "6-8 Math"
+system_numeric <- read_csv("data/system_numeric_with_super_subgroup.csv") %>%
+    mutate(subject = ifelse(subject == "ELA" & grade == "3rd through 5th", "3-5 ELA", subject)) %>%
+    mutate(subject = ifelse(subject == "ELA" & grade == "6th through 8th", "6-8 ELA", subject)) %>%
+    mutate(subject = ifelse(subject == "Math" & grade == "3rd through 5th", "3-5 Math", subject)) %>%
+    mutate(subject = ifelse(subject == "Math" & grade == "6th through 8th", "6-8 Math", subject))
 
 numeric_proficiency <- system_numeric %>%
     filter(subject != "ACT Composite" & subject != "Graduation Rate") %>%
@@ -56,28 +55,26 @@ participation <- read_csv("data/participation_master.csv")
 
 performance_gate <- read_csv("data/performance_gate_master.csv")
 
-achievement <- read_csv("data/achievement_master.csv")
+achievement <- read_csv("data/achievement_master.csv") %>%
+    mutate(subject = ifelse(subject == "ELA" & grade == "3rd through 5th", "3-5 ELA", subject)) %>%
+    mutate(subject = ifelse(subject == "ELA" & grade == "6th through 8th", "6-8 ELA", subject)) %>%
+    mutate(subject = ifelse(subject == "Math" & grade == "3rd through 5th", "3-5 Math", subject)) %>%
+    mutate(subject = ifelse(subject == "Math" & grade == "6th through 8th", "6-8 Math", subject))
 
-achievement[achievement$subject == "ELA" & achievement$grade == "3rd through 5th", ]$subject <- "3-5 ELA"
-achievement[achievement$subject == "ELA" & achievement$grade == "6th through 8th", ]$subject <- "6-8 ELA"
-achievement[achievement$subject == "Math" & achievement$grade == "3rd through 5th", ]$subject <- "3-5 Math"
-achievement[achievement$subject == "Math" & achievement$grade == "6th through 8th", ]$subject <- "6-8 Math"
 
-gap_closure <- read_csv("data/gap_closure_master.csv")
-
-gap_closure[gap_closure$subject == "ELA" & gap_closure$grade == "3rd through 5th", ]$subject <- "3-5 ELA"
-gap_closure[gap_closure$subject == "ELA" & gap_closure$grade == "6th through 8th", ]$subject <- "6-8 ELA"
-gap_closure[gap_closure$subject == "Math" & gap_closure$grade == "3rd through 5th", ]$subject <- "3-5 Math"
-gap_closure[gap_closure$subject == "Math" & gap_closure$grade == "6th through 8th", ]$subject <- "6-8 Math"
+gap_closure <- read_csv("data/gap_closure_master.csv") %>%
+    mutate(subject = ifelse(subject == "ELA" & grade == "3rd through 5th", "3-5 ELA", subject)) %>%
+    mutate(subject = ifelse(subject == "ELA" & grade == "6th through 8th", "6-8 ELA", subject)) %>%
+    mutate(subject = ifelse(subject == "Math" & grade == "3rd through 5th", "3-5 Math", subject)) %>%
+    mutate(subject = ifelse(subject == "Math" & grade == "6th through 8th", "6-8 Math", subject))
 
 determinations <- read_csv("data/final_determinations.csv") %>%
     select(one_of(c("system_name", "minimum_performance_goal", "achievement_determination", 
-                    "gap_determination", "final_determination")))
-
-determinations[is.na(determinations$minimum_performance_goal), ]$minimum_performance_goal <- "N/A"
-determinations[is.na(determinations$achievement_determination), ]$achievement_determination <- "N/A"
-determinations[is.na(determinations$gap_determination), ]$gap_determination <- "N/A"
-determinations[is.na(determinations$final_determination), ]$final_determination <- "N/A"
+                    "gap_determination", "final_determination"))) %>%
+    mutate(minimum_performance_goal = ifelse(is.na(minimum_performance_goal), "N/A", minimum_performance_goal)) %>%
+    mutate(achievement_determination = ifelse(is.na(achievement_determination), "N/A", achievement_determination)) %>%
+    mutate(gap_determination = ifelse(is.na(gap_determination), "N/A", gap_determination)) %>%
+    mutate(final_determination = ifelse(is.na(final_determination), "N/A", final_determination))
 
 district_list <- unique(determinations$system_name)
 

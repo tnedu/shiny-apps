@@ -8,9 +8,6 @@ library(shiny)
 df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE) %>% 
     filter(system != 0)
 
-df[is.na(df$Pct_Chronically_Absent), ]$Pct_Chronically_Absent <- 0
-df[is.na(df$ACT_Composite), ]$ACT_Composite <- 0
-
 # District characteristics and outcomes in separate data frames, standardize characteristic variables
 df_std <- df %>%
     mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 

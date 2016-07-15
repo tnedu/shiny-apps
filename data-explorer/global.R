@@ -1,10 +1,11 @@
+library(readr)
 library(tidyr)
 library(dplyr)
 library(ggvis)
 library(shinyURL)
 library(shiny)
 
-df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE)
+df <- read_csv("data/achievement_profile_data.csv")
 
 # District characteristics for x variable
 district_char <- c("Student Enrollment" = "Enrollment", 
