@@ -39,4 +39,4 @@ district_out <- c("Math Percent Proficient or Advanced" = "Math",
                   "Percent Suspended" = "Pct_Suspended",
                   "Percent Expelled" = "Pct_Expelled")
 
-district_list <- c(" " = "State of Tennessee", df[2:nrow(df), ]$system_name)
+district_list <- c(" " = "State of Tennessee", df[-1, ]$system_name)
