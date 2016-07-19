@@ -5,7 +5,8 @@ library(ggvis)
 library(shinyURL)
 library(shiny)
 
-df <- read_csv("data/achievement_profile_data.csv")
+df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
+    rename("Region" = CORE_region)
 
 # District characteristics for x variable
 district_char <- c("Student Enrollment" = "Enrollment", 

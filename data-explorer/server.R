@@ -7,16 +7,16 @@ shinyServer(function(input, output, session) {
     df_highlight <- reactive({
 
         # Variables to assign State different color, opacity
-        df$state <- as.numeric(df$system_name == "State of Tennessee")
-        df$opac <- 0.3
-        df[df$system_name == "State of Tennessee", ]$opac <- 1
+        df <- df %>%
+            mutate(Region = ifelse(system_name == "State of Tennessee", "State", Region)) %>%
+            mutate(opacity = ifelse(system_name == "State of Tennessee", 1, 0.4))
 
-        if (input$highlight != "") {
-            df[df$system_name == input$highlight, ]$state <- 2
-            df[df$system_name == input$highlight, ]$opac <- 1
+        if (input$highlight != "State of Tennessee") {
+            df[df$system_name == input$highlight, ]$opacity <- 1
+            df[df$system_name != input$highlight & df$system_name != "State of Tennessee", ]$opacity <- 0.2
         }
 
-        # Filter for missing data based on input
+        # Filter for missing data based on inputted outcome
         df[!is.na(df[names(df) == input$outcome]), ]
 
     })
@@ -59,17 +59,16 @@ shinyServer(function(input, output, session) {
 
         df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
-            layer_points(fill = ~factor(state),
+            layer_points(fill = ~Region,
                          size := 125, size.hover := 300,
-                         opacity = ~factor(opac), opacity.hover := 0.8) %>%
+                         opacity = ~factor(opacity), opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             scale_numeric("y", domain = y_scale) %>%
             add_tooltip(tooltip_scatter, on = "hover") %>%
-            scale_nominal("opacity", range = c(0.3, 1)) %>%
-            scale_nominal("fill", range = c("blue", "red", "orange")) %>%
-            hide_legend("fill") %>%
-            set_options(width = 'auto', height = 725) %>%
+            scale_nominal("opacity", range = c(min(df_highlight()$opacity), 1)) %>%
+            scale_nominal("fill", range = c('#000000', '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf')) %>%
+            set_options(width = 'auto', height = 600) %>%
             handle_click(click_district)
 
     })
@@ -92,7 +91,7 @@ shinyServer(function(input, output, session) {
             add_axis("x", grid = FALSE) %>%
             add_axis("y", title = "", grid = FALSE) %>%
             scale_numeric("x", domain = c(0, 100)) %>%
-            set_options(width = 'auto', height = 350)
+            set_options(width = 'auto', height = 300)
 
     })
 
@@ -136,7 +135,7 @@ shinyServer(function(input, output, session) {
             add_tooltip(tooltip_bar, on = "hover") %>%
             scale_ordinal("x", domain = c("Math", "ELA", "Science", "AlgI", "AlgII", "EngI", "EngII", "EngIII", "BioI", "Chemistry")) %>%
             scale_numeric("y", domain = c(0, 100)) %>%
-            set_options(width = 'auto', height = 350) %>%
+            set_options(width = 'auto', height = 300) %>%
             handle_click(click_subject)
 
     })
