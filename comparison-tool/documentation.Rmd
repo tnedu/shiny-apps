@@ -23,7 +23,7 @@ ach_profile %>%
                     "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures"))) %>%
     rename("District" = system_name, "Percent Black" = Pct_Black, "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, "Percent English Learners" = Pct_EL, "Percent Students with Disabilities" = Pct_SWD, "Percent Economically Disadvantaged" = Pct_ED, "Per-Pupil Expenditures" = Per_Pupil_Expenditures) %>%
     head(5) %>%
-    ReporteRs::vanilla.table()
+    knitr::kable(format = "html")
 
 ```
 
@@ -56,7 +56,7 @@ standardized$`Per-Pupil Expenditures` <- as.numeric(standardized$`Per-Pupil Expe
 
 standardized %>%
     filter(District == "Davidson County" | District == "Shelby County") %>%
-    ReporteRs::vanilla.table()
+    knitr::kable(format = "html")
 
 ```
 
@@ -79,8 +79,7 @@ ach_profile %>%
     gather("Characteristic", "value", 2:9) %>%
             spread("system_name", "value") %>%
     mutate(Difference = `Davidson County` - `Shelby County`) %>%
-    ReporteRs::vanilla.table()
-
+    knitr::kable(format = "html")
 
 ```
 
