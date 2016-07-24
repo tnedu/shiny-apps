@@ -3,7 +3,7 @@
 
 shinyServer(function(input, output) {
 
-    # Hide output if no district characteristics are selected
+    # Hide output and show message if no district characteristics are selected
     observe({
         if (length(input$district_chars) == 0) {
             hide(id = "output_plot")
@@ -108,12 +108,16 @@ shinyServer(function(input, output) {
             filter(system_name == input$district | system_name == clicked$district) %>%
             gather("Characteristic", "value", 2:9) %>%
             spread("system_name", "value")
-
+        
         # Create new column with differences between selected, clicked districts
         if (clicked$district != "" & clicked$district != input$district) {
             df_comparison$Difference <- df_comparison[, names(df_comparison) == input$district] - df_comparison[, names(df_comparison) == clicked$district]
+            
+            # Specify column order for table    
+            df_comparison <- df_comparison[c("Characteristic", input$district, clicked$district, "Difference")]
         }
-
+        
+        # Specify row order for table
         order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", "Percent Students with Disabilities", 
                    "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
         df_comparison <- df_comparison[match(order, df_comparison$Characteristic), ]
