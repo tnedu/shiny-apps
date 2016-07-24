@@ -3,6 +3,7 @@ library(dplyr)
 library(ReporteRs)
 library(ggvis)
 library(shiny)
+library(shinyjs)
 
 # Read in all data, drop state observation
 df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE) %>% 

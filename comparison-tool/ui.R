@@ -5,6 +5,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
 
     tabPanel("District",
         fluidPage(
+            useShinyjs(),
             br(),
             br(),
             br(),
@@ -17,9 +18,9 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         p("For the selected district, this tool will identify the most similar districts
                           based on the selected characteristics and display data for a selected outcome."),
                         br(),
-                        selectInput("district", label = "Select a District:", choices = df_std$system_name),
+                        selectInput(inputId = "district", label = "Select a District:", choices = df_std$system_name),
                         br(),
-                        checkboxGroupInput("district_chars", 
+                        checkboxGroupInput(inputId = "district_chars", 
                                            label = "Select One or More District Characteristics:",
                                            choices = c("Student Enrollment" = "Enrollment", 
                                                        "% Black Students" = "Pct_Black",
@@ -32,25 +33,34 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                            selected = c("Enrollment", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
                         ),
                         br(),
-                        selectInput("outcome", label = "Select an outcome to plot:", choices = outcome_list, selected = "Math", width = 400)
+                        selectInput(inputId = "outcome", label = "Select an outcome to plot:", choices = outcome_list, selected = "Math", width = 400)
                     )
                 ),
-                column(7,
-                    h4(textOutput("header")),
-                    br(),
-                    ggvisOutput("plot_prof"),
-                    br()
+                hidden(tags$div(id = "request_input",
+                    fluidRow(
+                        h4("Please select one or more district characteristics.")
+                    )
+                )),
+                tags$div(id = "output_plot",
+                    column(7,
+                        h4(textOutput("header")),
+                        br(),
+                        ggvisOutput("plot_prof"),
+                        br()
+                    )
                 )
             ),
-            fluidRow(
-                column(7, offset = 4,
-                    h4(textOutput("header2")),
-                    br(),
-                    tableOutput("table"),
-                    br(),
-                    tags$b("Click on any bar to compare district profile data."),
-                    br(),
-                    "Differences of more than half and a full a standard deviation are highlighted in yellow and orange, respectively."
+            tags$div(id = "output_table",
+                fluidRow(
+                    column(7, offset = 4,
+                        h4(textOutput("header2")),
+                        br(),
+                        tableOutput("table"),
+                        br(),
+                        tags$b("Click on any bar to compare district profile data."),
+                        br(),
+                        "Differences of more than half and a full a standard deviation are highlighted in yellow and orange, respectively."
+                    )
                 )
             ),
             fluidRow(

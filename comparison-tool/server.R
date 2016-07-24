@@ -3,6 +3,21 @@
 
 shinyServer(function(input, output) {
 
+    # Hide output if no district characteristics are selected
+    observe({
+        if (length(input$district_chars) == 0) {
+            hide(id = "output_plot")
+            hide(id = "output_table")
+            disable(id = "outcome")
+            show(id = "request")
+        } else {
+            show(id = "output_plot")
+            show(id = "output_table")
+            enable(id = "outcome")
+            hide(id = "request_input")
+        }
+    })
+
     # Identify most similar districts based on vector of selected characteristics
     similarityData <- reactive({
 
@@ -36,15 +51,20 @@ shinyServer(function(input, output) {
                row[names(row) == input$outcome])
     }
 
-    # Extract district number of clicked point for secondary table
+    # Extract district of clicked bar for secondary table
     clicked <- reactiveValues(district = "")
     click_district <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
     }
-
+    
+    # Drop comparison columns when input district changes
+    observe({
+        clicked$district <- input$district
+    })
+    
     # Column chart of proficiency for selected, similar districts
     plot_prof <- reactive({
-        
+
         # Label for vertical axis
         yvar_name <- names(outcome_list[outcome_list == input$outcome])
 
@@ -105,31 +125,30 @@ shinyServer(function(input, output) {
             setFlexTableWidths(comp_table, widths = c(5, 3, 3, 3))
 
             myCellProps <- cellProperties()
-            
+
             comp_table[df_comparison$Characteristic == "Enrollment" & abs(df_comparison$Difference) >= standard_devs$Enrollment, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Enrollment" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Enrollment & abs(df_comparison$Difference) < standard_devs$Enrollment, 4] = chprop(myCellProps, background.color = "yellow")
 
             comp_table[df_comparison$Characteristic == "Per-Pupil Expenditures" & abs(df_comparison$Difference) >= standard_devs$Per_Pupil_Expenditures, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Per-Pupil Expenditures" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Per_Pupil_Expenditures & abs(df_comparison$Difference) < standard_devs$Per_Pupil_Expenditures, 4] = chprop(myCellProps, background.color = "yellow")
-            
+
             comp_table[df_comparison$Characteristic == "Percent Economically Disadvantaged" & abs(df_comparison$Difference) >= standard_devs$Pct_ED, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Percent Economically Disadvantaged" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_ED & abs(df_comparison$Difference) < standard_devs$Pct_ED, 4] = chprop(myCellProps, background.color = "yellow")
-            
+
             comp_table[df_comparison$Characteristic == "Percent Students with Disabilities" & abs(df_comparison$Difference) >= standard_devs$Pct_SWD, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Percent Students with Disabilities" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_SWD & abs(df_comparison$Difference) < standard_devs$Pct_SWD, 4] = chprop(myCellProps, background.color = "yellow")
-            
+
             comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_EL & abs(df_comparison$Difference) < standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "yellow")
-            
+
             comp_table[df_comparison$Characteristic == "Percent Native American" & abs(df_comparison$Difference) >= standard_devs$Pct_Native_American, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Percent Native American" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Native_American & abs(df_comparison$Difference) < standard_devs$Pct_Native_American, 4] = chprop(myCellProps, background.color = "yellow")
-            
+
             comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Hispanic & abs(df_comparison$Difference) < standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "yellow")
-            
+
             comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Black & abs(df_comparison$Difference) < standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "yellow")
-
         } else {
             setFlexTableWidths(comp_table, widths = c(5, 3))
         }
