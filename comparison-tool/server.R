@@ -9,7 +9,7 @@ shinyServer(function(input, output) {
             hide(id = "output_plot")
             hide(id = "output_table")
             disable(id = "outcome")
-            show(id = "request")
+            show(id = "request_input")
         } else {
             show(id = "output_plot")
             show(id = "output_table")
