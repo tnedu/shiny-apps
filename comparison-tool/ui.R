@@ -4,7 +4,7 @@
 shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
 
     tabPanel("District",
-        fluidPage(
+        fluidPage(theme = "doe-style.css",
             useShinyjs(),
             br(),
             br(),
@@ -68,7 +68,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                     hr(),
                     p("Designed by", tags$a(href = "mailto:alex.poon@tn.gov", "Alexander Poon"), 
                       "in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), "for the Tennessee Department of Education.",
-                      tags$a(href = "https://github.com/alexander-poon/shiny-apps/tree/master/data-explorer", "Source Code"), style = "font-size: 8pt"),
+                      tags$a(href = "https://github.com/tnedu/shiny-apps/tree/master/data-explorer", "Source Code"), style = "font-size: 8pt"),
                     br(),
                     br()
                 )

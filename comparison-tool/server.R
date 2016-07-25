@@ -18,17 +18,19 @@ shinyServer(function(input, output) {
         }
     })
 
-    # Identify most similar districts based on vector of selected characteristics
+    # Identify most similar districts based on selected characteristics
     similarityData <- reactive({
 
+        # Ensure that app doesn't crash if no characteristics are selected
         req(input$district_chars)
 
+        # Restrict pool of potential similar districts to ones which have data for the selected characteristics
         chars <- select(df_std, one_of(c("system_name", input$district_chars))) %>%
             filter(complete.cases(.))
 
+        # Compute similarity scores against selected district
         similarity <- data.frame(system_name = chars[, 1], similarity_score = NA, stringsAsFactors = FALSE)
 
-        # Compute vector of similarity scores against selected district
         for (i in 1:nrow(chars)) {
             similarity[i, 2] <- sqrt(sum((chars[i,2:ncol(chars)] - chars[which(chars$system_name == input$district), 2:ncol(chars)])^2))
         }
@@ -53,7 +55,7 @@ shinyServer(function(input, output) {
                row[names(row) == input$outcome])
     }
 
-    # Extract district of clicked bar for secondary table
+    # Extract clicked district for secondary table
     clicked <- reactiveValues(district = "")
     click_district <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
@@ -83,7 +85,7 @@ shinyServer(function(input, output) {
 
         similarityData() %>%
             ggvis(~system_name, yvar, key := ~system_name) %>%
-            layer_bars(fill := "blue", fillOpacity = ~Opacity, fillOpacity.hover := 0.9) %>%
+            layer_bars(fill := "blue", width = 0.85, fillOpacity = ~Opacity, fillOpacity.hover := 0.9) %>%
             add_axis("x", title = "District", grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip, on = "hover") %>%
@@ -116,7 +118,7 @@ shinyServer(function(input, output) {
         if (clicked$district != "" & clicked$district != input$district) {
             # Specify column order for table
             df_comparison <- df_comparison[c("Characteristic", input$district, clicked$district)]
-            
+
             # Create new column with differences between selected, clicked districts
             df_comparison$Difference <- df_comparison[[3]] - df_comparison[[2]]
         }
@@ -127,7 +129,9 @@ shinyServer(function(input, output) {
         df_comparison <- df_comparison[match(row_order, df_comparison$Characteristic), ]
 
         comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
+        options("ReporteRs-fontsize" = 11, "ReporteRs-default-font" = "Open Sans")
 
+        # Add conditional formatting to table to highlight large differences
         if (ncol(df_comparison) == 4) {
             setFlexTableWidths(comp_table, widths = c(4, 3, 3, 3))
 
