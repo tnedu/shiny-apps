@@ -23,14 +23,14 @@ shinyServer(function(input, output) {
 
         req(input$district_chars)
 
-        chars <- select(df_std, one_of(c("system_name", input$district_chars)))
-        df2 <- chars[complete.cases(chars), ]
+        chars <- select(df_std, one_of(c("system_name", input$district_chars))) %>%
+            filter(complete.cases(.))
 
-        similarity <- data.frame(system_name = df2[, 1], similarity_score = NA, stringsAsFactors = FALSE)
+        similarity <- data.frame(system_name = chars[, 1], similarity_score = NA, stringsAsFactors = FALSE)
 
         # Compute vector of similarity scores against selected district
-        for (i in 1:nrow(df2)) {
-            similarity[i, 2] <- sqrt(sum((df2[i,2:ncol(df2)] - df2[which(df2$system_name == input$district), 2:ncol(df2)])^2))
+        for (i in 1:nrow(chars)) {
+            similarity[i, 2] <- sqrt(sum((chars[i,2:ncol(chars)] - chars[which(chars$system_name == input$district), 2:ncol(chars)])^2))
         }
 
         # Select 8 most similar districts
@@ -56,12 +56,12 @@ shinyServer(function(input, output) {
     click_district <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
     }
-    
+
     # Drop comparison columns when input district changes
     observe({
         clicked$district <- input$district
     })
-    
+
     # Column chart of proficiency for selected, similar districts
     plot_prof <- reactive({
 
@@ -108,25 +108,24 @@ shinyServer(function(input, output) {
             filter(system_name == input$district | system_name == clicked$district) %>%
             gather("Characteristic", "value", 2:9) %>%
             spread("system_name", "value")
-        
-        # Create new column with differences between selected, clicked districts
+
         if (clicked$district != "" & clicked$district != input$district) {
-            df_comparison$Difference <- df_comparison[, names(df_comparison) == input$district] - df_comparison[, names(df_comparison) == clicked$district]
+            # Specify column order for table
+            df_comparison <- df_comparison[c("Characteristic", input$district, clicked$district)]
             
-            # Specify column order for table    
-            df_comparison <- df_comparison[c("Characteristic", input$district, clicked$district, "Difference")]
+            # Create new column with differences between selected, clicked districts
+            df_comparison$Difference <- df_comparison[[3]] - df_comparison[[2]]
         }
-        
+
         # Specify row order for table
-        order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", "Percent Students with Disabilities", 
+        row_order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", "Percent Students with Disabilities",
                    "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
-        df_comparison <- df_comparison[match(order, df_comparison$Characteristic), ]
-        rownames(df_comparison) <- NULL
+        df_comparison <- df_comparison[match(row_order, df_comparison$Characteristic), ]
 
         comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
 
         if (ncol(df_comparison) == 4) {
-            setFlexTableWidths(comp_table, widths = c(5, 3, 3, 3))
+            setFlexTableWidths(comp_table, widths = c(4, 3, 3, 3))
 
             myCellProps <- cellProperties()
 
@@ -145,16 +144,13 @@ shinyServer(function(input, output) {
             comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_EL & abs(df_comparison$Difference) < standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "yellow")
 
-            comp_table[df_comparison$Characteristic == "Percent Native American" & abs(df_comparison$Difference) >= standard_devs$Pct_Native_American, 4] = chprop(myCellProps, background.color = "orange")
-            comp_table[df_comparison$Characteristic == "Percent Native American" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Native_American & abs(df_comparison$Difference) < standard_devs$Pct_Native_American, 4] = chprop(myCellProps, background.color = "yellow")
-
             comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Hispanic & abs(df_comparison$Difference) < standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "yellow")
 
             comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "orange")
             comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Black & abs(df_comparison$Difference) < standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "yellow")
         } else {
-            setFlexTableWidths(comp_table, widths = c(5, 3))
+            setFlexTableWidths(comp_table, widths = c(4, 3))
         }
 
         return(comp_table)

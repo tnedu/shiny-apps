@@ -1,3 +1,4 @@
+library(readr)
 library(tidyr)
 library(dplyr)
 library(ReporteRs)
@@ -6,7 +7,7 @@ library(shiny)
 library(shinyjs)
 
 # Read in all data, drop state observation
-df <- read.csv("data/achievement_profile_data.csv", stringsAsFactors = FALSE) %>% 
+df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>% 
     filter(system != 0)
 
 # District characteristics and outcomes in separate data frames, standardize characteristic variables
