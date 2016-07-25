@@ -35,7 +35,9 @@ shinyServer(function(input, output) {
 
         # Select 8 most similar districts
         similarity %>%
-            arrange(similarity_score) %>%
+            mutate("Selected" = (system_name == input$district)) %>%
+            mutate("Opacity" = ifelse(system_name == input$district | system_name == clicked$district, 0.9, 0.3)) %>%
+            arrange(desc(Selected), similarity_score) %>%
             inner_join(df_outcomes, by = "system_name") %>%
             slice(1:9)
 
@@ -81,13 +83,15 @@ shinyServer(function(input, output) {
 
         similarityData() %>%
             ggvis(~system_name, yvar, key := ~system_name) %>%
-            layer_bars(fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
+            layer_bars(fill := "blue", fillOpacity = ~Opacity, fillOpacity.hover := 0.9) %>%
             add_axis("x", title = "District", grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip, on = "hover") %>%
             scale_ordinal("x", domain = similarityData()$system_name) %>%
             scale_numeric("y", domain = y_scale) %>%
+            scale_numeric("opacity", range = c(0.3, 0.9)) %>%
             set_options(width = 'auto', height = 600) %>%
+            hide_legend("fill") %>%
             handle_click(click_district)
 
     })
