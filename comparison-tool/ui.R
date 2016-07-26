@@ -11,6 +11,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
             br(),
             br(),
             fluidRow(
+                # Column with input panels
                 column(3, offset = 1,
                     wellPanel(
                         tags$b(p("Select a school district and one or more district characteristics below.")),
@@ -30,29 +31,31 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                                        "% Economically Disadvantaged" = "Pct_ED",
                                                        "% Students with Disabilities" = "Pct_SWD",
                                                        "Per-Pupil Expenditures" = "Per_Pupil_Expenditures"),
-                                           selected = c("Enrollment", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
+                                           selected = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
                         ),
                         br(),
                         selectInput(inputId = "outcome", label = "Select an outcome to plot:", choices = outcome_list, selected = "Math", width = 400)
+                    ),
+                    wellPanel(
+                        tags$b("Additional Options"),
+                        br(),
+                        br(),
+                        numericInput(inputId = "num_districts", label = "Number of comparison districts:", value = 7, min = 1, max = 10, step = 1)
                     )
                 ),
+                # Message to be shown if no characteristics are selected
                 hidden(tags$div(id = "request_input",
                     fluidRow(
                         h4("Please select one or more district characteristics.")
                     )
                 )),
-                tags$div(id = "output_plot",
+                # Column with plot, table output
+                tags$div(id = "output",
                     column(7,
                         h4(textOutput("header")),
                         br(),
                         ggvisOutput("plot_prof"),
-                        br()
-                    )
-                )
-            ),
-            tags$div(id = "output_table",
-                fluidRow(
-                    column(7, offset = 4,
+                        br(),
                         h4(textOutput("header2")),
                         br(),
                         tableOutput("table"),

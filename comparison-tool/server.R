@@ -6,15 +6,13 @@ shinyServer(function(input, output) {
     # Hide output and show message if no district characteristics are selected
     observe({
         if (length(input$district_chars) == 0) {
-            hide(id = "output_plot")
-            hide(id = "output_table")
-            disable(id = "outcome")
+            hide(id = "output")
             show(id = "request_input")
+            disable(id = "outcome")
         } else {
-            show(id = "output_plot")
-            show(id = "output_table")
-            enable(id = "outcome")
+            show(id = "output")
             hide(id = "request_input")
+            enable(id = "outcome")
         }
     })
 
@@ -25,8 +23,7 @@ shinyServer(function(input, output) {
         req(input$district_chars)
 
         # Restrict pool of potential similar districts to ones which have data for the selected characteristics
-        chars <- select(df_std, one_of(c("system_name", input$district_chars))) %>%
-            filter(complete.cases(.))
+        chars <- select(df_std, one_of(c("system_name", input$district_chars)))
 
         # Compute similarity scores against selected district
         similarity <- data.frame(system_name = chars[, 1], similarity_score = NA, stringsAsFactors = FALSE)
@@ -41,7 +38,7 @@ shinyServer(function(input, output) {
             mutate("Opacity" = ifelse(system_name == input$district | system_name == clicked$district, 0.9, 0.3)) %>%
             arrange(desc(Selected), similarity_score) %>%
             inner_join(df_outcomes, by = "system_name") %>%
-            slice(1:9)
+            slice(1:(1 + input$num_districts))
 
     })
 
@@ -131,7 +128,7 @@ shinyServer(function(input, output) {
         comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
         options("ReporteRs-fontsize" = 11, "ReporteRs-default-font" = "Open Sans")
 
-        # Add conditional formatting to table to highlight large differences
+        # Add conditional formatting to highlight large differences
         if (ncol(df_comparison) == 4) {
             setFlexTableWidths(comp_table, widths = c(4, 3, 3, 3))
 

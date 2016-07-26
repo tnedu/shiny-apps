@@ -11,25 +11,27 @@ df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
     filter(system != 0)
 
 # District characteristics and outcomes in separate data frames, standardize characteristic variables
-df_std <- df %>%
-    mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-                                       "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
+df_chars <- df %>%
     select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
+        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
 
-df_chars <- df %>% 
+df_std <- df %>%
+    filter(complete.cases(df_chars)) %>%
+    mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
+        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
     select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-                    "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
+        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
 
 df_outcomes <- df %>%
+    filter(complete.cases(df_chars)) %>%
     select(one_of(c("system_name", "Math", "ELA", "Science", "AlgI", "AlgII", "BioI", "Chemistry",
-                    "EngI", "EngII", "EngIII", "Graduation", "Dropout", "ACT_Composite",
-                    "Pct_Chronically_Absent", "Pct_Suspended", "Pct_Expelled")))
+        "EngI", "EngII", "EngIII", "Graduation", "Dropout", "ACT_Composite", "Pct_Chronically_Absent",
+        "Pct_Suspended", "Pct_Expelled")))
 
 # Calculate standard deviation of each characteristic variable
 standard_devs <- df_chars %>%
     summarise_each_(funs(sd(., na.rm = TRUE)), names(.)[-1])
-    
+
 # Outcome vector for select input
 outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
                   "English Language Arts Percent Proficient or Advanced" = "ELA",
