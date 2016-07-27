@@ -18,6 +18,12 @@ shinyServer(function(input, output) {
 
     # Identify most similar districts based on selected characteristics
     similarityData <- reactive({
+        
+        # Narrow comparison to within CORE region if specified
+        if (input$restrict_CORE) {
+            filter_region <- df_std[df_std$system_name == input$district, ]$CORE_region
+            df_std <- filter(df_std, CORE_region == filter_region)
+        }
 
         # Ensure that app doesn't crash if no characteristics are selected
         req(input$district_chars)

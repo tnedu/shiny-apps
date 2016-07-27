@@ -40,7 +40,10 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         tags$b("Additional Options"),
                         br(),
                         br(),
-                        numericInput(inputId = "num_districts", label = "Number of comparison districts:", value = 7, min = 1, max = 10, step = 1)
+                        numericInput(inputId = "num_districts", label = "Number of comparison districts:", value = 7, min = 1, max = 10, step = 1),
+                        br(),
+                        tags$b("Restrict comparison districts to the same:"),
+                        checkboxInput(inputId = "restrict_CORE", label = "CORE Region", value = FALSE)
                     )
                 ),
                 # Message to be shown if no characteristics are selected
@@ -69,7 +72,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
             fluidRow(
                 column(10, offset = 1,
                     hr(),
-                    p("Designed by", tags$a(href = "mailto:alex.poon@tn.gov", "Alexander Poon"), 
+                    p("Designed by", tags$a(href = "mailto:alex.poon@tn.gov", "Alexander Poon"),
                       "in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), "for the Tennessee Department of Education.",
                       tags$a(href = "https://github.com/tnedu/shiny-apps/tree/master/data-explorer", "Source Code"), style = "font-size: 8pt"),
                     br(),
@@ -77,5 +80,5 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                 )
             )
         )
-    )        
+    )
 ))

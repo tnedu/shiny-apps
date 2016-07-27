@@ -20,7 +20,7 @@ df_std <- df %>%
     mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
         "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
     select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")))
+        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures", "CORE_region")))
 
 df_outcomes <- df %>%
     filter(complete.cases(df_chars)) %>%
