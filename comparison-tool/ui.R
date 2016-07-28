@@ -61,16 +61,19 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         br(),
                         tags$b("Click on any bar to compare district profile data below."),
                         br(),
-                        "Differences of more than half and a full a standard deviation are
-                        highlighted in the last column of the table in yellow and orange, respectively.",
-                        br(),
                         br(),
                         h4(textOutput("header2")),
-                        br(),
-                        tableOutput("table"),
-                        br(),
-                        br(),
-                        ggvisOutput("plot_char")
+                        tabsetPanel(type = "tabs",
+                            tabPanel("Plot",
+                                     br(),
+                                     ggvisOutput("plot_char")),
+                            tabPanel("Table",
+                                     br(),
+                                     tableOutput("table"),
+                                br(),
+                                "Differences of more than half and a full a standard deviation are
+                                highlighted in yellow and orange, respectively.")
+                        )
                     )
                 )
             ),
