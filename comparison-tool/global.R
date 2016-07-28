@@ -26,6 +26,17 @@ df_std <- df %>%
     select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
         "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures", "CORE_region")))
 
+df_pctile <- df %>%
+    filter(complete.cases(df_chars)) %>%
+    mutate_each_(funs(percent_rank), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
+        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
+    select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
+        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures"))) %>%
+    rename("District" = system_name, "Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
+        "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
+        "Percent Economically Disadvantaged" = Pct_ED, "Percent Students with Disabilities" = Pct_SWD,
+        "Percent English Learners" = Pct_EL)
+
 df_outcomes <- df %>%
     filter(complete.cases(df_chars)) %>%
     select(one_of(c("system_name", "Math", "ELA", "Science", "AlgI", "AlgII", "BioI", "Chemistry",
