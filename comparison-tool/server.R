@@ -43,7 +43,7 @@ shinyServer(function(input, output) {
             mutate("Opacity" = ifelse(system_name == input$district | system_name == clicked$district, 0.9, 0.3)) %>%
             arrange(desc(Selected), similarity_score) %>%
             inner_join(df_outcomes, by = "system_name") %>%
-            slice(1:(1 + input$num_districts))
+            slice(1:(1 + as.integer(input$num_districts)))
 
     })
 

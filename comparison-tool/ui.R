@@ -40,7 +40,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         tags$b("Additional Options"),
                         br(),
                         br(),
-                        numericInput(inputId = "num_districts", label = "Number of comparison districts:", value = 7, min = 1, max = 10, step = 1),
+                        selectInput(inputId = "num_districts", label = "Number of comparison districts:", choices = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"), selected = "7"),
                         br(),
                         tags$b("Restrict comparison districts to the same:"),
                         checkboxInput(inputId = "restrict_CORE", label = "CORE Region", value = FALSE)
