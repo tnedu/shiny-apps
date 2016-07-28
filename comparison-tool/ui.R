@@ -40,7 +40,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         tags$b("Additional Options"),
                         br(),
                         br(),
-                        numericInput(inputId = "num_districts", label = "Number of comparison districts:", value = 7, min = 1, max = 10, step = 1),
+                        selectInput(inputId = "num_districts", label = "Number of comparison districts:", choices = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"), selected = "7"),
                         br(),
                         tags$b("Restrict comparison districts to the same:"),
                         checkboxInput(inputId = "restrict_CORE", label = "CORE Region", value = FALSE)
@@ -59,13 +59,21 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         br(),
                         ggvisOutput("plot_prof"),
                         br(),
+                        tags$b("Click on any bar to compare district profile data below."),
+                        br(),
+                        br(),
                         h4(textOutput("header2")),
-                        br(),
-                        tableOutput("table"),
-                        br(),
-                        tags$b("Click on any bar to compare district profile data."),
-                        br(),
-                        "Differences of more than half and a full a standard deviation are highlighted in yellow and orange, respectively."
+                        tabsetPanel(type = "tabs",
+                            tabPanel("Plot",
+                                br(),
+                                ggvisOutput("plot_char")),
+                            tabPanel("Table",
+                                br(),
+                                tableOutput("table"),
+                                br(),
+                                "Differences of more than half and a full a standard deviation are
+                                highlighted in yellow and orange, respectively.")
+                        )
                     )
                 )
             ),

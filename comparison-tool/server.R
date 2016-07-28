@@ -18,7 +18,7 @@ shinyServer(function(input, output) {
 
     # Identify most similar districts based on selected characteristics
     similarityData <- reactive({
-        
+
         # Narrow comparison to within CORE region if specified
         if (input$restrict_CORE) {
             filter_region <- df_std[df_std$system_name == input$district, ]$CORE_region
@@ -28,7 +28,6 @@ shinyServer(function(input, output) {
         # Ensure that app doesn't crash if no characteristics are selected
         req(input$district_chars)
 
-        # Restrict pool of potential similar districts to ones which have data for the selected characteristics
         chars <- select(df_std, one_of(c("system_name", input$district_chars)))
 
         # Compute similarity scores against selected district
@@ -44,18 +43,18 @@ shinyServer(function(input, output) {
             mutate("Opacity" = ifelse(system_name == input$district | system_name == clicked$district, 0.9, 0.3)) %>%
             arrange(desc(Selected), similarity_score) %>%
             inner_join(df_outcomes, by = "system_name") %>%
-            slice(1:(1 + input$num_districts))
+            slice(1:(1 + as.integer(input$num_districts)))
 
     })
 
     # Create tooltip with district name and proficiency %
-    tooltip <- function(x) {
+    tooltip_bar <- function(x) {
         if (is.null(x)) return(NULL)
         row <- df[df$system_name == x$system_name, ]
 
         paste0("<b>", row$system_name, "</b><br>",
-               names(outcome_list)[outcome_list == input$outcome], ": ",
-               row[names(row) == input$outcome])
+            names(outcome_list)[outcome_list == input$outcome], ": ",
+            row[names(row) == input$outcome])
     }
 
     # Extract clicked district for secondary table
@@ -83,7 +82,7 @@ shinyServer(function(input, output) {
             y_scale <- c(0, 100)
         } else {
             y_scale <- c(floor(min(df_outcomes[names(df_outcomes) == input$outcome])), 
-                         ceiling(max(df_outcomes[names(df_outcomes) == input$outcome])))
+                ceiling(max(df_outcomes[names(df_outcomes) == input$outcome])))
         }
 
         similarityData() %>%
@@ -91,7 +90,7 @@ shinyServer(function(input, output) {
             layer_bars(fill := "blue", width = 0.85, fillOpacity = ~Opacity, fillOpacity.hover := 0.9) %>%
             add_axis("x", title = "District", grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
-            add_tooltip(tooltip, on = "hover") %>%
+            add_tooltip(tooltip_bar, on = "hover") %>%
             scale_ordinal("x", domain = similarityData()$system_name) %>%
             scale_numeric("y", domain = y_scale) %>%
             scale_numeric("opacity", range = c(0.3, 0.9)) %>%
@@ -109,11 +108,9 @@ shinyServer(function(input, output) {
     output$table <- renderFlexTable({
 
         df_comparison <- df_chars %>%
-            select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_ED", "Pct_SWD", "Pct_EL", "Per_Pupil_Expenditures"))) %>%
-            rename("Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
-                   "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
-                   "Percent Economically Disadvantaged" = Pct_ED, "Percent Students with Disabilities" = Pct_SWD,
-                   "Percent English Learners" = Pct_EL) %>%
+            select(one_of(c("system_name", "Enrollment", "Percent Black", "Percent Hispanic",
+                "Percent Native American", "Percent Economically Disadvantaged", "Percent Students with Disabilities",
+                "Percent English Learners", "Per-Pupil Expenditures"))) %>%
             filter(system_name == input$district | system_name == clicked$district) %>%
             gather("Characteristic", "value", 2:9) %>%
             spread("system_name", "value")
@@ -128,38 +125,30 @@ shinyServer(function(input, output) {
 
         # Specify row order for table
         row_order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", "Percent Students with Disabilities",
-                   "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
+            "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
         df_comparison <- df_comparison[match(row_order, df_comparison$Characteristic), ]
 
         comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        options("ReporteRs-fontsize" = 11, "ReporteRs-default-font" = "Open Sans")
+        options("ReporteRs-default-font" = "Open Sans")
 
         # Add conditional formatting to highlight large differences
         if (ncol(df_comparison) == 4) {
             setFlexTableWidths(comp_table, widths = c(4, 3, 3, 3))
 
-            myCellProps <- cellProperties()
+            format_FlexTable <- function(char) {
+                comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= as.numeric(standard_devs[names(standard_devs) == char]), 4] = 
+                    chprop(cellProperties(), background.color = "orange")
+                comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= 0.5 * as.numeric(standard_devs[names(standard_devs) == char]) & 
+                    abs(df_comparison$Difference) < as.numeric(standard_devs[names(standard_devs) == char]), 4] =
+                    chprop(cellProperties(), background.color = "yellow")
+            }
 
-            comp_table[df_comparison$Characteristic == "Enrollment" & abs(df_comparison$Difference) >= standard_devs$Enrollment, 4] = chprop(myCellProps, background.color = "orange")
-            comp_table[df_comparison$Characteristic == "Enrollment" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Enrollment & abs(df_comparison$Difference) < standard_devs$Enrollment, 4] = chprop(myCellProps, background.color = "yellow")
+            chars_list <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged",
+                "Percent Students with Disabilities", "Percent English Learners", "Percent Hispanic", "Percent Black")
 
-            comp_table[df_comparison$Characteristic == "Per-Pupil Expenditures" & abs(df_comparison$Difference) >= standard_devs$Per_Pupil_Expenditures, 4] = chprop(myCellProps, background.color = "orange")
-            comp_table[df_comparison$Characteristic == "Per-Pupil Expenditures" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Per_Pupil_Expenditures & abs(df_comparison$Difference) < standard_devs$Per_Pupil_Expenditures, 4] = chprop(myCellProps, background.color = "yellow")
-
-            comp_table[df_comparison$Characteristic == "Percent Economically Disadvantaged" & abs(df_comparison$Difference) >= standard_devs$Pct_ED, 4] = chprop(myCellProps, background.color = "orange")
-            comp_table[df_comparison$Characteristic == "Percent Economically Disadvantaged" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_ED & abs(df_comparison$Difference) < standard_devs$Pct_ED, 4] = chprop(myCellProps, background.color = "yellow")
-
-            comp_table[df_comparison$Characteristic == "Percent Students with Disabilities" & abs(df_comparison$Difference) >= standard_devs$Pct_SWD, 4] = chprop(myCellProps, background.color = "orange")
-            comp_table[df_comparison$Characteristic == "Percent Students with Disabilities" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_SWD & abs(df_comparison$Difference) < standard_devs$Pct_SWD, 4] = chprop(myCellProps, background.color = "yellow")
-
-            comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "orange")
-            comp_table[df_comparison$Characteristic == "Percent English Learners" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_EL & abs(df_comparison$Difference) < standard_devs$Pct_EL, 4] = chprop(myCellProps, background.color = "yellow")
-
-            comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "orange")
-            comp_table[df_comparison$Characteristic == "Percent Hispanic" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Hispanic & abs(df_comparison$Difference) < standard_devs$Pct_Hispanic, 4] = chprop(myCellProps, background.color = "yellow")
-
-            comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "orange")
-            comp_table[df_comparison$Characteristic == "Percent Black" & abs(df_comparison$Difference) >= 0.5 * standard_devs$Pct_Black & abs(df_comparison$Difference) < standard_devs$Pct_Black, 4] = chprop(myCellProps, background.color = "yellow")
+            for (char in chars_list) {
+                 format_FlexTable(char)
+            }
         } else {
             setFlexTableWidths(comp_table, widths = c(4, 3))
         }
@@ -176,4 +165,33 @@ shinyServer(function(input, output) {
         }
     })
 
+    tooltip_scatter <- function(x) {
+        if (is.null(x)) return(NULL)
+        row <- df_chars[df_chars$system_name == x$District, ]
+
+        paste0("<b>", row$system_name, "</b><br>",
+            x$Characteristic, ": ", row[names(row) == x$Characteristic])
+    }
+
+    plot_char <- reactive({
+
+        df_std %>%
+            filter(system_name == input$district | system_name == clicked$district) %>%
+            rename("District" = system_name, "Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
+                "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
+                "Percent Economically Disadvantaged" = Pct_ED, "Percent Students with Disabilities" = Pct_SWD,
+                "Percent English Learners" = Pct_EL) %>%
+            gather("Characteristic", "Value", 2:9) %>%
+            ggvis(~Value, ~Characteristic, opacity := 0.9, opacity.hover := 0.5) %>%
+            layer_points(fill = ~District, size := 100) %>%
+            add_axis("x", title = "Standardized Value", orient = "bottom", grid = FALSE) %>%
+            add_axis("y", title = "", orient = "left") %>%
+            add_tooltip(tooltip_scatter, on = "hover") %>%
+            scale_numeric("x", domain = c(-3, 3), clamp = TRUE) %>%
+            set_options(width = 'auto', height = 400)
+
+    })
+
+    plot_char %>% bind_shiny("plot_char")
+    
 })
