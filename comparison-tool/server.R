@@ -177,7 +177,8 @@ shinyServer(function(input, output) {
             row <- df_chars[df_chars$system_name == x$District, ]
 
             paste0("<b>", row$system_name, "</b><br>", 
-                x$Characteristic, ": ", row[names(row) == x$Characteristic])
+                x$Characteristic, ": ", row[names(row) == x$Characteristic], "<br>",
+                "Percentile Rank: ", x$Value)
     }
     
     # Scatterplot of percentile ranks for district characteristics
@@ -186,12 +187,13 @@ shinyServer(function(input, output) {
         df_pctile %>%
             filter(District == input$district | District == clicked$district) %>%
             gather("Characteristic", "Value", 2:9) %>%
+            mutate(Value = round(100 * Value, 1)) %>%
             ggvis(~Value, ~Characteristic) %>%
             layer_points(fill = ~District, size := 125, opacity := 0.5, opacity.hover := 0.9) %>%
             add_axis("x", title = "Percentile Rank", grid = FALSE) %>%
             add_axis("y", title = "") %>%
             add_tooltip(tooltip_scatter, on = "hover") %>%
-            scale_numeric("x", domain = c(0, 1), expand = 0) %>%
+            scale_numeric("x", domain = c(0, 100), expand = 0) %>%
             scale_ordinal("y", domain = c("Enrollment", "Per-Pupil Expenditures", 
                 "Percent Economically Disadvantaged", "Percent Students with Disabilities",
                 "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")) %>%
