@@ -17,7 +17,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         tags$b(p("Select a school district and one or more district characteristics below.")),
                         br(),
                         p("For the selected district, this tool will identify the most similar districts
-                          based on the selected characteristics and display data for a selected outcome."),
+                            based on the selected characteristics and display data for a selected outcome."),
                         br(),
                         selectInput(inputId = "district", label = "Select a District:", choices = df_std$system_name),
                         br(),
