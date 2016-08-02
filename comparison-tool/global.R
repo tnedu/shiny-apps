@@ -6,9 +6,20 @@ library(ggvis)
 library(shiny)
 library(shinyjs)
 
-# Read in all data, drop state observation
+# Read in achievement and profile data, drop state observation
 df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>% 
     filter(system != 0)
+
+# Read in historical data
+historical <- read_csv("data/historical_data.csv") %>%
+    rename("District" = system_name) %>%
+    mutate(subject = ifelse(subject == "Algebra I", "AlgI", subject)) %>%
+    mutate(subject = ifelse(subject == "Algebra II", "AlgII", subject)) %>%
+    mutate(subject = ifelse(subject == "Biology I", "BioI", subject)) %>%
+    mutate(subject = ifelse(subject == "English I", "EngI", subject)) %>%
+    mutate(subject = ifelse(subject == "English II", "EngII", subject)) %>%
+    mutate(subject = ifelse(subject == "English III", "EngIII", subject)) %>%
+    mutate(subject = ifelse(subject == "RLA", "ELA", subject))
 
 # District characteristics and outcomes in separate data frames, standardize characteristic variables
 df_chars <- df %>%
