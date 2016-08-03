@@ -77,13 +77,15 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                 ggvisOutput("plot_char"),
                                 br(),
                                 "A percentile indicates the proportion of districts with 
-                                an equal or smaller value of that characteristic."),
+                                an equal or smaller value of that characteristic."
+                            ),
                             tabPanel("Table",
                                 br(),
                                 tableOutput("table"),
                                 br(),
                                 "Differences of more than half and a full a standard deviation are
-                                highlighted in yellow and orange, respectively.")
+                                highlighted in yellow and orange, respectively."
+                            )
                         )
                     )
                 )

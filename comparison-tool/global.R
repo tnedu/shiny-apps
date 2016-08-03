@@ -12,23 +12,23 @@ df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
 
 # Read in historical data
 historical <- read_csv("data/historical_data.csv") %>%
-    rename("District" = system_name) %>%
-    mutate(subject = ifelse(subject == "Algebra I", "AlgI", subject)) %>%
-    mutate(subject = ifelse(subject == "Algebra II", "AlgII", subject)) %>%
-    mutate(subject = ifelse(subject == "Biology I", "BioI", subject)) %>%
-    mutate(subject = ifelse(subject == "English I", "EngI", subject)) %>%
-    mutate(subject = ifelse(subject == "English II", "EngII", subject)) %>%
-    mutate(subject = ifelse(subject == "English III", "EngIII", subject)) %>%
-    mutate(subject = ifelse(subject == "RLA", "ELA", subject))
+    rename(District = system_name) %>%
+    mutate(subject = ifelse(subject == "Algebra I", "AlgI", subject),
+        subject = ifelse(subject == "Algebra II", "AlgII", subject),
+        subject = ifelse(subject == "Biology I", "BioI", subject),
+        subject = ifelse(subject == "English I", "EngI", subject),
+        subject = ifelse(subject == "English II", "EngII", subject),
+        subject = ifelse(subject == "English III", "EngIII", subject),
+        subject = ifelse(subject == "RLA", "ELA", subject))
 
 # District characteristics and outcomes in separate data frames, standardize characteristic variables
 df_chars <- df %>%
     select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
         Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures) %>%
-    rename("Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
-        "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
-        "Percent Economically Disadvantaged" = Pct_ED, "Percent Students with Disabilities" = Pct_SWD,
-        "Percent English Learners" = Pct_EL)
+    rename(`Per-Pupil Expenditures` = Per_Pupil_Expenditures, `Percent Black` = Pct_Black,
+        `Percent Hispanic` = Pct_Hispanic, `Percent Native American` = Pct_Native_American, 
+        `Percent Economically Disadvantaged` = Pct_ED, `Percent Students with Disabilities` = Pct_SWD,
+        `Percent English Learners` = Pct_EL)
 
 df_std <- df %>%
     filter(complete.cases(df_chars)) %>%
@@ -43,10 +43,10 @@ df_pctile <- df %>%
         "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
     select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
         Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures) %>%
-    rename("District" = system_name, "Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
-        "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
-        "Percent Economically Disadvantaged" = Pct_ED, "Percent Students with Disabilities" = Pct_SWD,
-        "Percent English Learners" = Pct_EL)
+    rename(`District` = system_name, `Per-Pupil Expenditures` = Per_Pupil_Expenditures, `Percent Black` = Pct_Black,
+        `Percent Hispanic` = Pct_Hispanic, `Percent Native American` = Pct_Native_American, 
+        `Percent Economically Disadvantaged` = Pct_ED, `Percent Students with Disabilities` = Pct_SWD,
+        `Percent English Learners` = Pct_EL)
 
 df_outcomes <- df %>%
     filter(complete.cases(df_chars)) %>%
@@ -56,14 +56,14 @@ df_outcomes <- df %>%
 
 # Calculate standard deviation of each characteristic variable
 standard_devs <- df_chars %>%
-    summarise("Enrollment" = sd(Enrollment, na.rm = TRUE),
-        "Per-Pupil Expenditures" = sd(`Per-Pupil Expenditures`, na.rm = TRUE),
-        "Percent Black" = sd(`Percent Black`, na.rm = TRUE),
-        "Percent Hispanic" = sd(`Percent Hispanic`, na.rm = TRUE),
-        "Percent Native American" = sd(`Percent Native American`, na.rm = TRUE),
-        "Percent Economically Disadvantaged" = sd(`Percent Economically Disadvantaged`, na.rm = TRUE),
-        "Percent Students with Disabilities" = sd(`Percent Students with Disabilities`, na.rm = TRUE),
-        "Percent English Learners" = sd(`Percent English Learners`, na.rm = TRUE))
+    summarise(`Enrollment` = sd(Enrollment, na.rm = TRUE),
+        `Per-Pupil Expenditures` = sd(`Per-Pupil Expenditures`, na.rm = TRUE),
+        `Percent Black` = sd(`Percent Black`, na.rm = TRUE),
+        `Percent Hispanic` = sd(`Percent Hispanic`, na.rm = TRUE),
+        `Percent Native American` = sd(`Percent Native American`, na.rm = TRUE),
+        `Percent Economically Disadvantaged` = sd(`Percent Economically Disadvantaged`, na.rm = TRUE),
+        `Percent Students with Disabilities` = sd(`Percent Students with Disabilities`, na.rm = TRUE),
+        `Percent English Learners` = sd(`Percent English Learners`, na.rm = TRUE))
 
 # Outcome vector for select input
 outcome_list <- c("Math Percent Proficient or Advanced" = "Math",

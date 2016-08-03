@@ -44,8 +44,8 @@ shinyServer(function(input, output) {
 
         # Select 8 most similar districts
         similarity %>%
-            mutate("Selected" = (system_name == input$district),
-                "Opacity" = ifelse(system_name %in% c(input$district, clicked$district), 0.9, 0.3)) %>%
+            mutate(Selected = (system_name == input$district),
+                Opacity = ifelse(system_name %in% c(input$district, clicked$district), 0.9, 0.3)) %>%
             arrange(desc(Selected), similarity_score) %>%
             inner_join(df_outcomes, by = "system_name") %>%
             slice(1:(1 + input$num_districts))
@@ -105,6 +105,14 @@ shinyServer(function(input, output) {
     output$header_bar <- renderText({paste(names(outcome_list[outcome_list == input$outcome]), 
         "for districts most similar to", input$district, sep = " ")})
 
+    # Tooltip for historical data plot
+    tooltip_historical <- function(x) {
+        if (is.null(x)) return(NULL)
+        row <- historical[historical$District == x$District & historical$year == x$year, ]
+
+        paste0("<b>", row$District, "</b><br>")
+    }
+
     # Line graph with historical data
     plot_hist <- reactive({
 
@@ -119,6 +127,7 @@ shinyServer(function(input, output) {
             layer_lines() %>%
             add_axis("x", title = "Year", grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
+            add_tooltip(tooltip_historical, on = "hover") %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%
             set_options(width = 'auto', height = 600)
     })
