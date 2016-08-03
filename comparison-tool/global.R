@@ -6,14 +6,25 @@ library(ggvis)
 library(shiny)
 library(shinyjs)
 
-# Read in all data, drop state observation
+# Read in achievement and profile data, drop state observation
 df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>% 
     filter(system != 0)
 
+# Read in historical data
+historical <- read_csv("data/historical_data.csv") %>%
+    rename("District" = system_name) %>%
+    mutate(subject = ifelse(subject == "Algebra I", "AlgI", subject)) %>%
+    mutate(subject = ifelse(subject == "Algebra II", "AlgII", subject)) %>%
+    mutate(subject = ifelse(subject == "Biology I", "BioI", subject)) %>%
+    mutate(subject = ifelse(subject == "English I", "EngI", subject)) %>%
+    mutate(subject = ifelse(subject == "English II", "EngII", subject)) %>%
+    mutate(subject = ifelse(subject == "English III", "EngIII", subject)) %>%
+    mutate(subject = ifelse(subject == "RLA", "ELA", subject))
+
 # District characteristics and outcomes in separate data frames, standardize characteristic variables
 df_chars <- df %>%
-    select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures"))) %>%
+    select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
+        Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures) %>%
     rename("Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
         "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
         "Percent Economically Disadvantaged" = Pct_ED, "Percent Students with Disabilities" = Pct_SWD,
@@ -23,15 +34,15 @@ df_std <- df %>%
     filter(complete.cases(df_chars)) %>%
     mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
         "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
-    select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures", "CORE_region")))
+    select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
+        Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures, CORE_region)
 
 df_pctile <- df %>%
     filter(complete.cases(df_chars)) %>%
     mutate_each_(funs(percent_rank), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
         "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
-    select(one_of(c("system_name", "Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures"))) %>%
+    select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
+        Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures) %>%
     rename("District" = system_name, "Per-Pupil Expenditures" = Per_Pupil_Expenditures, "Percent Black" = Pct_Black,
         "Percent Hispanic" = Pct_Hispanic, "Percent Native American" = Pct_Native_American, 
         "Percent Economically Disadvantaged" = Pct_ED, "Percent Students with Disabilities" = Pct_SWD,
@@ -39,9 +50,9 @@ df_pctile <- df %>%
 
 df_outcomes <- df %>%
     filter(complete.cases(df_chars)) %>%
-    select(one_of(c("system_name", "Math", "ELA", "Science", "AlgI", "AlgII", "BioI", "Chemistry",
-        "EngI", "EngII", "EngIII", "Graduation", "Dropout", "ACT_Composite", "Pct_Chronically_Absent",
-        "Pct_Suspended", "Pct_Expelled")))
+    select(system_name, Math, ELA, Science, AlgI, AlgII, BioI, Chemistry,
+        EngI, EngII, EngIII, Graduation, Dropout, ACT_Composite, Pct_Chronically_Absent,
+        Pct_Suspended, Pct_Expelled)
 
 # Calculate standard deviation of each characteristic variable
 standard_devs <- df_chars %>%

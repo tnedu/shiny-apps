@@ -27,10 +27,10 @@ shinyServer(function(input, output, session) {
         row <- df[df$system_name == x$system_name, ]
 
         paste0("<b>", row$system_name, "</b><br>",
-               names(district_char)[district_char == input$char], ": ", 
-                    row[names(row) == input$char], "<br>",
-               names(district_out)[district_out == input$outcome], ": ",
-                    row[names(row) == input$outcome])
+            names(district_char)[district_char == input$char], ": ", 
+                row[names(row) == input$char], "<br>",
+            names(district_out)[district_out == input$outcome], ": ",
+                row[names(row) == input$outcome])
     }
 
     # Extract district of clicked point for secondary graphs; Update highlighted district on point click
@@ -54,14 +54,13 @@ shinyServer(function(input, output, session) {
             y_scale <- c(0, 100)
         } else {
             y_scale <- c(min(df_highlight()[names(df_highlight()) == input$outcome]), 
-                         ceiling(max(df_highlight()[names(df_highlight()) == input$outcome])))
+                ceiling(max(df_highlight()[names(df_highlight()) == input$outcome])))
         }
 
         df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
-            layer_points(fill = ~Region,
-                         size := 125, size.hover := 300,
-                         opacity = ~factor(opacity), opacity.hover := 0.8) %>%
+            layer_points(fill = ~Region, size := 125, size.hover := 300,
+                opacity = ~factor(opacity), opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             scale_numeric("y", domain = y_scale) %>%
@@ -80,14 +79,14 @@ shinyServer(function(input, output, session) {
 
         district_data <- df_highlight() %>%
             filter(system_name == input$highlight) %>%
-            select(one_of(c("system_name", "Pct_BHN", "Pct_ED", "Pct_EL", "Pct_SWD"))) %>%
+            select(system_name, Pct_BHN, Pct_ED, Pct_EL, Pct_SWD) %>%
             rename("Black/Hispanic/Native American" = Pct_BHN, "Economically Disadvantaged" = Pct_ED, "English Learners" = Pct_EL, "Students with Disabilities" = Pct_SWD) %>%
             gather("demographic", "Percentage", 2:5)
 
         district_data %>%
             ggvis(~Percentage, ~demographic) %>%
             layer_rects(x2 = 0, height = band(), 
-                        fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
+                fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
             add_axis("x", grid = FALSE) %>%
             add_axis("y", title = "", grid = FALSE) %>%
             scale_numeric("x", domain = c(0, 100)) %>%
@@ -104,8 +103,7 @@ shinyServer(function(input, output, session) {
         if (is.null(x)) return(NULL)
         long <- df %>%
             filter(system_name == input$highlight) %>%
-            select(one_of(c("system_name", "AlgI", "AlgII", "BioI", "Chemistry", 
-                            "EngI", "EngII", "EngIII", "Math", "ELA", "Science"))) %>%
+            select(system_name, AlgI, AlgII, BioI, Chemistry, EngI, EngII, EngIII, Math, ELA, Science) %>%
             gather("subject", "Pct_Prof_Adv", 2:11) %>%
             filter(subject == x$subject)
 
@@ -122,10 +120,9 @@ shinyServer(function(input, output, session) {
     plot3 <- reactive({
 
         district_data <- df_highlight() %>%
-                            filter(system_name == input$highlight) %>%
-                            select(one_of(c("system_name", "AlgI", "AlgII", "BioI", "Chemistry",
-                                "ELA", "EngI", "EngII", "EngIII", "Math", "Science"))) %>%
-                            gather("subject", "Pct_Prof_Adv", 2:11)
+            filter(system_name == input$highlight) %>%
+            select(system_name, AlgI, AlgII, BioI, Chemistry, ELA, EngI, EngII, EngIII, Math, Science) %>%
+            gather("subject", "Pct_Prof_Adv", 2:11)
 
         district_data %>%
             ggvis(~factor(subject), ~Pct_Prof_Adv, key := ~subject) %>%

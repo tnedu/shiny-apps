@@ -20,6 +20,7 @@ shinyServer(function(input, output) {
         }
     })
 
+    ## Main outcome output
     # Identify most similar districts based on selected characteristics
     similarityData <- reactive({
 
@@ -43,8 +44,8 @@ shinyServer(function(input, output) {
 
         # Select 8 most similar districts
         similarity %>%
-            mutate("Selected" = (system_name == input$district)) %>%
-            mutate("Opacity" = ifelse(system_name == input$district | system_name == clicked$district, 0.9, 0.3)) %>%
+            mutate("Selected" = (system_name == input$district),
+                "Opacity" = ifelse(system_name %in% c(input$district, clicked$district), 0.9, 0.3)) %>%
             arrange(desc(Selected), similarity_score) %>%
             inner_join(df_outcomes, by = "system_name") %>%
             slice(1:(1 + input$num_districts))
@@ -66,11 +67,6 @@ shinyServer(function(input, output) {
     click_district <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
     }
-
-    # Drop comparison columns when input district changes
-    observe({
-        clicked$district <- input$district
-    })
 
     # Column chart of proficiency for selected, similar districts
     plot_prof <- reactive({
@@ -96,7 +92,7 @@ shinyServer(function(input, output) {
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_bar, on = "hover") %>%
             scale_ordinal("x", domain = similarityData()$system_name) %>%
-            scale_numeric("y", domain = y_scale) %>%
+            scale_numeric("y", domain = y_scale, expand = 0) %>%
             scale_numeric("opacity", range = c(0.3, 0.9)) %>%
             set_options(width = 'auto', height = 600) %>%
             hide_legend("fill") %>%
@@ -109,13 +105,66 @@ shinyServer(function(input, output) {
     output$header_bar <- renderText({paste(names(outcome_list[outcome_list == input$outcome]), 
         "for districts most similar to", input$district, sep = " ")})
 
+    # Line graph with historical data
+    plot_hist <- reactive({
+
+        # Label for vertical axis
+        yvar_name <- names(outcome_list[outcome_list == input$outcome])
+
+        historical %>%
+            filter(subject == input$outcome) %>%
+            filter(District %in% similarityData()$system_name) %>%
+            ggvis(~factor(year), ~pct_prof_adv, stroke = ~District) %>%
+            layer_points(fill = ~District) %>%
+            layer_lines() %>%
+            add_axis("x", title = "Year", grid = FALSE) %>%
+            add_axis("y", title = yvar_name, grid = FALSE) %>%
+            scale_numeric("y", domain = c(0, 100), expand = 0) %>%
+            set_options(width = 'auto', height = 600)
+    })
+
+    plot_hist %>% bind_shiny("plot_hist")
+
+    ## Secondary profile output
+    # Tooltip for scatterplot with district name and profile data
+    tooltip_scatter <- function(x) {
+        if (is.null(x)) return(NULL)
+            row <- df_chars[df_chars$system_name == x$District, ]
+
+            paste0("<b>", row$system_name, "</b><br>", 
+                x$Characteristic, ": ", row[names(row) == x$Characteristic], "<br>",
+                x$Characteristic, " Percentile: ", x$Value)
+    }
+
+    # Scatterplot of percentile ranks for district characteristics
+    plot_char <- reactive({
+
+        df_pctile %>%
+            filter(District == input$district | District == clicked$district) %>%
+            gather("Characteristic", "Value", 2:9) %>%
+            mutate(Value = round(100 * Value, 1)) %>%
+            ggvis(~Value, ~Characteristic) %>%
+            layer_points(fill = ~District, size := 125, opacity := 0.5, opacity.hover := 0.9) %>%
+            add_axis("x", title = "Percentile", grid = FALSE) %>%
+            add_axis("y", title = "") %>%
+            add_tooltip(tooltip_scatter, on = "hover") %>%
+            scale_numeric("x", domain = c(0, 100), expand = 0) %>%
+            scale_ordinal("y", domain = c("Enrollment", "Per-Pupil Expenditures", 
+                "Percent Economically Disadvantaged", "Percent Students with Disabilities",
+                "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")) %>%
+            set_options(width = 'auto', height = 400)
+
+    })
+
+    plot_char %>% bind_shiny("plot_char")
+
     # Table with profile data for selected, clicked districts
     output$table <- renderFlexTable({
-
+    
         df_comparison <- df_chars %>%
-            select(one_of(c("system_name", "Enrollment", "Percent Black", "Percent Hispanic",
-                "Percent Native American", "Percent Economically Disadvantaged", "Percent Students with Disabilities",
-                "Percent English Learners", "Per-Pupil Expenditures"))) %>%
+            select(system_name, Enrollment, `Percent Black`, `Percent Hispanic`, `Percent Native American`,
+                `Percent Economically Disadvantaged`, `Percent Students with Disabilities`,
+                `Percent English Learners`, `Per-Pupil Expenditures`) %>%
             filter(system_name == input$district | system_name == clicked$district) %>%
             gather("Characteristic", "value", 2:9) %>%
             spread("system_name", "value")
@@ -134,7 +183,7 @@ shinyServer(function(input, output) {
         df_comparison <- df_comparison[match(row_order, df_comparison$Characteristic), ]
 
         comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
-        
+
         options("ReporteRs-default-font" = "Open Sans")
 
         # Add conditional formatting to highlight large differences
@@ -145,14 +194,10 @@ shinyServer(function(input, output) {
                 comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= as.numeric(standard_devs[names(standard_devs) == char]), 4] = 
                     chprop(cellProperties(), background.color = "orange")
                 comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= 0.5 * as.numeric(standard_devs[names(standard_devs) == char]) & 
-                    abs(df_comparison$Difference) < as.numeric(standard_devs[names(standard_devs) == char]), 4] =
-                    chprop(cellProperties(), background.color = "yellow")
+                    abs(df_comparison$Difference) < as.numeric(standard_devs[names(standard_devs) == char]), 4] = chprop(cellProperties(), background.color = "yellow")
             }
 
-            chars_list <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged",
-                "Percent Students with Disabilities", "Percent English Learners", "Percent Hispanic", "Percent Black")
-
-            for (char in chars_list) {
+            for (char in row_order) {
                 format_FlexTable(char)
             }
         } else {
@@ -171,36 +216,9 @@ shinyServer(function(input, output) {
         }
     })
 
-    # Tooltip for scatterplot with district name and profile data
-    tooltip_scatter <- function(x) {
-        if (is.null(x)) return(NULL)
-            row <- df_chars[df_chars$system_name == x$District, ]
-
-            paste0("<b>", row$system_name, "</b><br>", 
-                x$Characteristic, ": ", row[names(row) == x$Characteristic], "<br>",
-                "Percentile Rank: ", x$Value)
-    }
-    
-    # Scatterplot of percentile ranks for district characteristics
-    plot_char <- reactive({
-
-        df_pctile %>%
-            filter(District == input$district | District == clicked$district) %>%
-            gather("Characteristic", "Value", 2:9) %>%
-            mutate(Value = round(100 * Value, 1)) %>%
-            ggvis(~Value, ~Characteristic) %>%
-            layer_points(fill = ~District, size := 125, opacity := 0.5, opacity.hover := 0.9) %>%
-            add_axis("x", title = "Percentile Rank", grid = FALSE) %>%
-            add_axis("y", title = "") %>%
-            add_tooltip(tooltip_scatter, on = "hover") %>%
-            scale_numeric("x", domain = c(0, 100), expand = 0) %>%
-            scale_ordinal("y", domain = c("Enrollment", "Per-Pupil Expenditures", 
-                "Percent Economically Disadvantaged", "Percent Students with Disabilities",
-                "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")) %>%
-            set_options(width = 'auto', height = 400)
-
+    # Drop comparison columns/dots when input district changes
+    observe({
+        clicked$district <- input$district
     })
 
-    plot_char %>% bind_shiny("plot_char")
-    
 })
