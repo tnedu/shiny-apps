@@ -60,10 +60,12 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         tabsetPanel(type = "tabs",
                             tabPanel("Current Year",
                                 br(),
-                                ggvisOutput("plot_prof")),
+                                ggvisOutput("plot_prof")
+                            ),
                             tabPanel("Historical Data",
                                 br(),
-                                ggvisOutput("plot_hist"))
+                                ggvisOutput("plot_hist")
+                            )
                         ),
                         br(),
                         tags$b("Click on any bar to compare district profile data below."),
@@ -77,13 +79,15 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                 ggvisOutput("plot_char"),
                                 br(),
                                 "A percentile indicates the proportion of districts with 
-                                an equal or smaller value of that characteristic."),
+                                an equal or smaller value of that characteristic."
+                            ),
                             tabPanel("Table",
                                 br(),
                                 tableOutput("table"),
                                 br(),
                                 "Differences of more than half and a full a standard deviation are
-                                highlighted in yellow and orange, respectively.")
+                                highlighted in yellow and orange, respectively."
+                            )
                         )
                     )
                 )

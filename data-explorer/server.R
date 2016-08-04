@@ -8,8 +8,8 @@ shinyServer(function(input, output, session) {
 
         # Variables to assign State different color, opacity
         df <- df %>%
-            mutate(Region = ifelse(system_name == "State of Tennessee", "State", Region)) %>%
-            mutate(opacity = ifelse(system_name == "State of Tennessee", 1, 0.4))
+            mutate(Region = ifelse(system_name == "State of Tennessee", "State", Region),
+                opacity = ifelse(system_name == "State of Tennessee", 1, 0.4))
 
         if (input$highlight != "State of Tennessee") {
             df[df$system_name == input$highlight, ]$opacity <- 1
@@ -80,7 +80,8 @@ shinyServer(function(input, output, session) {
         district_data <- df_highlight() %>%
             filter(system_name == input$highlight) %>%
             select(system_name, Pct_BHN, Pct_ED, Pct_EL, Pct_SWD) %>%
-            rename("Black/Hispanic/Native American" = Pct_BHN, "Economically Disadvantaged" = Pct_ED, "English Learners" = Pct_EL, "Students with Disabilities" = Pct_SWD) %>%
+            rename(`Black/Hispanic/Native American` = Pct_BHN, `Economically Disadvantaged` = Pct_ED,
+                `English Learners` = Pct_EL, `Students with Disabilities` = Pct_SWD) %>%
             gather("demographic", "Percentage", 2:5)
 
         district_data %>%

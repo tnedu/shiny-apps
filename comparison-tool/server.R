@@ -44,8 +44,8 @@ shinyServer(function(input, output) {
 
         # Select 8 most similar districts
         similarity %>%
-            mutate("Selected" = (system_name == input$district),
-                "Opacity" = ifelse(system_name %in% c(input$district, clicked$district), 0.9, 0.3)) %>%
+            mutate(Selected = (system_name == input$district),
+                Opacity = ifelse(system_name %in% c(input$district, clicked$district), 0.9, 0.3)) %>%
             arrange(desc(Selected), similarity_score) %>%
             inner_join(df_outcomes, by = "system_name") %>%
             slice(1:(1 + input$num_districts))
@@ -105,6 +105,15 @@ shinyServer(function(input, output) {
     output$header_bar <- renderText({paste(names(outcome_list[outcome_list == input$outcome]), 
         "for districts most similar to", input$district, sep = " ")})
 
+    # Tooltip for historical data plot
+    tooltip_historical <- function(x) {
+        if (is.null(x)) return(NULL)
+        row <- historical[historical$District == x$District & historical$subject == input$outcome & historical$year == x$year, ]
+
+        paste0("<b>", row$District, "</b><br>",
+            row$year, " ", names(outcome_list)[outcome_list == input$outcome], ": ", row$pct_prof_adv)
+    }
+
     # Line graph with historical data
     plot_hist <- reactive({
 
@@ -114,11 +123,12 @@ shinyServer(function(input, output) {
         historical %>%
             filter(subject == input$outcome) %>%
             filter(District %in% similarityData()$system_name) %>%
-            ggvis(~factor(year), ~pct_prof_adv, stroke = ~District) %>%
+            ggvis(~year, ~pct_prof_adv, stroke = ~District, opacity := 0.5, opacity.hover := 0.9) %>%
             layer_points(fill = ~District) %>%
             layer_lines() %>%
-            add_axis("x", title = "Year", grid = FALSE) %>%
+            add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
+            add_tooltip(tooltip_historical, on = "hover") %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%
             set_options(width = 'auto', height = 600)
     })
