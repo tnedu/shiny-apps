@@ -108,9 +108,10 @@ shinyServer(function(input, output) {
     # Tooltip for historical data plot
     tooltip_historical <- function(x) {
         if (is.null(x)) return(NULL)
-        row <- historical[historical$District == x$District & historical$year == x$year, ]
+        row <- historical[historical$District == x$District & historical$subject == input$outcome & historical$year == x$year, ]
 
-        paste0("<b>", row$District, "</b><br>")
+        paste0("<b>", row$District, "</b><br>",
+            row$year, " ", names(outcome_list)[outcome_list == input$outcome], ": ", row$pct_prof_adv)
     }
 
     # Line graph with historical data
@@ -122,10 +123,10 @@ shinyServer(function(input, output) {
         historical %>%
             filter(subject == input$outcome) %>%
             filter(District %in% similarityData()$system_name) %>%
-            ggvis(~factor(year), ~pct_prof_adv, stroke = ~District) %>%
+            ggvis(~year, ~pct_prof_adv, stroke = ~District, opacity := 0.5, opacity.hover := 0.9) %>%
             layer_points(fill = ~District) %>%
             layer_lines() %>%
-            add_axis("x", title = "Year", grid = FALSE) %>%
+            add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_historical, on = "hover") %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%

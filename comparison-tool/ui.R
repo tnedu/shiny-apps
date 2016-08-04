@@ -60,10 +60,12 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         tabsetPanel(type = "tabs",
                             tabPanel("Current Year",
                                 br(),
-                                ggvisOutput("plot_prof")),
+                                ggvisOutput("plot_prof")
+                            ),
                             tabPanel("Historical Data",
                                 br(),
-                                ggvisOutput("plot_hist"))
+                                ggvisOutput("plot_hist")
+                            )
                         ),
                         br(),
                         tags$b("Click on any bar to compare district profile data below."),
