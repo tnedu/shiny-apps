@@ -68,7 +68,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                             )
                         ),
                         br(),
-                        tags$b("Click on any bar to compare district profile data below."),
+                        tags$b("Click on any bar/line to compare district profile data below."),
                         br(),
                         br(),
                         h4(textOutput("header_comp")),

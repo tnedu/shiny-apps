@@ -64,8 +64,12 @@ shinyServer(function(input, output) {
 
     # Extract clicked district for secondary table
     clicked <- reactiveValues(district = "")
-    click_district <- function(data, ...) {
+    click_district_bar <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
+    }
+    
+    click_district_line <- function(data, ...) {
+        clicked$district <- as.character(data$District)
     }
 
     # Column chart of proficiency for selected, similar districts
@@ -96,7 +100,7 @@ shinyServer(function(input, output) {
             scale_numeric("opacity", range = c(0.3, 0.9)) %>%
             set_options(width = 'auto', height = 600) %>%
             hide_legend("fill") %>%
-            handle_click(click_district)
+            handle_click(click_district_bar)
 
     })
 
@@ -124,13 +128,14 @@ shinyServer(function(input, output) {
             filter(subject == input$outcome) %>%
             filter(District %in% similarityData()$system_name) %>%
             ggvis(~year, ~pct_prof_adv, stroke = ~District, opacity := 0.5, opacity.hover := 0.9) %>%
-            layer_points(fill = ~District) %>%
+            layer_points(fill = ~District, size := 75) %>%
             layer_lines() %>%
             add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_historical, on = "hover") %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%
-            set_options(width = 'auto', height = 600)
+            set_options(width = 'auto', height = 600)%>%
+            handle_click(click_district_line)
     })
 
     plot_hist %>% bind_shiny("plot_hist")
@@ -139,18 +144,18 @@ shinyServer(function(input, output) {
     # Tooltip for scatterplot with district name and profile data
     tooltip_scatter <- function(x) {
         if (is.null(x)) return(NULL)
-            row <- df_chars[df_chars$system_name == x$District, ]
+        row <- df_chars[df_chars$system_name == x$District, ]
 
-            paste0("<b>", row$system_name, "</b><br>", 
-                x$Characteristic, ": ", row[names(row) == x$Characteristic], "<br>",
-                x$Characteristic, " Percentile: ", x$Value)
+        paste0("<b>", row$system_name, "</b><br>", 
+            x$Characteristic, ": ", row[names(row) == x$Characteristic], "<br>",
+            x$Characteristic, " Percentile: ", x$Value)
     }
 
     # Scatterplot of percentile ranks for district characteristics
     plot_char <- reactive({
 
         df_pctile %>%
-            filter(District == input$district | District == clicked$district) %>%
+            filter(District %in% c(input$district, clicked$district)) %>%
             gather("Characteristic", "Value", 2:9) %>%
             mutate(Value = round(100 * Value, 1)) %>%
             ggvis(~Value, ~Characteristic) %>%
@@ -175,7 +180,7 @@ shinyServer(function(input, output) {
             select(system_name, Enrollment, `Percent Black`, `Percent Hispanic`, `Percent Native American`,
                 `Percent Economically Disadvantaged`, `Percent Students with Disabilities`,
                 `Percent English Learners`, `Per-Pupil Expenditures`) %>%
-            filter(system_name == input$district | system_name == clicked$district) %>%
+            filter(system_name %in% c(input$district, clicked$district)) %>%
             gather("Characteristic", "value", 2:9) %>%
             spread("system_name", "value")
 
@@ -219,7 +224,7 @@ shinyServer(function(input, output) {
     })
 
     output$header_comp <- renderText({
-        if (clicked$district == "" | clicked$district == input$district) {
+        if (clicked$district %in% c("", input$district)) {
             paste("District Profile Data for", input$district, sep = " ")
         } else {
             paste("District Profile Data for", input$district, "and", clicked$district, sep = " ")
