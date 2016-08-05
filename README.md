@@ -8,6 +8,10 @@ To access these applications, please visit https://tnedu.shinyapps.io/[app-name]
 
     A tool designed to help users explore relationships between district characteristics and outcomes for Tennessee school districts.
 
+* [**explorer-motion**](https://tnedu.shinyapps.io/explorer-motion)
+
+    Similar to data explorer tool, but using Google Visualization's Motion Chart interface. Mostly for experimental purposes.
+
 * [**comparison-tool**](https://tnedu.shinyapps.io/comparison-tool)
 
     A tool designed to identify similar districts based on selected characteristics and compare outcomes against similar districts.
