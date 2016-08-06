@@ -21,7 +21,7 @@ historical <- read_csv("data/historical_data.csv") %>%
         subject = ifelse(subject == "English III", "EngIII", subject),
         subject = ifelse(subject == "RLA", "ELA", subject))
 
-# District characteristics and outcomes in separate data frames, standardize characteristic variables
+# District characteristics and outcomes in separate data frames
 df_chars <- df %>%
     select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
         Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures) %>%
@@ -30,6 +30,13 @@ df_chars <- df %>%
         `Percent Economically Disadvantaged` = Pct_ED, `Percent Students with Disabilities` = Pct_SWD,
         `Percent English Learners` = Pct_EL)
 
+df_outcomes <- df %>%
+    filter(complete.cases(df_chars)) %>%
+    select(system_name, Math, ELA, Science, AlgI, AlgII, BioI, Chemistry,
+        EngI, EngII, EngIII, Graduation, Dropout, ACT_Composite, Pct_Chronically_Absent,
+        Pct_Suspended, Pct_Expelled)
+
+# Standardize characteristic variables
 df_std <- df %>%
     filter(complete.cases(df_chars)) %>%
     mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
@@ -37,6 +44,7 @@ df_std <- df %>%
     select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
         Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures, CORE_region)
 
+# Percentiles of characteristic variables
 df_pctile <- df %>%
     filter(complete.cases(df_chars)) %>%
     mutate_each_(funs(percent_rank), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
@@ -47,12 +55,6 @@ df_pctile <- df %>%
         `Percent Hispanic` = Pct_Hispanic, `Percent Native American` = Pct_Native_American, 
         `Percent Economically Disadvantaged` = Pct_ED, `Percent Students with Disabilities` = Pct_SWD,
         `Percent English Learners` = Pct_EL)
-
-df_outcomes <- df %>%
-    filter(complete.cases(df_chars)) %>%
-    select(system_name, Math, ELA, Science, AlgI, AlgII, BioI, Chemistry,
-        EngI, EngII, EngIII, Graduation, Dropout, ACT_Composite, Pct_Chronically_Absent,
-        Pct_Suspended, Pct_Expelled)
 
 # Calculate standard deviation of each characteristic variable
 standard_devs <- df_chars %>%

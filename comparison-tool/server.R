@@ -3,7 +3,7 @@
 
 shinyServer(function(input, output) {
 
-    # Hide output and show message if no district characteristics are selected
+    # Hide output, disable inputs, and show message if no district characteristics are selected
     observe({
         if (length(input$district_chars) == 0) {
             hide(id = "output")
@@ -62,17 +62,13 @@ shinyServer(function(input, output) {
             row[names(row) == input$outcome])
     }
 
-    # Extract clicked district for secondary table
+    # Extract clicked district for secondary table from bar graph
     clicked <- reactiveValues(district = "")
     click_district_bar <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
     }
-    
-    click_district_line <- function(data, ...) {
-        clicked$district <- as.character(data$District)
-    }
 
-    # Column chart of proficiency for selected, similar districts
+    # Bar graph of proficiency for selected, similar districts
     plot_prof <- reactive({
 
         # Label for vertical axis
@@ -116,6 +112,11 @@ shinyServer(function(input, output) {
 
         paste0("<b>", row$District, "</b><br>",
             row$year, " ", names(outcome_list)[outcome_list == input$outcome], ": ", row$pct_prof_adv)
+    }
+
+    # Extract clicked district for secondary table from line graph
+    click_district_line <- function(data, ...) {
+        clicked$district <- as.character(data$District)
     }
 
     # Line graph with historical data
@@ -224,11 +225,13 @@ shinyServer(function(input, output) {
     })
 
     output$header_comp <- renderText({
+
         if (clicked$district %in% c("", input$district)) {
             paste("District Profile Data for", input$district, sep = " ")
         } else {
             paste("District Profile Data for", input$district, "and", clicked$district, sep = " ")
         }
+
     })
 
     # Drop comparison columns/dots when input district changes
