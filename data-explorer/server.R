@@ -82,7 +82,7 @@ shinyServer(function(input, output, session) {
             select(system_name, Pct_BHN, Pct_ED, Pct_EL, Pct_SWD) %>%
             rename(`Black/Hispanic/Native American` = Pct_BHN, `Economically Disadvantaged` = Pct_ED,
                 `English Learners` = Pct_EL, `Students with Disabilities` = Pct_SWD) %>%
-            gather("demographic", "Percentage", 2:5)
+            gather(demographic, Percentage, 2:5)
 
         district_data %>%
             ggvis(~Percentage, ~demographic) %>%
@@ -105,7 +105,7 @@ shinyServer(function(input, output, session) {
         long <- df %>%
             filter(system_name == input$highlight) %>%
             select(system_name, AlgI, AlgII, BioI, Chemistry, EngI, EngII, EngIII, Math, ELA, Science) %>%
-            gather("subject", "Pct_Prof_Adv", 2:11) %>%
+            gather(subject, Pct_Prof_Adv, 2:11) %>%
             filter(subject == x$subject)
 
         paste0("<b>", long$subject, "</b><br>",
@@ -123,7 +123,7 @@ shinyServer(function(input, output, session) {
         district_data <- df_highlight() %>%
             filter(system_name == input$highlight) %>%
             select(system_name, AlgI, AlgII, BioI, Chemistry, ELA, EngI, EngII, EngIII, Math, Science) %>%
-            gather("subject", "Pct_Prof_Adv", 2:11)
+            gather(subject, Pct_Prof_Adv, 2:11)
 
         district_data %>%
             ggvis(~factor(subject), ~Pct_Prof_Adv, key := ~subject) %>%
