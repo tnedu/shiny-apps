@@ -19,7 +19,11 @@ historical <- read_csv("data/historical_data.csv") %>%
         subject = ifelse(subject == "English I", "EngI", subject),
         subject = ifelse(subject == "English II", "EngII", subject),
         subject = ifelse(subject == "English III", "EngIII", subject),
-        subject = ifelse(subject == "RLA", "ELA", subject))
+        subject = ifelse(subject == "RLA", "ELA", subject)) %>%
+    spread(subject, pct_prof_adv) %>%
+    mutate_each(funs(ifelse(is.na(.), -999, .)), AlgI:Science) %>%
+    gather(subject, pct_prof_adv, AlgI:Science) %>%
+    mutate(pct_prof_adv = ifelse(pct_prof_adv == -999, NA, pct_prof_adv))
 
 # District characteristics and outcomes in separate data frames
 df_chars <- df %>%

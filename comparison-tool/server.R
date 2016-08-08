@@ -137,7 +137,7 @@ shinyServer(function(input, output) {
             scale_ordinal("fill", domain = similarityData()$system_name) %>%
             scale_ordinal("stroke", domain = similarityData()$system_name) %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%
-            set_options(width = 'auto', height = 600) %>%
+            set_options(width = 'auto', height = 600, renderer = "canvas") %>%
             hide_legend("stroke") %>%
             handle_click(click_line)
     })
