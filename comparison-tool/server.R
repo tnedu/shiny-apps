@@ -64,7 +64,7 @@ shinyServer(function(input, output) {
 
     # Extract clicked district for secondary table from bar graph
     clicked <- reactiveValues(district = "")
-    click_district_bar <- function(data, ...) {
+    click_bar <- function(data, ...) {
         clicked$district <- as.character(data$system_name)
     }
 
@@ -96,7 +96,7 @@ shinyServer(function(input, output) {
             scale_numeric("opacity", range = c(0.3, 0.9)) %>%
             set_options(width = 'auto', height = 600) %>%
             hide_legend("fill") %>%
-            handle_click(click_district_bar)
+            handle_click(click_bar)
 
     })
 
@@ -115,7 +115,7 @@ shinyServer(function(input, output) {
     }
 
     # Extract clicked district for secondary table from line graph
-    click_district_line <- function(data, ...) {
+    click_line <- function(data, ...) {
         clicked$district <- as.character(data$District)
     }
 
@@ -134,9 +134,12 @@ shinyServer(function(input, output) {
             add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_historical, on = "hover") %>%
+            scale_ordinal("fill", domain = similarityData()$system_name) %>%
+            scale_ordinal("stroke", domain = similarityData()$system_name) %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%
-            set_options(width = 'auto', height = 600)%>%
-            handle_click(click_district_line)
+            set_options(width = 'auto', height = 600) %>%
+            hide_legend("stroke") %>%
+            handle_click(click_line)
     })
 
     plot_hist %>% bind_shiny("plot_hist")
@@ -227,9 +230,9 @@ shinyServer(function(input, output) {
     output$header_comp <- renderText({
 
         if (clicked$district %in% c("", input$district)) {
-            paste("District Profile Data for", input$district, sep = " ")
+            paste("District Profile Data for", input$district)
         } else {
-            paste("District Profile Data for", input$district, "and", clicked$district, sep = " ")
+            paste("District Profile Data for", input$district, "and", clicked$district)
         }
 
     })
