@@ -32,9 +32,12 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                             selected = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
                         ),
                         br(),
-                        actionButton(inputId = "button", label = "Go!")
+                        actionButton(inputId = "button", label = "Go!"),
+                        hidden(tags$div(id = "info",
+                            "Adjust any of the inputs in the left panels to update the output.")
+                        )
                     ),
-                    conditionalPanel("input.button >= 1",
+                    conditionalPanel("input.button == 1",
                         wellPanel(
                             h4("Outcome"),
                             br(),
@@ -90,19 +93,19 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                             h4(textOutput("header_comp")),
                             br(),
                             tabsetPanel(type = "tabs",
-                                tabPanel("Plot",
-                                    br(),
-                                    ggvisOutput("plot_profile"),
-                                    br(),
-                                    "A percentile indicates the proportion of districts with 
-                                    an equal or smaller value of that characteristic."
-                                ),
                                 tabPanel("Table",
                                     br(),
                                     tableOutput("table_profile"),
                                     br(),
                                     "Differences of more than half and a full a standard deviation are
-                                    highlighted in yellow and orange, respectively."
+                                        highlighted in yellow and orange, respectively."
+                                ),
+                                tabPanel("Plot",
+                                    br(),
+                                    ggvisOutput("plot_profile"),
+                                    br(),
+                                    "A percentile indicates the proportion of districts with 
+                                        an equal or smaller value of that characteristic."
                                 )
                             )
                         )
