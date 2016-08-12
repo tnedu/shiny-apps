@@ -4,7 +4,7 @@
 shinyServer(function(input, output) {
 
     # Hide output, disable inputs, and show message if no district characteristics are selected
-    observe({
+    observeEvent(input$button, {
         if (length(input$district_chars) == 0) {
             hide(id = "output")
             show(id = "request_input")
@@ -22,16 +22,16 @@ shinyServer(function(input, output) {
 
     ## Main outcome output
     # Identify most similar districts based on selected characteristics
-    similarityData <- reactive({
+    similarityData <- eventReactive(input$button, {
+
+        # Ensure that app doesn't crash if no characteristics are selected
+        req(input$district_chars)
 
         # Narrow comparison to within CORE region if specified
         if (input$restrict_CORE) {
             filter_region <- df_std[df_std$system_name == input$district, ]$CORE_region
             df_std <- filter(df_std, CORE_region == filter_region)
         }
-
-        # Ensure that app doesn't crash if no characteristics are selected
-        req(input$district_chars)
 
         chars <- select(df_std, one_of(c("system_name", input$district_chars)))
 
@@ -54,7 +54,6 @@ shinyServer(function(input, output) {
 
     # Tooltip for bar graph with district name and proficiency %
     tooltip_bar <- function(x) {
-        if (is.null(x)) return(NULL)
         row <- df[df$system_name == x$system_name, ]
 
         paste0("<b>", row$system_name, "</b><br>",
@@ -69,7 +68,7 @@ shinyServer(function(input, output) {
     }
 
     # Bar graph of proficiency for selected, similar districts
-    plot_prof <- reactive({
+    plot_prof <- eventReactive(input$button, {
 
         # Label for vertical axis
         yvar_name <- names(outcome_list[outcome_list == input$outcome])
@@ -81,7 +80,7 @@ shinyServer(function(input, output) {
         if (grepl("Percent Proficient or Advanced", yvar_name)) {
             y_scale <- c(0, 100)
         } else {
-            y_scale <- c(floor(min(df_outcomes[names(df_outcomes) == input$outcome])), 
+            y_scale <- c(floor(min(df_outcomes[names(df_outcomes) == input$outcome])),
                 ceiling(max(df_outcomes[names(df_outcomes) == input$outcome])))
         }
 
@@ -94,20 +93,21 @@ shinyServer(function(input, output) {
             scale_ordinal("x", domain = similarityData()$system_name) %>%
             scale_numeric("y", domain = y_scale, expand = 0) %>%
             scale_numeric("opacity", range = c(0.3, 0.9)) %>%
-            set_options(width = 'auto', height = 600) %>%
+            set_options(width = "auto", height = 600) %>%
             hide_legend("fill") %>%
             handle_click(click_bar)
 
     })
 
-    plot_prof %>% bind_shiny("plot_prof")
+    observeEvent(input$button, {
+        plot_prof %>% bind_shiny("plot_prof")
+    })
 
-    output$header_bar <- renderText({paste(names(outcome_list[outcome_list == input$outcome]), 
+    output$header_bar <- renderText({paste(names(outcome_list[outcome_list == input$outcome]),
         "for districts most similar to", input$district, sep = " ")})
 
     # Tooltip for historical data plot
     tooltip_historical <- function(x) {
-        if (is.null(x)) return(NULL)
         row <- historical[historical$District == x$District & historical$subject == input$outcome & historical$year == x$year, ]
 
         paste0("<b>", row$District, "</b><br>",
@@ -120,7 +120,7 @@ shinyServer(function(input, output) {
     }
 
     # Line graph with historical data
-    plot_hist <- reactive({
+    plot_hist <- eventReactive(input$button, {
 
         # Label for vertical axis
         yvar_name <- names(outcome_list[outcome_list == input$outcome])
@@ -142,21 +142,22 @@ shinyServer(function(input, output) {
             handle_click(click_line)
     })
 
-    plot_hist %>% bind_shiny("plot_hist")
+    observeEvent(input$button, {
+        plot_hist %>% bind_shiny("plot_hist")
+    })
 
     ## Secondary profile output
     # Tooltip for scatterplot with district name and profile data
     tooltip_scatter <- function(x) {
-        if (is.null(x)) return(NULL)
         row <- df_chars[df_chars$system_name == x$District, ]
 
-        paste0("<b>", row$system_name, "</b><br>", 
+        paste0("<b>", row$system_name, "</b><br>",
             x$Characteristic, ": ", row[names(row) == x$Characteristic], "<br>",
             x$Characteristic, " Percentile: ", x$Value)
     }
 
     # Scatterplot of percentile ranks for district characteristics
-    plot_char <- reactive({
+    plot_char <- eventReactive(input$button, {
 
         df_pctile %>%
             filter(District %in% c(input$district, clicked$district)) %>%
@@ -168,18 +169,20 @@ shinyServer(function(input, output) {
             add_axis("y", title = "") %>%
             add_tooltip(tooltip_scatter, on = "hover") %>%
             scale_numeric("x", domain = c(0, 100), expand = 0) %>%
-            scale_ordinal("y", domain = c("Enrollment", "Per-Pupil Expenditures", 
+            scale_ordinal("y", domain = c("Enrollment", "Per-Pupil Expenditures",
                 "Percent Economically Disadvantaged", "Percent Students with Disabilities",
                 "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")) %>%
-            set_options(width = 'auto', height = 400)
+            set_options(width = "auto", height = 400)
 
     })
 
-    plot_char %>% bind_shiny("plot_char")
+    observeEvent(input$button, {
+        plot_char %>% bind_shiny("plot_char")
+    })
 
     # Table with profile data for selected, clicked districts
     output$table <- renderFlexTable({
-    
+
         df_comparison <- df_chars %>%
             select(system_name, Enrollment, `Percent Black`, `Percent Hispanic`, `Percent Native American`,
                 `Percent Economically Disadvantaged`, `Percent Students with Disabilities`,
@@ -210,9 +213,9 @@ shinyServer(function(input, output) {
             setFlexTableWidths(comp_table, widths = c(4, 3, 3, 3))
 
             format_FlexTable <- function(char) {
-                comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= as.numeric(standard_devs[names(standard_devs) == char]), 4] = 
+                comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= as.numeric(standard_devs[names(standard_devs) == char]), 4] =
                     chprop(cellProperties(), background.color = "orange")
-                comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= 0.5 * as.numeric(standard_devs[names(standard_devs) == char]) & 
+                comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= 0.5 * as.numeric(standard_devs[names(standard_devs) == char]) &
                     abs(df_comparison$Difference) < as.numeric(standard_devs[names(standard_devs) == char]), 4] = chprop(cellProperties(), background.color = "yellow")
             }
 
