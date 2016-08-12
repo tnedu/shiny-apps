@@ -8,7 +8,8 @@ library(shinyjs)
 
 # Read in achievement and profile data, drop state observation
 df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>% 
-    filter(system != 0)
+    filter(system != 0) %>%
+    mutate(system_name = sub("Special School District", "SSD", system_name))
 
 # Read in historical data
 historical <- read_csv("data/historical_data.csv") %>%

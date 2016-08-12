@@ -18,16 +18,17 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         br(),
                         selectInput(inputId = "district", label = "Select a District:", choices = df_std$system_name),
                         br(),
-                        checkboxGroupInput(inputId = "district_chars", 
+                        checkboxGroupInput(inputId = "district_chars",
                             label = "Select One or More District Characteristics:",
-                            choices = c("Student Enrollment" = "Enrollment", 
-                                "% Black Students" = "Pct_Black",
-                                "% Hispanic Students" = "Pct_Hispanic",
-                                "% Native American Students" = "Pct_Native_American",
-                                "% English Learner Students" = "Pct_EL",
+                            choices = c("Student Enrollment" = "Enrollment",
+                                "Per-Pupil Expenditures" = "Per_Pupil_Expenditures",
                                 "% Economically Disadvantaged" = "Pct_ED",
                                 "% Students with Disabilities" = "Pct_SWD",
-                                "Per-Pupil Expenditures" = "Per_Pupil_Expenditures"),
+                                "% English Learner Students" = "Pct_EL",
+                                "% Black Students" = "Pct_Black",
+                                "% Hispanic Students" = "Pct_Hispanic",
+                                "% Native American Students" = "Pct_Native_American"
+                            ),
                             selected = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
                         ),
                         br(),
@@ -47,14 +48,18 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                             tags$b("Restrict comparison districts to the same:"),
                             checkboxInput(inputId = "restrict_CORE", label = "CORE Region", value = FALSE)
                         )
-                    )
+                    ),
+                    p("Read our", a(href = "https://github.com/tnedu/shiny-apps/blob/master/comparison-tool/documentation.md", "methodology"),
+                      "for identifying similar districts.")
                 ),
                 # Message to be shown on initializing
                 conditionalPanel("input.button == 0",
-                    h4("Using the input widgets on the left, select a school district and one or more district characteristics."),
-                    br(),
-                    p("For the selected district, this tool will identify the most similar districts based on the selected
-                        characteristics and display data for a selected outcome.")
+                    column(7,
+                        h4("Using the input widgets on the left, select a school district and one or more district characteristics."),
+                        br(),
+                        p("For the selected district, this tool will identify the most similar districts based on the selected
+                            characteristics and display data for a selected outcome.")
+                    )
                 ),
                 # Message to be shown if no characteristics are selected
                 hidden(tags$div(id = "request_input",
@@ -71,7 +76,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                             tabsetPanel(type = "tabs",
                                 tabPanel("Current Year",
                                     br(),
-                                    ggvisOutput("plot_prof")
+                                    ggvisOutput("plot_outcome")
                                 ),
                                 tabPanel("Historical Data",
                                     br(),
@@ -79,22 +84,22 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                 )
                             ),
                             br(),
-                            tags$b("Click on any bar/line to compare district profile data below."),
-                            br(),
+                            tags$b(p("Comparison districts are ordered from most (left) to least (right) similar.
+                                Click on any bar/line to compare district profile data below.")),
                             br(),
                             h4(textOutput("header_comp")),
                             br(),
                             tabsetPanel(type = "tabs",
                                 tabPanel("Plot",
                                     br(),
-                                    ggvisOutput("plot_char"),
+                                    ggvisOutput("plot_profile"),
                                     br(),
                                     "A percentile indicates the proportion of districts with 
                                     an equal or smaller value of that characteristic."
                                 ),
                                 tabPanel("Table",
                                     br(),
-                                    tableOutput("table"),
+                                    tableOutput("table_profile"),
                                     br(),
                                     "Differences of more than half and a full a standard deviation are
                                     highlighted in yellow and orange, respectively."
@@ -107,8 +112,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
             fluidRow(
                 column(10, offset = 1,
                     hr(),
-                    p("Designed by", tags$a(href = "mailto:alex.poon@tn.gov", "Alexander Poon"), "in",
-                        tags$a(href = "http://shiny.rstudio.com/", "Shiny"), "for the Tennessee Department of Education.",
+                    p("Designed in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), "for the Tennessee Department of Education.",
                         tags$a(href = "https://github.com/tnedu/shiny-apps/tree/master/data-explorer", "Source Code"), style = "font-size: 8pt"),
                     br(),
                     br()

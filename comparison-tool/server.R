@@ -67,8 +67,8 @@ shinyServer(function(input, output) {
         clicked$district <- as.character(data$system_name)
     }
 
-    # Bar graph of proficiency for selected, similar districts
-    plot_prof <- eventReactive(input$button, {
+    # Bar graph of outcome for selected, similar districts
+    plot_outcome <- eventReactive(input$button, {
 
         # Label for vertical axis
         yvar_name <- names(outcome_list[outcome_list == input$outcome])
@@ -100,7 +100,7 @@ shinyServer(function(input, output) {
     })
 
     observeEvent(input$button, {
-        plot_prof %>% bind_shiny("plot_prof")
+        plot_outcome %>% bind_shiny("plot_outcome")
     })
 
     output$header_bar <- renderText({paste(names(outcome_list[outcome_list == input$outcome]),
@@ -157,7 +157,7 @@ shinyServer(function(input, output) {
     }
 
     # Scatterplot of percentile ranks for district characteristics
-    plot_char <- eventReactive(input$button, {
+    plot_profile <- eventReactive(input$button, {
 
         df_pctile %>%
             filter(District %in% c(input$district, clicked$district)) %>%
@@ -177,11 +177,11 @@ shinyServer(function(input, output) {
     })
 
     observeEvent(input$button, {
-        plot_char %>% bind_shiny("plot_char")
+        plot_profile %>% bind_shiny("plot_profile")
     })
 
     # Table with profile data for selected, clicked districts
-    output$table <- renderFlexTable({
+    output$table_profile <- renderFlexTable({
 
         df_comparison <- df_chars %>%
             select(system_name, Enrollment, `Percent Black`, `Percent Hispanic`, `Percent Native American`,
