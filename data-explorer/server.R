@@ -63,11 +63,12 @@ shinyServer(function(input, output, session) {
                 opacity = ~factor(opacity), opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
-            scale_numeric("y", domain = y_scale) %>%
+            scale_numeric("x", expand = 0) %>%
+            scale_numeric("y", domain = y_scale, expand = 0) %>%
             add_tooltip(tooltip_scatter, on = "hover") %>%
             scale_nominal("opacity", range = c(min(df_highlight()$opacity), 1)) %>%
             scale_nominal("fill", range = c('#000000', '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf')) %>%
-            set_options(width = 'auto', height = 600) %>%
+            set_options(width = 'auto', height = 650) %>%
             handle_click(click_district)
 
     })
@@ -90,7 +91,7 @@ shinyServer(function(input, output, session) {
                 fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
             add_axis("x", grid = FALSE) %>%
             add_axis("y", title = "", grid = FALSE) %>%
-            scale_numeric("x", domain = c(0, 100)) %>%
+            scale_numeric("x", domain = c(0, 100), expand = 0) %>%
             set_options(width = 'auto', height = 300)
 
     })
@@ -132,7 +133,7 @@ shinyServer(function(input, output, session) {
             add_axis("y", title = "Percent Proficient or Advanced", grid = FALSE) %>%
             add_tooltip(tooltip_bar, on = "hover") %>%
             scale_ordinal("x", domain = c("Math", "ELA", "Science", "AlgI", "AlgII", "EngI", "EngII", "EngIII", "BioI", "Chemistry")) %>%
-            scale_numeric("y", domain = c(0, 100)) %>%
+            scale_numeric("y", domain = c(0, 100), expand = 0) %>%
             set_options(width = 'auto', height = 300) %>%
             handle_click(click_subject)
 
