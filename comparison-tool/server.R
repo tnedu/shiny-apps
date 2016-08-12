@@ -4,7 +4,7 @@
 shinyServer(function(input, output) {
 
     # Hide output, disable inputs, and show message if no district characteristics are selected
-    observeEvent(input$button, {
+    observe({
         if (length(input$district_chars) == 0) {
             hide(id = "output")
             show(id = "request_input")
@@ -20,9 +20,17 @@ shinyServer(function(input, output) {
         }
     })
 
+    # Hide "Go!" button after first use
+    observe({
+        if (input$button == 1) {
+            hide(id = "button")
+            show(id = "info")
+        }
+    })
+    
     ## Main outcome output
     # Identify most similar districts based on selected characteristics
-    similarityData <- eventReactive(input$button, {
+    similarityData <- reactive({
 
         # Ensure that app doesn't crash if no characteristics are selected
         req(input$district_chars)
@@ -67,8 +75,8 @@ shinyServer(function(input, output) {
         clicked$district <- as.character(data$system_name)
     }
 
-    # Bar graph of proficiency for selected, similar districts
-    plot_prof <- eventReactive(input$button, {
+    # Bar graph of outcome for selected, similar districts
+    plot_outcome <- reactive({
 
         # Label for vertical axis
         yvar_name <- names(outcome_list[outcome_list == input$outcome])
@@ -99,9 +107,7 @@ shinyServer(function(input, output) {
 
     })
 
-    observeEvent(input$button, {
-        plot_prof %>% bind_shiny("plot_prof")
-    })
+    plot_outcome %>% bind_shiny("plot_outcome")
 
     output$header_bar <- renderText({paste(names(outcome_list[outcome_list == input$outcome]),
         "for districts most similar to", input$district, sep = " ")})
@@ -120,7 +126,7 @@ shinyServer(function(input, output) {
     }
 
     # Line graph with historical data
-    plot_hist <- eventReactive(input$button, {
+    plot_hist <- reactive({
 
         # Label for vertical axis
         yvar_name <- names(outcome_list[outcome_list == input$outcome])
@@ -142,9 +148,7 @@ shinyServer(function(input, output) {
             handle_click(click_line)
     })
 
-    observeEvent(input$button, {
-        plot_hist %>% bind_shiny("plot_hist")
-    })
+    plot_hist %>% bind_shiny("plot_hist")
 
     ## Secondary profile output
     # Tooltip for scatterplot with district name and profile data
@@ -157,7 +161,7 @@ shinyServer(function(input, output) {
     }
 
     # Scatterplot of percentile ranks for district characteristics
-    plot_char <- eventReactive(input$button, {
+    plot_profile <- reactive({
 
         df_pctile %>%
             filter(District %in% c(input$district, clicked$district)) %>%
@@ -176,12 +180,10 @@ shinyServer(function(input, output) {
 
     })
 
-    observeEvent(input$button, {
-        plot_char %>% bind_shiny("plot_char")
-    })
+    plot_profile %>% bind_shiny("plot_profile")
 
     # Table with profile data for selected, clicked districts
-    output$table <- renderFlexTable({
+    output$table_profile <- renderFlexTable({
 
         df_comparison <- df_chars %>%
             select(system_name, Enrollment, `Percent Black`, `Percent Hispanic`, `Percent Native American`,

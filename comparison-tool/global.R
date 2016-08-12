@@ -8,7 +8,8 @@ library(shinyjs)
 
 # Read in achievement and profile data, drop state observation
 df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>% 
-    filter(system != 0)
+    filter(system != 0) %>%
+    mutate(system_name = sub("Special School District", "SSD", system_name))
 
 # Read in historical data
 historical <- read_csv("data/historical_data.csv") %>%
@@ -20,10 +21,8 @@ historical <- read_csv("data/historical_data.csv") %>%
         subject = ifelse(subject == "English II", "EngII", subject),
         subject = ifelse(subject == "English III", "EngIII", subject),
         subject = ifelse(subject == "RLA", "ELA", subject)) %>%
-    spread(subject, pct_prof_adv) %>%
-    mutate_each(funs(ifelse(is.na(.), -999, .)), AlgI:Science) %>%
-    gather(subject, pct_prof_adv, AlgI:Science) %>%
-    mutate(pct_prof_adv = ifelse(pct_prof_adv == -999, NA, pct_prof_adv))
+    spread(subject, pct_prof_adv, fill = NA) %>%
+    gather(subject, pct_prof_adv, AlgI:Science, na.rm = FALSE) 
 
 # District characteristics and outcomes in separate data frames
 df_chars <- df %>%
