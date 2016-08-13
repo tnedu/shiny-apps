@@ -57,7 +57,7 @@ shinyServer(function(input, output, session) {
                 ceiling(max(df_highlight()[names(df_highlight()) == input$outcome])))
         }
 
-        df_highlight() %>%
+        plot <- df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
             layer_points(fill = ~Region, size := 125, size.hover := 300,
                 opacity = ~factor(opacity), opacity.hover := 0.8) %>%
@@ -70,6 +70,12 @@ shinyServer(function(input, output, session) {
             scale_nominal("fill", range = c('#000000', '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf')) %>%
             set_options(width = 'auto', height = 650) %>%
             handle_click(click_district)
+
+        if (input$char == "Enrollment") {
+            plot <- scale_numeric(plot, "x", trans = "log", expand = 0, nice = TRUE)
+        }
+
+        return(plot)
 
     })
 
@@ -98,7 +104,7 @@ shinyServer(function(input, output, session) {
 
     plot2 %>% bind_shiny("plot2")
 
-    output$text1 <- renderText({paste(input$highlight, "Demographics", sep = " ")})
+    output$text1 <- renderText(paste(input$highlight, "Demographics", sep = " "))
 
     # Create tooltip for bar chart with subject, proficiency percentages
     tooltip_bar <- function(x) {
@@ -141,10 +147,15 @@ shinyServer(function(input, output, session) {
 
     plot3 %>% bind_shiny("plot3")
 
-    output$text2 <- renderText({paste(input$highlight, "Proficiency in All Subjects", sep = " ")})
+    output$text2 <- renderText(paste(input$highlight, "Proficiency in All Subjects", sep = " "))
 
     # ShinyURL function to save link
     shinyURL.server()
 
+    output$info1 <- renderText({paste0("The horizontal coordinate of a point corresponds to a district's ",
+        names(district_char)[district_char == input$char], ".")})
+    output$info2<- renderText({paste0("The vertical coordinate of a point corresponds to a district's ",
+        names(district_out)[district_out == input$outcome], ".")})
+    
     }
 )
