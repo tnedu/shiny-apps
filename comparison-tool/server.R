@@ -87,6 +87,8 @@ shinyServer(function(input, output) {
         # Scale vertical axis to [0, 100] if outcome is a % P/A, otherwise, scale to min/max of variable
         if (grepl("Percent Proficient or Advanced", yvar_name)) {
             y_scale <- c(0, 100)
+        } else if (yvar_name == "Average ACT Composite Score") {
+            y_scale <- c(0, 36)
         } else {
             y_scale <- c(floor(min(df_outcomes[names(df_outcomes) == input$outcome])),
                 ceiling(max(df_outcomes[names(df_outcomes) == input$outcome])))
@@ -213,17 +215,6 @@ shinyServer(function(input, output) {
         # Add conditional formatting to highlight large differences
         if (ncol(df_comparison) == 4) {
             setFlexTableWidths(comp_table, widths = c(4, 3, 3, 3))
-
-            format_FlexTable <- function(char) {
-                comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= as.numeric(standard_devs[names(standard_devs) == char]), 4] =
-                    chprop(cellProperties(), background.color = "orange")
-                comp_table[df_comparison$Characteristic == char & abs(df_comparison$Difference) >= 0.5 * as.numeric(standard_devs[names(standard_devs) == char]) &
-                    abs(df_comparison$Difference) < as.numeric(standard_devs[names(standard_devs) == char]), 4] = chprop(cellProperties(), background.color = "yellow")
-            }
-
-            for (char in row_order) {
-                format_FlexTable(char)
-            }
         } else {
             setFlexTableWidths(comp_table, widths = c(4, 3))
         }

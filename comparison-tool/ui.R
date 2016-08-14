@@ -96,9 +96,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                 tabPanel("Table",
                                     br(),
                                     tableOutput("table_profile"),
-                                    br(),
-                                    "Differences of more than half and a full a standard deviation are
-                                        highlighted in yellow and orange, respectively."
+                                    br()
                                 ),
                                 tabPanel("Plot",
                                     br(),
