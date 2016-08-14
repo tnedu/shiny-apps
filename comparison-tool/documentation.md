@@ -1,7 +1,7 @@
 District Comparison Tool
 ================
 
-Last Updated: July 20, 2016
+Last Updated: August 13, 2016
 
 ### Methodology
 
@@ -199,11 +199,11 @@ where \(char_{ni}\) is the standardized value of characteristic n for district i
 
 A similarity score between two identical districts based on the selected characteristics is zero, and a higher similarity score signifies more dissimilar districts. Thus, a district *i*'s most similar districts are those that have the lowest similarity scores.
 
-This tool presents data for the 8 most similar districts based on the selected characteristics for comparison of outcomes, ordered left to right from most to least similar. However, a district's most similar districts do not necessarily carry a high degree of similarity. The tool's secondary table presents profile data so that users can determine whether the identified most similar districts present valid comparison points. The secondary table highlights differences in characteristics of more than half and one standard deviation in yellow and orange, respectively. Other factors that are not accounted for by the comparison tool may also make comparison with similar districts inappropriate.
+By default, this tool presents data for the 7 most similar districts based on the selected characteristics for comparison of outcomes, ordered left to right from most to least similar. However, a district's most similar districts do not necessarily carry a high degree of similarity. The tool's secondary table presents profile data so that users can determine whether the identified most similar districts present valid comparison points. Other factors that are not accounted for by the comparison tool may also make comparison with similar districts inappropriate.
 
 ### Worked Example
 
-Using 2015 profile data, we will compute a similarity score between Davidson County and Shelby County based on the following characteristics: Enrollment, Percent Economically Disadvantaged, and Per-Pupil Expenditures. After standardizing, the district profile data for the two districts is as follows:
+Using 2015 profile data, we compute a similarity score between Davidson County and Shelby County based on the following characteristics: Enrollment, Percent Economically Disadvantaged, and Per-Pupil Expenditures. After standardizing, the district profile data for the two districts is as follows:
 
 <table>
 <thead>
