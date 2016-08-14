@@ -7,6 +7,7 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
         fluidPage(theme = "doe-style.css",
             br(),
             br(),
+            br(),
             fluidRow(
                 column(10, offset = 1,
                     hr(),

@@ -102,8 +102,8 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                                     br(),
                                     ggvisOutput("plot_profile"),
                                     br(),
-                                    "A percentile indicates the proportion of districts with 
-                                        an equal or smaller value of that characteristic."
+                                    p("A percentile indicates the proportion of districts with 
+                                        an equal or smaller value of that characteristic.")
                                 )
                             )
                         )
