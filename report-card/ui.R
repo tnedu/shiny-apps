@@ -24,14 +24,15 @@ dashboardPage(
             conditionalPanel("input.sidebarmenu == 'district_comp'",
                 checkboxGroupInput("district_chars", label = "Select One or More District Characteristics:",
                     choices = c("Student Enrollment" = "Enrollment", 
-                                "% Black Students" = "Pct_Black",
-                                "% Hispanic Students" = "Pct_Hispanic",
-                                "% Native American Students" = "Pct_Native_American",
-                                "% English Learner Students" = "Pct_EL",
-                                "% Economically Disadvantaged" = "Pct_ED",
-                                "% Students with Disabilities" = "Pct_SWD",
-                                "Per-Pupil Expenditures" = "Per_Pupil_Expenditures"),
-                             selected = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
+                        "% Black Students" = "Pct_Black",
+                        "% Hispanic Students" = "Pct_Hispanic",
+                        "% Native American Students" = "Pct_Native_American",
+                        "% English Learner Students" = "Pct_EL",
+                        "% Economically Disadvantaged" = "Pct_ED",
+                        "% Students with Disabilities" = "Pct_SWD",
+                        "Per-Pupil Expenditures" = "Per_Pupil_Expenditures"),
+                        selected = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures"
+                    )
                 ),
                 selectInput("outcome", label = "Select an outcome to plot:", choices = outcome_list, selected = "Math", width = 300)
             ),
@@ -44,45 +45,10 @@ dashboardPage(
     dashboardBody(
         tabItems(
             tabItem(tabName = "district_explorer",
-                h1("District Data Explorer"),
-                br(),
-                fluidRow(
-                    column(12,
-                        box(title = textOutput("header_explorer"), width = 9, status = "primary",
-                            ggvisOutput("exp_plot")
-                        ),
-                        box(title = "Directions", width = 3, status = "info", solidHeader = TRUE,
-                            tags$b("This tool is designed to help users explore relationships between
-                            district characteristics and outcomes for Tennessee school districts."),
-                            br(),
-                            br(),
-                            "Use the dropdowns on the left sidebar to select a district
-                            characteristic and an outcome to plot.",
-                            br(),
-                            br(),
-                            "Each blue dot represents one district. The solid red dot represents the State of Tennessee.",
-                            br(),
-                            br(),
-                            "Hover over any dot to identify that district."
-                        )
-                    )
-                )
+                h1("District Data Explorer")
             ),
             tabItem(tabName = "district_profile",
-                h1("District Profile"),
-                br(),
-                fluidRow(
-                    column(12,
-                        box(title = "Achievement in Accountability Subjects", width = 7, status = "primary", solidHeader = TRUE,
-                            ggvisOutput("profile_ach"),
-                            hr(),
-                            tags$b("Notes:"), br(), 
-                            "High School Math includes Algebra I, Algebra II, and Geometry OR Integrated Math I, II, and III End of Course Examinations",
-                            br(),
-                            "High School English includes English I, II, and III End of Course Examinations"),
-                        box(title = "College and Career Readiness", width = 5, status = "success", solidHeader = TRUE)
-                    )
-                )
+                h1("District Profile")
             ),
             tabItem(tabName = "district_acct",
                 h1(textOutput("header_dist_acct")),
@@ -191,41 +157,7 @@ dashboardPage(
                 )
             ),
             tabItem(tabName = "district_comp",
-                h1("District Comparison Tool"),
-                br(),
-                fluidRow(
-                    column(12,
-                        box(title = textOutput("header_comp"), width = 9, status = "primary",
-                               br(),
-                               ggvisOutput("plot_prof"),
-                               br()
-                        ),
-                        box(title = "Directions", width = 3, status = "info", solidHeader = TRUE,
-                            tags$b("Using the input widgets on the left sidebar, select a district and one or
-                            more district charactertistics."),
-                            br(),
-                            br(),
-                            "For the selected district, this tool will identify the most similar districts 
-                            based on the selected characteristics and display data for a selected outcome.",
-                            br(),
-                            br(),
-                            "For more information on how this tool identifies similar districts, please visit",
-                            tags$a(href = "https://github.com/alexander-poon/shiny-apps/blob/master/comparison-tool/documentation.md", "this page"), "."
-                        )
-                    )
-                ),
-                fluidRow(
-                    column(12,
-                        box(title = textOutput("header_comp_profile"), width = 9, status = "warning",
-                               br(),
-                               tableOutput("table"),
-                               br(),
-                               tags$b("Click on any bar to compare district profile data."),
-                               br(),
-                               "Differences of more than half and a full standard deviation are highlighted in yellow and orange, respectively."
-                        )
-                    )
-                )
+                h1("District Comparison Tool")
             ),
             tabItem(tabName = "school_acct",
                 h1("School Accountability")
