@@ -37,7 +37,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                             "Adjust any of the inputs in the left panels to update the output.")
                         )
                     ),
-                    conditionalPanel("input.button == 1",
+                    conditionalPanel("input.button >= 1",
                         wellPanel(
                             h4("Outcome"),
                             br(),

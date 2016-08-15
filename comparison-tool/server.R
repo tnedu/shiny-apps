@@ -22,7 +22,7 @@ shinyServer(function(input, output) {
 
     # Hide "Go!" button after first use
     observe({
-        if (input$button == 1) {
+        if (input$button >= 1) {
             hide(id = "button")
             show(id = "info")
         }
