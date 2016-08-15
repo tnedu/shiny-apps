@@ -8,7 +8,8 @@ library(shiny)
 df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
     rename(Region = CORE_region) %>%
     mutate(Region = sub(" CORE", "", Region),
-        system_name = sub("Special School District", "SSD", system_name))
+        system_name = sub("Special School District", "SSD", system_name),
+        Enrollment = ifelse(system_name == "State of Tennessee", NA, Enrollment))
 
 # District characteristics for x variable
 district_char <- c("Student Enrollment" = "Enrollment",
@@ -42,4 +43,12 @@ district_out <- c("Math Percent Proficient or Advanced" = "Math",
     "Percent Suspended" = "Pct_Suspended",
     "Percent Expelled" = "Pct_Expelled")
 
+# District list for highlighting
 district_list <- c(" " = "State of Tennessee", df[-1, ]$system_name)
+
+# Ranges for slider
+ranges <- df %>%
+    select(Enrollment:Dropout) %>%
+    gather(Characteristic, Value, Enrollment:Dropout) %>%
+    group_by(Characteristic) %>%
+    summarise(Min = min(Value, na.rm = TRUE), Max = max(Value, na.rm = TRUE))
