@@ -36,10 +36,8 @@ shinyServer(function(input, output, session) {
         row <- df[df$system_name == x$system_name, ]
 
         paste0("<b>", row$system_name, "</b><br>",
-            names(district_char)[district_char == input$char], ": ", 
-                row[names(row) == input$char], "<br>",
-            names(district_out)[district_out == input$outcome], ": ",
-                row[names(row) == input$outcome])
+            names(district_char)[district_char == input$char], ": ",  row[names(row) == input$char], "<br>",
+            names(district_out)[district_out == input$outcome], ": ", row[names(row) == input$outcome])
     }
 
     # Extract district of clicked point for secondary graphs; Update highlighted district on point click
@@ -72,17 +70,13 @@ shinyServer(function(input, output, session) {
                 opacity = ~factor(opacity), opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
-            scale_numeric("x", domain = input$range, clamp = FALSE, expand = 0) %>%
+            scale_numeric("x", domain = input$range, clamp = TRUE) %>%
             scale_numeric("y", domain = y_scale, expand = 0) %>%
             add_tooltip(tooltip_scatter, on = "hover") %>%
             scale_nominal("opacity", range = c(min(df_highlight()$opacity), 1)) %>%
             scale_nominal("fill", range = c('#000000', '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf')) %>%
             set_options(width = 'auto', height = 650) %>%
             handle_click(click_district)
-
-        # if (input$char == "Enrollment") {
-        #     plot <- scale_numeric(plot, "x", trans = "log", expand = 0, nice = TRUE)
-        # }
 
         return(plot)
 
@@ -157,14 +151,14 @@ shinyServer(function(input, output, session) {
 
     output$text2 <- renderText(paste(input$highlight, "Proficiency in All Subjects", sep = " "))
 
-    # ShinyURL function to save link
-    shinyURL.server()
-
     # Reactive user information based on input characteristic and outcome
     output$info1 <- renderText({paste0("The horizontal placement of a point corresponds to a district's ",
         names(district_char)[district_char == input$char], ".")})
     output$info2<- renderText({paste0("The vertical placement of a point corresponds to a district's ",
         names(district_out)[district_out == input$outcome], ".")})
+
+    # ShinyURL function to save link
+    shinyURL.server()
 
     }
 )
