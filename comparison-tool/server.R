@@ -27,7 +27,7 @@ shinyServer(function(input, output) {
             show(id = "info")
         }
     })
-    
+
     ## Main outcome output
     # Identify most similar districts based on selected characteristics
     similarityData <- reactive({
@@ -134,9 +134,10 @@ shinyServer(function(input, output) {
         yvar_name <- names(outcome_list[outcome_list == input$outcome])
 
         historical %>%
+            mutate(Opacity = ifelse(District %in% c(input$district, clicked$district), 1, 0.3)) %>%
             filter(subject == input$outcome) %>%
             filter(District %in% similarityData()$system_name) %>%
-            ggvis(~year, ~pct_prof_adv, stroke = ~District, opacity := 0.5, opacity.hover := 0.9) %>%
+            ggvis(~year, ~pct_prof_adv, stroke = ~District, opacity = ~Opacity, opacity.hover := 0.9) %>%
             layer_points(fill = ~District, size := 75) %>%
             layer_lines() %>%
             add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
@@ -145,6 +146,7 @@ shinyServer(function(input, output) {
             scale_ordinal("fill", domain = similarityData()$system_name) %>%
             scale_ordinal("stroke", domain = similarityData()$system_name) %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%
+            scale_numeric("opacity", range = c(0.3, 1)) %>%
             set_options(width = 'auto', height = 600, renderer = "canvas") %>%
             hide_legend("stroke") %>%
             handle_click(click_line)
