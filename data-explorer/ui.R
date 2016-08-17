@@ -19,12 +19,13 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
                 column(3, offset = 1,
                     selectInput("char", label = "Select a District Characteristic:", 
                         choices = district_char, selected = "Pct_ED", width = 500),
-                    selectInput("highlight", label = "Optional: Highlight a District", 
-                        choices = district_list, selected = NULL, width = 500)
+                    uiOutput("slider")
                 ),
                 column(3,
                     selectInput("outcome", label = "Select an Outcome:", 
-                        choices = district_out, selected = "Math", width = 500)
+                        choices = district_out, selected = "Math", width = 500),
+                    selectInput("highlight", label = "Optional: Highlight a District", 
+                        choices = district_list, selected = NULL, width = 500)
                 ),
                 column(4,
                     wellPanel(
@@ -60,7 +61,7 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
             ),
             fluidRow(
                 column(6, offset = 1,
-                        h3("User Information"),
+                        h3("Information for Users"),
                         br(),
                         tags$ul(
                             tags$li("Each point represents one district."),
@@ -85,9 +86,8 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
                     wellPanel(
                         h4("Share this plot"),
                         br(),
-                        tags$b(p("Use the following web address to link to this plot.")),
-                        "We recommend clicking the TinyURL button for a more compact address.",
-                        shinyURL.ui(label = "")
+                        shinyURL.ui(label = "Use the following web address to link to this plot:"),
+                        p("We recommend clicking the TinyURL button for a more compact address.")
                     )
                 )
             ),
