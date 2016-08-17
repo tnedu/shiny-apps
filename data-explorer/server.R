@@ -67,13 +67,13 @@ shinyServer(function(input, output, session) {
         plot <- df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
             layer_points(fill = ~Region, size := 125, size.hover := 300,
-                opacity = ~factor(opacity), opacity.hover := 0.8) %>%
+                opacity = ~opacity, opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             scale_numeric("x", domain = input$range, clamp = TRUE) %>%
             scale_numeric("y", domain = y_scale, expand = 0) %>%
             add_tooltip(tooltip_scatter, on = "hover") %>%
-            scale_nominal("opacity", range = c(min(df_highlight()$opacity), 1)) %>%
+            scale_numeric("opacity", range = c(min(df_highlight()$opacity), 1)) %>%
             scale_nominal("fill", range = c('#000000', '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf')) %>%
             set_options(width = 'auto', height = 650) %>%
             handle_click(click_district)
@@ -135,7 +135,7 @@ shinyServer(function(input, output, session) {
             gather(subject, Pct_Prof_Adv, 2:11)
 
         district_data %>%
-            ggvis(~factor(subject), ~Pct_Prof_Adv, key := ~subject) %>%
+            ggvis(~subject, ~Pct_Prof_Adv, key := ~subject) %>%
             layer_bars(fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
             add_axis("x", title = "Subject", grid = FALSE) %>%
             add_axis("y", title = "Percent Proficient or Advanced", grid = FALSE) %>%
