@@ -53,7 +53,7 @@ shinyServer(function(input, output) {
         # Select 8 most similar districts
         similarity %>%
             mutate(Selected = (system_name == input$district),
-                Opacity = ifelse(system_name %in% c(input$district, clicked$district), 0.9, 0.3)) %>%
+                Highlighted = as.numeric(system_name %in% c(input$district, clicked$district))) %>%
             arrange(desc(Selected), similarity_score) %>%
             inner_join(df_outcomes, by = "system_name") %>%
             slice(1:(1 + input$num_districts))
@@ -96,7 +96,7 @@ shinyServer(function(input, output) {
 
         similarityData() %>%
             ggvis(~system_name, yvar, key := ~system_name) %>%
-            layer_bars(fill := "blue", width = 0.85, fillOpacity = ~Opacity, fillOpacity.hover := 0.9) %>%
+            layer_bars(fill := "blue", width = 0.85, fillOpacity = ~Highlighted, fillOpacity.hover := 0.9) %>%
             add_axis("x", title = "District", grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_bar, on = "hover") %>%
@@ -143,9 +143,9 @@ shinyServer(function(input, output) {
             add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_historical, on = "hover") %>%
+            scale_numeric("y", domain = c(0, 100), expand = 0) %>%
             scale_ordinal("fill", domain = similarityData()$system_name) %>%
             scale_ordinal("stroke", domain = similarityData()$system_name) %>%
-            scale_numeric("y", domain = c(0, 100), expand = 0) %>%
             scale_numeric("opacity", range = c(0.3, 1)) %>%
             set_options(width = 'auto', height = 600, renderer = "canvas") %>%
             hide_legend("stroke") %>%
