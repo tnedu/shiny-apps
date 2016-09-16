@@ -66,8 +66,7 @@ shinyServer(function(input, output, session) {
 
         plot <- df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
-            layer_points(fill = ~Region, size := 125, size.hover := 300,
-                opacity = ~opacity, opacity.hover := 0.8) %>%
+            layer_points(fill = ~Region, size := 125, size.hover := 300, opacity = ~opacity, opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             scale_numeric("x", domain = input$range, clamp = TRUE) %>%
@@ -96,8 +95,7 @@ shinyServer(function(input, output, session) {
 
         district_data %>%
             ggvis(~Percentage, ~demographic) %>%
-            layer_rects(x2 = 0, height = band(),
-                fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
+            layer_rects(x2 = 0, height = band(), fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
             add_axis("x", grid = FALSE) %>%
             add_axis("y", title = "", grid = FALSE) %>%
             scale_numeric("x", domain = c(0, 100), expand = 0) %>%
@@ -156,9 +154,6 @@ shinyServer(function(input, output, session) {
         names(district_char)[district_char == input$char], ".")})
     output$info2<- renderText({paste0("The vertical placement of a point corresponds to a district's ",
         names(district_out)[district_out == input$outcome], ".")})
-
-    # ShinyURL function to save link
-    shinyURL.server()
 
     }
 )

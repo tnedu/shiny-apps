@@ -2,8 +2,9 @@ library(readr)
 library(tidyr)
 library(dplyr)
 library(ggvis)
-library(shinyURL)
 library(shiny)
+
+enableBookmarking(store = "url")
 
 df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
     rename(Region = CORE_region) %>%

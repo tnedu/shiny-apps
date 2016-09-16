@@ -11,7 +11,7 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
             fluidRow(
                 column(10, offset = 1,
                     hr(),
-                    h3("User Inputs"),
+                    h2("User Inputs"),
                     br()
                 )
             ),
@@ -43,7 +43,7 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
             ),
             fluidRow(
                 column(6, offset = 1,
-                    h3("District Data"),
+                    h2("District Data"),
                     ggvisOutput("plot")
                 ),
                 column(4,
@@ -61,7 +61,7 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
             ),
             fluidRow(
                 column(6, offset = 1,
-                        h3("Information for Users"),
+                        h2("Information for Users"),
                         br(),
                         tags$ul(
                             tags$li("Each point represents one district."),
@@ -86,8 +86,11 @@ shinyUI(navbarPage("Data Explorer", position = "fixed-top",
                     wellPanel(
                         h4("Share this plot"),
                         br(),
-                        shinyURL.ui(label = "Use the following web address to link to this plot:"),
-                        p("We recommend clicking the TinyURL button for a more compact address.")
+                        bookmarkButton(),
+                        br(),
+                        br(),
+                        p("You can also click the", icon("gear"), "icon at the top right of each plot to 
+                            download a copy of that plot.")
                     )
                 )
             ),
