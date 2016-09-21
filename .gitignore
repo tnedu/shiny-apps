@@ -37,3 +37,6 @@ vignettes/*.pdf
 
 # shinyapps.io deployment files
 *.dcf
+
+# OS X hidden files
+*.DS_Store
