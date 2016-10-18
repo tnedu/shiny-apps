@@ -1,6 +1,4 @@
-library(readr)
-library(tidyr)
-library(dplyr)
+library(tidyverse)
 library(ggvis)
 library(shiny)
 
