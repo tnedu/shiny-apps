@@ -210,17 +210,26 @@ shinyServer(function(input, output) {
             "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
         df_comparison <- df_comparison[match(row_order, df_comparison$Characteristic), ]
 
+        # Format table with $, %
+        df_comparison[2, -1] <- paste0("$", sprintf("%.2f", df_comparison[2, -1]))
+        df_comparison[3, -1] <- paste0(sprintf("%.1f", df_comparison[3, -1]), "%")
+        df_comparison[4, -1] <- paste0(sprintf("%.1f", df_comparison[4, -1]), "%")
+        df_comparison[5, -1] <- paste0(sprintf("%.1f", df_comparison[5, -1]), "%")
+        df_comparison[6, -1] <- paste0(sprintf("%.1f", df_comparison[6, -1]), "%")
+        df_comparison[7, -1] <- paste0(sprintf("%.1f", df_comparison[7, -1]), "%")
+        df_comparison[8, -1] <- paste0(sprintf("%.1f", df_comparison[8, -1]), "%")
+        
         comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
 
         options("ReporteRs-default-font" = "Open Sans")
 
-        # Add conditional formatting to highlight large differences
+        # Set table widths
         if (ncol(df_comparison) == 4) {
             setFlexTableWidths(comp_table, widths = c(4, 3, 3, 3))
         } else {
             setFlexTableWidths(comp_table, widths = c(4, 3))
         }
-
+        
         return(comp_table)
 
     })
