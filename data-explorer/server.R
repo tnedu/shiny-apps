@@ -116,12 +116,7 @@ shinyServer(function(input, output, session) {
             filter(subject == x$subject)
 
         paste0("<b>", long$subject, "</b><br>",
-               "Percent Proficient/Advanced: ", long$Pct_Prof_Adv, "%")
-    }
-
-    # Extract subject of clicked bar to update main plot
-    click_subject <- function(data, ...) {
-        updateSelectInput(session, "outcome", selected = as.character(data$subject))
+            "Percent Proficient/Advanced: ", long$Pct_Prof_Adv, "%")
     }
 
     # Secondary plot 2 - Bar chart of proficiency for selected district
@@ -140,8 +135,7 @@ shinyServer(function(input, output, session) {
             add_tooltip(tooltip_bar, on = "hover") %>%
             scale_ordinal("x", domain = c("Math", "ELA", "Science", "AlgI", "AlgII", "EngI", "EngII", "EngIII", "BioI", "Chemistry")) %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%
-            set_options(width = 'auto', height = 300) %>%
-            handle_click(click_subject)
+            set_options(width = 'auto', height = 300)
 
     })
 
