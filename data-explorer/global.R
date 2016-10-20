@@ -17,7 +17,7 @@ district_char <- c("Student Enrollment" = "Enrollment",
    "Percent Students with Disabilities" = "Students with Disabilities",
    "Per-Pupil Expenditures" = "Per-Pupil Expenditures",
    "Percent Black/Hispanic/Native American Students" = "Black/Hispanic/Native American",
-   "Percent Chronically Absent" = "Chronically Absent", 
+   "Percent Chronically Absent" = "Chronic Absence", 
    "Suspension Rate" = "Suspension Rate",
    "Expulsion Rate" = "Expulsion Rate")
 
@@ -32,10 +32,20 @@ district_out <- c("Math Percent Proficient or Advanced" = "Math",
     "English I Percent Proficient or Advanced" = "Eng I",
     "English II Percent Proficient or Advanced" = "Eng II",
     "English III Percent Proficient or Advanced" = "Eng III",
+    "Math Proficiency Growth" = "Math Growth",
+    "English Language Arts Proficiency Growth" = "ELA Growth",
+    "Science Proficiency Growth" = "Science Growth",
+    "Algebra I Proficiency Growth" = "Alg I Growth",
+    "Algebra II Proficiency Growth" = "Alg II Growth",
+    "Biology I Proficiency Growth" = "Bio I Growth",
+    "Chemistry Proficiency Growth" = "Chemistry Growth",
+    "English I Proficiency Growth" = "Eng I Growth",
+    "English II Proficiency Growth" = "Eng II Growth",
+    "English III Proficiency Growth" = "Eng III Growth",
     "Average ACT Composite Score" = "ACT Composite",
-    "Graduation Rate" = "Graduation Rate",
-    "Dropout Rate" = "Dropout Rate",
-    "Percent Chronically Absent" = "Chronically Absent",
+    "Graduation Rate" = "Graduation",
+    "Dropout Rate" = "Dropout",
+    "Percent Chronically Absent" = "Chronic Absence",
     "Suspension Rate" = "Suspension Rate",
     "Expulsion Rate" = "Expulsion Rate")
 
@@ -44,7 +54,7 @@ district_list <- c(" " = "State of Tennessee", sort(df[-1, ]$system_name))
 
 # Ranges for slider
 ranges <- df %>%
-    select(Enrollment:`Dropout Rate`) %>%
-    gather(Characteristic, Value, Enrollment:`Dropout Rate`) %>%
+    select(Enrollment:Dropout) %>%
+    gather(Characteristic, Value, Enrollment:Dropout) %>%
     group_by(Characteristic) %>%
     summarise(Min = min(Value, na.rm = TRUE), Max = max(Value, na.rm = TRUE))
