@@ -60,7 +60,7 @@ shinyServer(function(input, output, session) {
         if (grepl("Percent Proficient or Advanced", yvar_name)) {
             y_scale <- c(0, 100)
         } else {
-            y_scale <- c(min(df_highlight()[names(df_highlight()) == input$outcome]), 
+            y_scale <- c(min(df_highlight()[names(df_highlight()) == input$outcome]),
                 ceiling(max(df_highlight()[names(df_highlight()) == input$outcome])))
         }
 
@@ -83,14 +83,24 @@ shinyServer(function(input, output, session) {
 
     plot %>% bind_shiny("plot")
 
+    # Create tooltip for column chart with subject, proficiency percentages
+    tooltip_bar <- function(x) {
+        long <- df %>%
+            filter(system_name == input$highlight) %>%
+            select(system_name, `Black/Hispanic/Native American`, `Economically Disadvantaged`, `English Learners`, `Students with Disabilities`) %>%
+            gather(demographic, percentage, 2:5) %>%
+            filter(demographic == x$demographic)
+
+        paste0("<b>", input$highlight, "</b><br>",
+            "Percent ", long$demographic, ": ", long$percentage, "%")
+    }
+    
     # Secondary Plot 1 - Horizontal bar chart with demographics 
     plot2 <- reactive({
 
         district_data <- df_highlight() %>%
             filter(system_name == input$highlight) %>%
-            select(system_name, Pct_BHN, Pct_ED, Pct_EL, Pct_SWD) %>%
-            rename(`Black/Hispanic/Native American` = Pct_BHN, `Economically Disadvantaged` = Pct_ED,
-                `English Learners` = Pct_EL, `Students with Disabilities` = Pct_SWD) %>%
+            select(system_name, `Black/Hispanic/Native American`, `Economically Disadvantaged`, `English Learners`, `Students with Disabilities`) %>%
             gather(demographic, Percentage, 2:5)
 
         district_data %>%
@@ -98,6 +108,7 @@ shinyServer(function(input, output, session) {
             layer_rects(x2 = 0, height = band(), fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
             add_axis("x", grid = FALSE) %>%
             add_axis("y", title = "", grid = FALSE) %>%
+            add_tooltip(tooltip_bar, on = "hover") %>%
             scale_numeric("x", domain = c(0, 100), expand = 0) %>%
             set_options(width = 'auto', height = 300)
 
@@ -107,11 +118,11 @@ shinyServer(function(input, output, session) {
 
     output$text1 <- renderText(paste(input$highlight, "Demographics", sep = " "))
 
-    # Create tooltip for bar chart with subject, proficiency percentages
-    tooltip_bar <- function(x) {
+    # Create tooltip for column chart with subject, proficiency percentages
+    tooltip_column <- function(x) {
         long <- df %>%
             filter(system_name == input$highlight) %>%
-            select(system_name, AlgI, AlgII, BioI, Chemistry, EngI, EngII, EngIII, Math, ELA, Science) %>%
+            select(system_name, `Alg I`, `Alg II`, `Bio I`, Chemistry, ELA, `Eng I`, `Eng II`, `Eng III`, Math, Science) %>%
             gather(subject, Pct_Prof_Adv, 2:11) %>%
             filter(subject == x$subject)
 
@@ -124,7 +135,7 @@ shinyServer(function(input, output, session) {
 
         district_data <- df_highlight() %>%
             filter(system_name == input$highlight) %>%
-            select(system_name, AlgI, AlgII, BioI, Chemistry, ELA, EngI, EngII, EngIII, Math, Science) %>%
+            select(system_name, `Alg I`, `Alg II`, `Bio I`, Chemistry, ELA, `Eng I`, `Eng II`, `Eng III`, Math, Science) %>%
             gather(subject, Pct_Prof_Adv, 2:11)
 
         district_data %>%
@@ -132,8 +143,8 @@ shinyServer(function(input, output, session) {
             layer_bars(fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
             add_axis("x", title = "Subject", grid = FALSE) %>%
             add_axis("y", title = "Percent Proficient or Advanced", grid = FALSE) %>%
-            add_tooltip(tooltip_bar, on = "hover") %>%
-            scale_ordinal("x", domain = c("Math", "ELA", "Science", "AlgI", "AlgII", "EngI", "EngII", "EngIII", "BioI", "Chemistry")) %>%
+            add_tooltip(tooltip_column, on = "hover") %>%
+            scale_ordinal("x", domain = c("Math", "ELA", "Science", "Alg I", "Alg II", "Eng I", "Eng II", "Eng III", "Bio I", "Chemistry")) %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%
             set_options(width = 'auto', height = 300)
 

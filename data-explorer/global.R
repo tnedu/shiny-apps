@@ -5,49 +5,46 @@ library(shiny)
 enableBookmarking(store = "url")
 
 df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
-    rename(Region = CORE_region) %>%
-    mutate(Region = sub(" CORE", "", Region),
-        system_name = sub("Special School District", "SSD", system_name),
-        Enrollment = ifelse(system_name == "State of Tennessee", NA, Enrollment))
+    mutate(Enrollment = ifelse(system_name == "State of Tennessee", NA, Enrollment))
 
 # District characteristics for x variable
 district_char <- c("Student Enrollment" = "Enrollment",
-    "Percent Black Students" = "Pct_Black",
-    "Percent Hispanic Students" = "Pct_Hispanic",
-    "Percent Native American Students" = "Pct_Native_American",
-    "Percent English Learner Students" = "Pct_EL",
-    "Percent Economically Disadvantaged" = "Pct_ED",
-    "Percent Students with Disabilities" = "Pct_SWD",
-    "Per-Pupil Expenditures ($)" = "Per_Pupil_Expenditures",
-    "Percent Black/Hispanic/Native American Students" = "Pct_BHN",
-    "Percent Chronically Absent" = "Pct_Chronically_Absent", 
-    "Percent Suspended" = "Pct_Suspended",
-    "Percent Expelled" = "Pct_Expelled")
+   "Percent Black Students" = "Black",
+   "Percent Hispanic Students" = "Hispanic",
+   "Percent Native American Students" = "Native American",
+   "Percent English Learners" = "English Learners",
+   "Percent Economically Disadvantaged" = "Economically Disadvantaged",
+   "Percent Students with Disabilities" = "Students with Disabilities",
+   "Per-Pupil Expenditures" = "Per-Pupil Expenditures",
+   "Percent Black/Hispanic/Native American Students" = "Black/Hispanic/Native American",
+   "Percent Chronically Absent" = "Chronically Absent", 
+   "Suspension Rate" = "Suspension Rate",
+   "Expulsion Rate" = "Expulsion Rate")
 
 # Outcomes for y variable
 district_out <- c("Math Percent Proficient or Advanced" = "Math",
     "English Language Arts Percent Proficient or Advanced" = "ELA",
     "Science Percent Proficient or Advanced" = "Science",
-    "Algebra I Percent Proficient or Advanced" = "AlgI",
-    "Algebra II Percent Proficient or Advanced" = "AlgII",
-    "Biology I Percent Proficient or Advanced" = "BioI",
+    "Algebra I Percent Proficient or Advanced" = "Alg I",
+    "Algebra II Percent Proficient or Advanced" = "Alg II",
+    "Biology I Percent Proficient or Advanced" = "Biology I",
     "Chemistry Percent Proficient or Advanced" = "Chemistry",
-    "English I Percent Proficient or Advanced" = "EngI",
-    "English II Percent Proficient or Advanced" = "EngII",
-    "English III Percent Proficient or Advanced" = "EngIII",
-    "Graduation Rate" = "Graduation",
-    "Dropout Rate" = "Dropout",
-    "Average ACT Composite Score" = "ACT_Composite",
-    "Percent Chronically Absent" = "Pct_Chronically_Absent", 
-    "Percent Suspended" = "Pct_Suspended",
-    "Percent Expelled" = "Pct_Expelled")
+    "English I Percent Proficient or Advanced" = "Eng I",
+    "English II Percent Proficient or Advanced" = "Eng II",
+    "English III Percent Proficient or Advanced" = "Eng III",
+    "Average ACT Composite Score" = "ACT Composite",
+    "Graduation Rate" = "Graduation Rate",
+    "Dropout Rate" = "Dropout Rate",
+    "Percent Chronically Absent" = "Chronically Absent",
+    "Suspension Rate" = "Suspension Rate",
+    "Expulsion Rate" = "Expulsion Rate")
 
 # District list for highlighting
-district_list <- c(" " = "State of Tennessee", df[-1, ]$system_name)
+district_list <- c(" " = "State of Tennessee", sort(df[-1, ]$system_name))
 
 # Ranges for slider
 ranges <- df %>%
-    select(Enrollment:Dropout) %>%
-    gather(Characteristic, Value, Enrollment:Dropout) %>%
+    select(Enrollment:`Dropout Rate`) %>%
+    gather(Characteristic, Value, Enrollment:`Dropout Rate`) %>%
     group_by(Characteristic) %>%
     summarise(Min = min(Value, na.rm = TRUE), Max = max(Value, na.rm = TRUE))
