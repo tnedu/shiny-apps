@@ -5,7 +5,9 @@ library(shiny)
 enableBookmarking(store = "url")
 
 df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
-    mutate(Enrollment = ifelse(system_name == "State of Tennessee", NA, Enrollment))
+    mutate(Enrollment = ifelse(system_name == "State of Tennessee", NA, Enrollment),
+        Region = ifelse(system_name == "State of Tennessee", "State", Region),
+        opacity = ifelse(system_name == "State of Tennessee", 1, 0.4))
 
 # District characteristics for x variable
 district_char <- c("Student Enrollment" = "Enrollment",

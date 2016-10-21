@@ -2,7 +2,7 @@
 # server.R
 
 shinyServer(function(input, output, session) {
-
+    
     # Reactive slider
     output$slider <- renderUI({
 
@@ -15,11 +15,6 @@ shinyServer(function(input, output, session) {
 
     # Adjust color, opacity of highlighted district
     df_highlight <- reactive({
-
-        # Variables to assign State different color, opacity
-        df <- df %>%
-            mutate(Region = ifelse(system_name == "State of Tennessee", "State", Region),
-                opacity = ifelse(system_name == "State of Tennessee", 1, 0.4))
 
         if (input$highlight != "State of Tennessee") {
             df[df$system_name == input$highlight, ]$opacity <- 1
@@ -40,9 +35,9 @@ shinyServer(function(input, output, session) {
             names(district_out)[district_out == input$outcome], ": ", row[names(row) == input$outcome])
     }
 
-    # Extract district of clicked point for secondary graphs; Update highlighted district on point click
+    # Update highlighted district on point click
     click_district <- function(data, ...) {
-        updateSelectInput(session, "highlight", selected = as.character(data$system_name))
+        updateSelectInput(session, "highlight", selected = data$system_name)
     }
 
     # Main plot - Scatterplot of district characteristic X outcome
@@ -56,7 +51,7 @@ shinyServer(function(input, output, session) {
         xvar <- prop("x", as.symbol(input$char))
         yvar <- prop("y", as.symbol(input$outcome))
 
-        # Scale vertical axis to [0, 100] if outcome is a %P/A, otherwise, scale to min/max of variable
+        # Scale vertical axis to [0, 100] if outcome is a % P/A, otherwise, scale to min/max of variable
         if (grepl("Percent Proficient or Advanced", yvar_name)) {
             y_scale <- c(0, 100)
         } else {
@@ -64,7 +59,7 @@ shinyServer(function(input, output, session) {
                 ceiling(max(df_highlight()[names(df_highlight()) == input$outcome])))
         }
 
-        plot <- df_highlight() %>%
+        df_highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
             layer_points(fill = ~Region, size := 125, size.hover := 300, opacity = ~opacity, opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
@@ -76,8 +71,6 @@ shinyServer(function(input, output, session) {
             scale_nominal("fill", range = c('#000000', '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf')) %>%
             set_options(width = 'auto', height = 650) %>%
             handle_click(click_district)
-
-        return(plot)
 
     })
 
@@ -92,7 +85,7 @@ shinyServer(function(input, output, session) {
             filter(demographic == x$demographic)
 
         paste0("<b>", input$highlight, "</b><br>",
-            "Percent ", long$demographic, ": ", long$percentage, "%")
+            "Percent ", long$demographic, ": ", long$percentage)
     }
     
     # Secondary Plot 1 - Horizontal bar chart with demographics 
@@ -127,7 +120,7 @@ shinyServer(function(input, output, session) {
             filter(subject == x$subject)
 
         paste0("<b>", long$subject, "</b><br>",
-            "Percent Proficient/Advanced: ", long$Pct_Prof_Adv, "%")
+            "Percent Proficient/Advanced: ", long$Pct_Prof_Adv)
     }
 
     # Secondary plot 2 - Bar chart of proficiency for selected district
@@ -152,7 +145,7 @@ shinyServer(function(input, output, session) {
 
     plot3 %>% bind_shiny("plot3")
 
-    output$text2 <- renderText(paste(input$highlight, "Proficiency in All Subjects", sep = " "))
+    output$text2 <- renderText(paste(input$highlight, "Proficiency in All Subjects"))
 
     # Reactive user information based on input characteristic and outcome
     output$info1 <- renderText({paste0("The horizontal placement of a point corresponds to a district's ",

@@ -68,19 +68,18 @@ function(request) {
                                 tags$li("Each point represents one district."),
                                 tags$li(textOutput("info1")),
                                 tags$li(textOutput("info2")),
-                                tags$li("Proficiency data are shown for districts with 10 or more tests in the selected subject."),
-                                tags$li("Proficiency data do not reflect accountability rules (e.g., Algebra I reassigned to Math for 8th graders)."),
+                                tags$li("Proficiency data are shown for districts with 10 or more tests in the selected subject
+                                    and do not reflect accountability rules (e.g., Algebra I reassigned to Math for 8th graders)."),
                                 tags$li("Hover or click on any point for more information about that district.")
                             )
                     ),
                     column(4,
                         wellPanel(
                             h4("Share this plot"),
-                            br(),
                             bookmarkButton(),
                             br(),
                             br(),
-                            p("You can also click the", icon("gear"), "icon at the top right of each plot to 
+                            p("Click the", icon("gear"), "icon at the top right of each plot to 
                                 download a copy of that plot.")
                         )
                     )
