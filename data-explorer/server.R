@@ -91,12 +91,10 @@ shinyServer(function(input, output, session) {
     # Secondary Plot 1 - Horizontal bar chart with demographics 
     plot2 <- reactive({
 
-        district_data <- df_highlight() %>%
+        df_highlight() %>%
             filter(system_name == input$highlight) %>%
             select(system_name, `Black/Hispanic/Native American`, `Economically Disadvantaged`, `English Learners`, `Students with Disabilities`) %>%
-            gather(demographic, Percentage, 2:5)
-
-        district_data %>%
+            gather(demographic, Percentage, 2:5) %>%
             ggvis(~Percentage, ~demographic) %>%
             layer_rects(x2 = 0, height = band(), fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
             add_axis("x", grid = FALSE) %>%
@@ -115,7 +113,7 @@ shinyServer(function(input, output, session) {
     tooltip_column <- function(x) {
         long <- df %>%
             filter(system_name == input$highlight) %>%
-            select(system_name, `Alg I`, `Alg II`, `Bio I`, Chemistry, ELA, `Eng I`, `Eng II`, `Eng III`, Math, Science) %>%
+            select(system_name, `Alg I`:Science) %>%
             gather(subject, Pct_Prof_Adv, 2:11) %>%
             filter(subject == x$subject)
 
@@ -126,12 +124,10 @@ shinyServer(function(input, output, session) {
     # Secondary plot 2 - Bar chart of proficiency for selected district
     plot3 <- reactive({
 
-        district_data <- df_highlight() %>%
+        df_highlight() %>%
             filter(system_name == input$highlight) %>%
-            select(system_name, `Alg I`, `Alg II`, `Bio I`, Chemistry, ELA, `Eng I`, `Eng II`, `Eng III`, Math, Science) %>%
-            gather(subject, Pct_Prof_Adv, 2:11)
-
-        district_data %>%
+            select(system_name, `Alg I`:Science) %>%
+            gather(subject, Pct_Prof_Adv, 2:11) %>%
             ggvis(~subject, ~Pct_Prof_Adv, key := ~subject) %>%
             layer_bars(fill := "blue", fillOpacity := 0.3, fillOpacity.hover := 0.8) %>%
             add_axis("x", title = "Subject", grid = FALSE) %>%
