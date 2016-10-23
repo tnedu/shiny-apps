@@ -6,56 +6,45 @@ library(shinyjs)
 
 # Read in achievement and profile data, drop state observation
 df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>% 
-    filter(system != 0) %>%
-    mutate(system_name = sub("Special School District", "SSD", system_name))
+    filter(system != 0)
 
 # Read in historical data
 historical <- read_csv("data/historical_data.csv") %>%
-    rename(District = system_name) %>%
-    mutate(subject = ifelse(subject == "Algebra I", "AlgI", subject),
-        subject = ifelse(subject == "Algebra II", "AlgII", subject),
-        subject = ifelse(subject == "Biology I", "BioI", subject),
-        subject = ifelse(subject == "English I", "EngI", subject),
-        subject = ifelse(subject == "English II", "EngII", subject),
-        subject = ifelse(subject == "English III", "EngIII", subject),
+    mutate(subject = ifelse(subject == "Algebra I", "Alg I", subject),
+        subject = ifelse(subject == "Algebra II", "Alg II", subject),
+        subject = ifelse(subject == "Biology I", "Bio I", subject),
+        subject = ifelse(subject == "English I", "Eng I", subject),
+        subject = ifelse(subject == "English II", "Eng II", subject),
+        subject = ifelse(subject == "English III", "Eng III", subject),
         subject = ifelse(subject == "RLA", "ELA", subject)) %>%
     spread(subject, pct_prof_adv, fill = NA) %>%
-    gather(subject, pct_prof_adv, AlgI:Science, na.rm = FALSE) 
+    gather(subject, pct_prof_adv, `Alg I`:Science, na.rm = FALSE)
 
 # District characteristics and outcomes in separate data frames
 df_chars <- df %>%
-    select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
-        Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures) %>%
-    rename(`Per-Pupil Expenditures` = Per_Pupil_Expenditures, `Percent Black` = Pct_Black,
-        `Percent Hispanic` = Pct_Hispanic, `Percent Native American` = Pct_Native_American, 
-        `Percent Economically Disadvantaged` = Pct_ED, `Percent Students with Disabilities` = Pct_SWD,
-        `Percent English Learners` = Pct_EL)
+    select(District, Enrollment, Black, Hispanic, `Native American`, `English Learners`,
+        `Students with Disabilities`, `Economically Disadvantaged`, `Per-Pupil Expenditures`) %>%
+    rename(`Percent Black` = Black, `Percent Hispanic` = Hispanic, `Percent Native American` = `Native American`, 
+        `Percent Economically Disadvantaged` = `Economically Disadvantaged`, 
+        `Percent Students with Disabilities` = `Students with Disabilities`,
+        `Percent English Learners` = `English Learners`)
 
 df_outcomes <- df %>%
     filter(complete.cases(df_chars)) %>%
-    select(system_name, Math, ELA, Science, AlgI, AlgII, BioI, Chemistry,
-        EngI, EngII, EngIII, Graduation, Dropout, ACT_Composite, Pct_Chronically_Absent,
-        Pct_Suspended, Pct_Expelled)
+    select(District, `Alg I`:Science, `ACT Composite`:`Science Growth`)
 
 # Standardize characteristic variables
 df_std <- df %>%
     filter(complete.cases(df_chars)) %>%
-    mutate_each_(funs(scale), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
-    select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
-        Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures, CORE_region)
-
-# Percentiles of characteristic variables
-df_pctile <- df %>%
-    filter(complete.cases(df_chars)) %>%
-    mutate_each_(funs(percent_rank), vars = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", 
-        "Pct_EL", "Pct_SWD", "Pct_ED", "Per_Pupil_Expenditures")) %>%
-    select(system_name, Enrollment, Pct_Black, Pct_Hispanic, Pct_Native_American, 
-        Pct_EL, Pct_SWD, Pct_ED, Per_Pupil_Expenditures) %>%
-    rename(`District` = system_name, `Per-Pupil Expenditures` = Per_Pupil_Expenditures, `Percent Black` = Pct_Black,
-        `Percent Hispanic` = Pct_Hispanic, `Percent Native American` = Pct_Native_American, 
-        `Percent Economically Disadvantaged` = Pct_ED, `Percent Students with Disabilities` = Pct_SWD,
-        `Percent English Learners` = Pct_EL)
+    select(District, Enrollment:`Per-Pupil Expenditures`, Region) %>%
+    mutate(Enrollment = scale(Enrollment),
+        Black = scale(Black),
+        Hispanic = scale(Hispanic),
+        `Native American` = scale(`Native American`),
+        `English Learners` = scale(`English Learners`),
+        `Students with Disabilities` = scale(`Students with Disabilities`),
+        `Economically Disadvantaged` = scale(`Economically Disadvantaged`),
+        `Per-Pupil Expenditures` = scale(`Per-Pupil Expenditures`))
 
 # Calculate standard deviation of each characteristic variable
 standard_devs <- df_chars %>%
@@ -72,16 +61,16 @@ standard_devs <- df_chars %>%
 outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
     "English Language Arts Percent Proficient or Advanced" = "ELA",
     "Science Percent Proficient or Advanced" = "Science",
-    "Algebra I Percent Proficient or Advanced" = "AlgI",
-    "Algebra II Percent Proficient or Advanced" = "AlgII",
-    "Biology I Percent Proficient or Advanced" = "BioI",
+    "Algebra I Percent Proficient or Advanced" = "Alg I",
+    "Algebra II Percent Proficient or Advanced" = "Alg II",
+    "Biology I Percent Proficient or Advanced" = "Bio I",
     "Chemistry Percent Proficient or Advanced" = "Chemistry",
-    "English I Percent Proficient or Advanced" = "EngI",
-    "English II Percent Proficient or Advanced" = "EngII",
-    "English III Percent Proficient or Advanced" = "EngIII",
+    "English I Percent Proficient or Advanced" = "Eng I",
+    "English II Percent Proficient or Advanced" = "Eng II",
+    "English III Percent Proficient or Advanced" = "Eng III",
     "Graduation Rate" = "Graduation",
     "Dropout Rate" = "Dropout",
-    "Average ACT Composite Score" = "ACT_Composite",
-    "Chronic Absenteeism" = "Pct_Chronically_Absent",
-    "Suspension Rate" = "Pct_Suspended",
-    "Expulsion Rate" = "Pct_Expelled")
+    "Average ACT Composite Score" = "ACT Composite",
+    "Chronic Absence" = "Chronic Absence",
+    "Suspension Rate" = "Suspension Rate",
+    "Expulsion Rate" = "Expulsion Rate")

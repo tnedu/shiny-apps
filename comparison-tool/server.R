@@ -35,36 +35,36 @@ shinyServer(function(input, output) {
         # Ensure that app doesn't crash if no characteristics are selected
         req(input$district_chars)
 
-        # Narrow comparison to within CORE region if specified
+        # Narrow comparison within CORE region if specified
         if (input$restrict_CORE) {
-            filter_region <- df_std[df_std$system_name == input$district, ]$CORE_region
+            filter_region <- df_std[df_std$District == input$district, ]$CORE_region
             df_std <- filter(df_std, CORE_region == filter_region)
         }
 
-        chars <- select(df_std, one_of(c("system_name", input$district_chars)))
+        chars <- select(df_std, one_of(c("District", input$district_chars)))
 
         # Compute similarity scores against selected district
-        similarity <- data.frame(system_name = chars[, 1], similarity_score = NA, stringsAsFactors = FALSE)
+        similarity <- data.frame(District = chars[, 1], similarity_score = NA, stringsAsFactors = FALSE)
 
         for (i in 1:nrow(chars)) {
-            similarity[i, 2] <- sqrt(sum((chars[i,2:ncol(chars)] - chars[which(chars$system_name == input$district), 2:ncol(chars)])^2))
+            similarity[i, 2] <- sqrt(sum((chars[i,2:ncol(chars)] - chars[which(chars$District == input$district), 2:ncol(chars)])^2))
         }
 
         # Select 8 most similar districts
         similarity %>%
-            mutate(Selected = (system_name == input$district),
-                Highlighted = as.numeric(system_name %in% c(input$district, clicked$district))) %>%
+            mutate(Selected = (District == input$district),
+                Highlighted = ifelse(District %in% c(input$district, clicked$district), 1, 0)) %>%
             arrange(desc(Selected), similarity_score) %>%
-            inner_join(df_outcomes, by = "system_name") %>%
+            inner_join(df_outcomes, by = "District") %>%
             slice(1:(1 + input$num_districts))
 
     })
 
     # Tooltip for bar graph with district name and proficiency %
     tooltip_bar <- function(x) {
-        row <- df[df$system_name == x$system_name, ]
+        row <- df[df$District == x$District, ]
 
-        paste0("<b>", row$system_name, "</b><br>",
+        paste0("<b>", row$District, "</b><br>",
             names(outcome_list)[outcome_list == input$outcome], ": ",
             row[names(row) == input$outcome])
     }
@@ -72,7 +72,7 @@ shinyServer(function(input, output) {
     # Extract clicked district for secondary table from bar graph
     clicked <- reactiveValues(district = "")
     click_bar <- function(data, ...) {
-        clicked$district <- as.character(data$system_name)
+        clicked$district <- data$District
     }
 
     # Bar graph of outcome for selected, similar districts
@@ -95,12 +95,12 @@ shinyServer(function(input, output) {
         }
 
         similarityData() %>%
-            ggvis(~system_name, yvar, key := ~system_name) %>%
+            ggvis(~District, yvar, key := ~District) %>%
             layer_bars(fill := "blue", width = 0.85, fillOpacity = ~Highlighted, fillOpacity.hover := 0.9) %>%
             add_axis("x", title = "District", grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_bar, on = "hover") %>%
-            scale_ordinal("x", domain = similarityData()$system_name) %>%
+            scale_ordinal("x", domain = similarityData()$District) %>%
             scale_numeric("y", domain = y_scale, expand = 0) %>%
             scale_numeric("opacity", range = c(0.3, 0.9)) %>%
             set_options(width = "auto", height = 600) %>%
@@ -124,7 +124,7 @@ shinyServer(function(input, output) {
 
     # Extract clicked district for secondary table from line graph
     click_line <- function(data, ...) {
-        clicked$district <- as.character(data$District)
+        clicked$district <- data$District
     }
 
     # Line graph with historical data
@@ -136,16 +136,16 @@ shinyServer(function(input, output) {
         historical %>%
             mutate(Opacity = ifelse(District %in% c(input$district, clicked$district), 1, 0.3)) %>%
             filter(subject == input$outcome) %>%
-            filter(District %in% similarityData()$system_name) %>%
+            inner_join(similarityData(), by = "District") %>%
             ggvis(~year, ~pct_prof_adv, stroke = ~District, opacity = ~Opacity, opacity.hover := 0.9) %>%
-            layer_points(fill = ~District, size := 75) %>%
+            layer_points(fill = ~District, size := 100) %>%
             layer_lines() %>%
             add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_historical, on = "hover") %>%
             scale_numeric("y", domain = c(0, 100), expand = 0) %>%
-            scale_ordinal("fill", domain = similarityData()$system_name) %>%
-            scale_ordinal("stroke", domain = similarityData()$system_name) %>%
+            scale_ordinal("fill", domain = similarityData()$District) %>%
+            scale_ordinal("stroke", domain = similarityData()$District) %>%
             scale_numeric("opacity", range = c(0.3, 1)) %>%
             set_options(width = 'auto', height = 600, renderer = "canvas") %>%
             hide_legend("stroke") %>%
@@ -155,47 +155,16 @@ shinyServer(function(input, output) {
     plot_hist %>% bind_shiny("plot_hist")
 
     ## Secondary profile output
-    # Tooltip for scatterplot with district name and profile data
-    tooltip_scatter <- function(x) {
-        row <- df_chars[df_chars$system_name == x$District, ]
-
-        paste0("<b>", row$system_name, "</b><br>",
-            x$Characteristic, ": ", row[names(row) == x$Characteristic], "<br>",
-            x$Characteristic, " Percentile: ", x$Value)
-    }
-
-    # Scatterplot of percentile ranks for district characteristics
-    plot_profile <- reactive({
-
-        df_pctile %>%
-            filter(District %in% c(input$district, clicked$district)) %>%
-            gather("Characteristic", "Value", 2:9) %>%
-            mutate(Value = round(100 * Value, 1)) %>%
-            ggvis(~Value, ~Characteristic) %>%
-            layer_points(fill = ~District, size := 125, opacity := 0.5, opacity.hover := 0.9) %>%
-            add_axis("x", title = "Percentile", grid = FALSE) %>%
-            add_axis("y", title = "") %>%
-            add_tooltip(tooltip_scatter, on = "hover") %>%
-            scale_numeric("x", domain = c(0, 100), expand = 0) %>%
-            scale_ordinal("y", domain = c("Enrollment", "Per-Pupil Expenditures",
-                "Percent Economically Disadvantaged", "Percent Students with Disabilities",
-                "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")) %>%
-            set_options(width = "auto", height = 400)
-
-    })
-
-    plot_profile %>% bind_shiny("plot_profile")
-
     # Table with profile data for selected, clicked districts
     output$table_profile <- renderFlexTable({
 
         df_comparison <- df_chars %>%
-            select(system_name, Enrollment, `Percent Black`, `Percent Hispanic`, `Percent Native American`,
+            select(District, Enrollment, `Percent Black`, `Percent Hispanic`, `Percent Native American`,
                 `Percent Economically Disadvantaged`, `Percent Students with Disabilities`,
                 `Percent English Learners`, `Per-Pupil Expenditures`) %>%
-            filter(system_name %in% c(input$district, clicked$district)) %>%
-            gather("Characteristic", "value", 2:9) %>%
-            spread("system_name", "value")
+            filter(District %in% c(input$district, clicked$district)) %>%
+            gather(Characteristic, value, 2:9) %>%
+            spread(District, value)
 
         if (clicked$district != "" & clicked$district != input$district) {
             # Specify column order for table
@@ -218,7 +187,7 @@ shinyServer(function(input, output) {
         df_comparison[6, -1] <- paste0(sprintf("%.1f", df_comparison[6, -1]), "%")
         df_comparison[7, -1] <- paste0(sprintf("%.1f", df_comparison[7, -1]), "%")
         df_comparison[8, -1] <- paste0(sprintf("%.1f", df_comparison[8, -1]), "%")
-        
+
         comp_table <- FlexTable(df_comparison, header.par.props = parProperties(text.align = "center"), body.par.props = parProperties(text.align = "center"))
 
         options("ReporteRs-default-font" = "Open Sans")
@@ -229,7 +198,7 @@ shinyServer(function(input, output) {
         } else {
             setFlexTableWidths(comp_table, widths = c(4, 3))
         }
-        
+
         return(comp_table)
 
     })

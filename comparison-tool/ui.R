@@ -16,20 +16,20 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                     wellPanel(
                         h4("Identify Similar Districts"),
                         br(),
-                        selectInput(inputId = "district", label = "Select a District:", choices = df_std$system_name),
+                        selectInput(inputId = "district", label = "Select a District:", choices = sort(df_std$District)),
                         br(),
                         checkboxGroupInput(inputId = "district_chars",
                             label = "Select One or More District Characteristics:",
                             choices = c("Student Enrollment" = "Enrollment",
-                                "Per-Pupil Expenditures" = "Per_Pupil_Expenditures",
-                                "% Economically Disadvantaged" = "Pct_ED",
-                                "% Students with Disabilities" = "Pct_SWD",
-                                "% English Learner Students" = "Pct_EL",
-                                "% Black Students" = "Pct_Black",
-                                "% Hispanic Students" = "Pct_Hispanic",
-                                "% Native American Students" = "Pct_Native_American"
+                                "Per-Pupil Expenditures" = "Per-Pupil Expenditures",
+                                "% Economically Disadvantaged" = "Economically Disadvantaged",
+                                "% Students with Disabilities" = "Students with Disabilities",
+                                "% English Learner Students" = "English Learners",
+                                "% Black Students" = "Black",
+                                "% Hispanic Students" = "Hispanic",
+                                "% Native American Students" = "Native American"
                             ),
-                            selected = c("Enrollment", "Pct_Black", "Pct_Hispanic", "Pct_Native_American", "Pct_EL", "Pct_ED", "Pct_SWD", "Per_Pupil_Expenditures")
+                            selected = c("Enrollment", "Black", "Hispanic", "Native American", "English Learners", "Economically Disadvantaged", "Students with Disabilities", "Per-Pupil Expenditures")
                         ),
                         br(),
                         actionButton(inputId = "button", label = "Go!"),
@@ -92,20 +92,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                             br(),
                             h4(textOutput("header_comp")),
                             br(),
-                            tabsetPanel(type = "tabs",
-                                tabPanel("Table",
-                                    br(),
-                                    tableOutput("table_profile"),
-                                    br()
-                                ),
-                                tabPanel("Plot",
-                                    br(),
-                                    ggvisOutput("plot_profile"),
-                                    br(),
-                                    p("A percentile indicates the proportion of districts with 
-                                        an equal or smaller value of that characteristic.")
-                                )
-                            )
+                            tableOutput("table_profile")
                         )
                     )
                 )
