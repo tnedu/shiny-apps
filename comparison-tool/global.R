@@ -5,7 +5,7 @@ library(shiny)
 library(shinyjs)
 
 # Read in achievement and profile data, drop state observation
-df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>% 
+ach_profile <- read_csv("data/achievement_profile_data_with_CORE.csv") %>% 
     filter(system != 0)
 
 # Read in historical data
@@ -21,7 +21,7 @@ historical <- read_csv("data/historical_data.csv") %>%
     gather(subject, pct_prof_adv, `Alg I`:Science, na.rm = FALSE)
 
 # District characteristics and outcomes in separate data frames
-df_chars <- df %>%
+chars <- ach_profile %>%
     select(District, Enrollment, Black, Hispanic, `Native American`, `English Learners`,
         `Students with Disabilities`, `Economically Disadvantaged`, `Per-Pupil Expenditures`) %>%
     rename(`Percent Black` = Black, `Percent Hispanic` = Hispanic, `Percent Native American` = `Native American`, 
@@ -29,13 +29,13 @@ df_chars <- df %>%
         `Percent Students with Disabilities` = `Students with Disabilities`,
         `Percent English Learners` = `English Learners`)
 
-df_outcomes <- df %>%
-    filter(complete.cases(df_chars)) %>%
+outcomes <- ach_profile %>%
+    filter(complete.cases(chars)) %>%
     select(District, `Alg I`:Science, `ACT Composite`:`Science Growth`)
 
 # Standardize characteristic variables
-df_std <- df %>%
-    filter(complete.cases(df_chars)) %>%
+chars_std <- ach_profile %>%
+    filter(complete.cases(chars)) %>%
     select(District, Enrollment:`Per-Pupil Expenditures`, Region) %>%
     mutate(Enrollment = scale(Enrollment),
         Black = scale(Black),
@@ -47,7 +47,7 @@ df_std <- df %>%
         `Per-Pupil Expenditures` = scale(`Per-Pupil Expenditures`))
 
 # Calculate standard deviation of each characteristic variable
-standard_devs <- df_chars %>%
+standard_devs <- chars %>%
     summarise(`Enrollment` = sd(Enrollment, na.rm = TRUE),
         `Per-Pupil Expenditures` = sd(`Per-Pupil Expenditures`, na.rm = TRUE),
         `Percent Black` = sd(`Percent Black`, na.rm = TRUE),

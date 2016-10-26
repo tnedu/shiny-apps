@@ -37,17 +37,17 @@ shinyServer(function(input, output) {
 
         # Narrow comparison within CORE region if specified
         if (input$restrict_CORE) {
-            filter_region <- df_std[df_std$District == input$district, ]$CORE_region
-            df_std <- filter(df_std, CORE_region == filter_region)
+            filter_region <- chars_std[chars_std$District == input$district, ]$CORE_region
+            chars_std <- filter(chars_std, CORE_region == filter_region)
         }
 
-        chars <- select(df_std, one_of(c("District", input$district_chars)))
+        chars_selected <- select(chars_std, one_of(c("District", input$district_chars)))
 
         # Compute similarity scores against selected district
-        similarity <- data.frame(District = chars[, 1], similarity_score = NA, stringsAsFactors = FALSE)
+        similarity <- data.frame(District = chars_selected[, 1], similarity_score = NA, stringsAsFactors = FALSE)
 
-        for (i in 1:nrow(chars)) {
-            similarity[i, 2] <- sqrt(sum((chars[i,2:ncol(chars)] - chars[which(chars$District == input$district), 2:ncol(chars)])^2))
+        for (i in 1:nrow(chars_selected)) {
+            similarity[i, 2] <- sqrt(sum((chars_selected[i,2:ncol(chars_selected)] - chars_selected[which(chars_selected$District == input$district), 2:ncol(chars_selected)])^2))
         }
 
         # Select 8 most similar districts
@@ -55,14 +55,14 @@ shinyServer(function(input, output) {
             mutate(Selected = (District == input$district),
                 Highlighted = ifelse(District %in% c(input$district, clicked$district), 1, 0)) %>%
             arrange(desc(Selected), similarity_score) %>%
-            inner_join(df_outcomes, by = "District") %>%
+            inner_join(outcomes, by = "District") %>%
             slice(1:(1 + input$num_districts))
 
     })
 
     # Tooltip for bar graph with district name and proficiency %
     tooltip_bar <- function(x) {
-        row <- df[df$District == x$District, ]
+        row <- ach_profile[ach_profile$District == x$District, ]
 
         paste0("<b>", row$District, "</b><br>",
             names(outcome_list)[outcome_list == input$outcome], ": ",
@@ -158,10 +158,8 @@ shinyServer(function(input, output) {
     # Table with profile data for selected, clicked districts
     output$table_profile <- renderFlexTable({
 
-        df_comparison <- df_chars %>%
-            select(District, Enrollment, `Percent Black`, `Percent Hispanic`, `Percent Native American`,
-                `Percent Economically Disadvantaged`, `Percent Students with Disabilities`,
-                `Percent English Learners`, `Per-Pupil Expenditures`) %>%
+        df_comparison <- chars %>%
+            select(District:`Per-Pupil Expenditures`) %>%
             filter(District %in% c(input$district, clicked$district)) %>%
             gather(Characteristic, value, 2:9) %>%
             spread(District, value)

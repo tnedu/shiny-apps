@@ -16,7 +16,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                     wellPanel(
                         h4("Identify Similar Districts"),
                         br(),
-                        selectInput(inputId = "district", label = "Select a District:", choices = sort(df_std$District)),
+                        selectInput(inputId = "district", label = "Select a District:", choices = sort(chars_std$District)),
                         br(),
                         checkboxGroupInput(inputId = "district_chars",
                             label = "Select One or More District Characteristics:",
@@ -46,13 +46,13 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         wellPanel(
                             h4("Additional Options"),
                             br(),
-                            sliderInput(inputId = "num_districts", label = "Number of comparison districts:", min = 1, max = 10, value = 7, step = 1, ticks = FALSE),
+                            sliderInput(inputId = "num_districts", label = "Number of comparison districts:", min = 1, max = 10, value = 5, step = 1, ticks = FALSE),
                             br(),
                             tags$b("Restrict comparison districts to the same:"),
                             checkboxInput(inputId = "restrict_CORE", label = "CORE Region", value = FALSE)
                         )
                     ),
-                    p("Read our", a(href = "https://github.com/tnedu/shiny-apps/blob/master/comparison-tool/documentation.md", "methodology"),
+                    p("Read", a(href = "https://github.com/tnedu/shiny-apps/blob/master/comparison-tool/documentation.md", "methodology"),
                       "for identifying similar districts.")
                 ),
                 # Message to be shown on initializing
