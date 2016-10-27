@@ -15,3 +15,7 @@ To access these applications, please visit https://tnedu.shinyapps.io/[app-name]
 * [**comparison-tool**](https://tnedu.shinyapps.io/comparison-tool)
 
     A tool designed to identify similar districts based on selected characteristics and compare outcomes against similar districts.
+
+* [**comparison-any**](https://tnedu.shinyapps.io/comparison-any)
+
+    Similar to comparison tool, but allows user to select any districts to compare.
