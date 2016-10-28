@@ -18,7 +18,14 @@ shinyUI(
                 )
             ),
             column(7,
-                ggvisOutput("plot")
+                tabsetPanel(type = "tabs",
+                    tabPanel("Current Year",
+                        ggvisOutput("plot")
+                    ),
+                    tabPanel("Historical Data",
+                        ggvisOutput("historical_plot")
+                    )
+                )
             )
         ),
         fluidRow(

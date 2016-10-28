@@ -17,6 +17,7 @@ shinyServer(function(input, output) {
             row[names(row) == input$outcome])
     }
 
+    # Current year plot
     plot <- reactive({
 
         # Label for vertical axis
@@ -50,6 +51,37 @@ shinyServer(function(input, output) {
     })
 
     plot %>% bind_shiny("plot")
+
+    # Tooltip for historical data plot
+    tooltip_historical <- function(x) {
+        row <- historical[historical$District == x$District & historical$subject == input$outcome & historical$year == x$year, ]
+
+        paste0("<b>", row$District, "</b><br>",
+            row$year, " ", names(outcome_list)[outcome_list == input$outcome], ": ", row$pct_prof_adv)
+    }
+
+    # Historical plot
+    historical_plot <- reactive({
+
+        # Label for vertical axis
+        yvar_name <- names(outcome_list[outcome_list == input$outcome])
+
+        historical %>%
+            filter(District %in% c(input$district, input$comparison)) %>%
+            filter(subject == input$outcome) %>%
+            ggvis(~year, ~pct_prof_adv, stroke = ~District) %>%
+            layer_points(fill = ~District) %>%
+            layer_lines() %>%
+            add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
+            add_axis("y", title = yvar_name, grid = FALSE) %>%
+            add_tooltip(tooltip_historical, on = "hover") %>%
+            scale_ordinal("fill", domain = c(input$district, input$comparison)) %>%
+            scale_ordinal("stroke", domain = c(input$district, input$comparison)) %>%
+            set_options(width = "auto", height = 500, renderer = "canvas")
+
+    })
+
+    historical_plot %>% bind_shiny("historical_plot")
 
     }
 )
