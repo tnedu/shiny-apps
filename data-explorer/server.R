@@ -13,16 +13,18 @@ shinyServer(function(input, output, session) {
 
     })
 
-    # Adjust color, opacity of highlighted district
     df_highlight <- reactive({
 
+        # Adjust opacity of highlighted district
         if (input$highlight != "State of Tennessee") {
             df[df$system_name == input$highlight, ]$opacity <- 1
             df[df$system_name != input$highlight & df$system_name != "State of Tennessee", ]$opacity <- 0.2
         }
 
-        # Filter for missing data based on inputted outcome
-        df[!is.na(df[names(df) == input$outcome]), ]
+        # Make points with missing outcome data invisible
+        df[is.na(df[names(df) == input$outcome]), ]$opacity <- 0
+    
+        df
 
     })
 

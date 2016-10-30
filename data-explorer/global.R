@@ -18,7 +18,7 @@ district_char <- c("Student Enrollment" = "Enrollment",
    "Percent Students with Disabilities" = "Students with Disabilities",
    "Per-Pupil Expenditures" = "Per-Pupil Expenditures",
    "Percent Black/Hispanic/Native American Students" = "Black/Hispanic/Native American",
-   "Percent Chronically Absent" = "Chronic Absence", 
+   "Percent Chronically Absent" = "Chronic Absence",
    "Suspension Rate" = "Suspension Rate",
    "Expulsion Rate" = "Expulsion Rate")
 
