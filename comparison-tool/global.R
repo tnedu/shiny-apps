@@ -5,7 +5,7 @@ library(shiny)
 library(shinyjs)
 
 # Read in achievement and profile data, drop state observation
-ach_profile <- read_csv("data/achievement_profile_data_with_CORE.csv") %>% 
+ach_profile <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
     filter(system != 0)
 
 # Read in historical data
@@ -17,14 +17,14 @@ historical <- read_csv("data/historical_data.csv") %>%
         subject = ifelse(subject == "English II", "Eng II", subject),
         subject = ifelse(subject == "English III", "Eng III", subject),
         subject = ifelse(subject == "RLA", "ELA", subject)) %>%
-    spread(subject, pct_prof_adv, fill = NA) %>%
-    gather(subject, pct_prof_adv, `Alg I`:Science, na.rm = FALSE)
+    spread(subject, pct_prof_adv) %>%
+    gather(subject, pct_prof_adv, `Alg I`:Science)
 
 # District characteristics and outcomes in separate data frames
 chars <- ach_profile %>%
-    select(District, Enrollment, Black, Hispanic, `Native American`, `English Learners`,
-        `Students with Disabilities`, `Economically Disadvantaged`, `Per-Pupil Expenditures`) %>%
-    rename(`Percent Black` = Black, `Percent Hispanic` = Hispanic, `Percent Native American` = `Native American`, 
+    select(District, Enrollment:`Per-Pupil Expenditures`) %>%
+    rename(`Percent Black` = Black, `Percent Hispanic` = Hispanic, 
+        `Percent Native American` = `Native American`, 
         `Percent Economically Disadvantaged` = `Economically Disadvantaged`, 
         `Percent Students with Disabilities` = `Students with Disabilities`,
         `Percent English Learners` = `English Learners`)
@@ -57,7 +57,7 @@ standard_devs <- chars %>%
         `Percent Students with Disabilities` = sd(`Percent Students with Disabilities`, na.rm = TRUE),
         `Percent English Learners` = sd(`Percent English Learners`, na.rm = TRUE))
 
-# Outcome vector for select input
+# Outcome vector
 outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
     "English Language Arts Percent Proficient or Advanced" = "ELA",
     "Science Percent Proficient or Advanced" = "Science",

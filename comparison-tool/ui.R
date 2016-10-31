@@ -46,14 +46,15 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         wellPanel(
                             h4("Additional Options"),
                             br(),
-                            sliderInput(inputId = "num_districts", label = "Number of comparison districts:", min = 1, max = 10, value = 5, step = 1, ticks = FALSE),
+                            sliderInput(inputId = "num_districts", label = "Number of comparison districts:", min = 1, max = 9, value = 5, step = 1, ticks = FALSE),
                             br(),
                             tags$b("Restrict comparison districts to the same:"),
                             checkboxInput(inputId = "restrict_CORE", label = "CORE Region", value = FALSE)
-                        )
-                    ),
-                    p("Read", a(href = "https://github.com/tnedu/shiny-apps/blob/master/comparison-tool/documentation.md", "methodology"),
-                      "for identifying similar districts.")
+                        ),
+                        p("Read", a(href = "https://github.com/tnedu/shiny-apps/blob/master/comparison-tool/documentation.md", "methodology"),
+                          "for identifying similar districts."),
+                        p("Click", a(href = "https://tnedu.shinyapps.io/comparison-any", "here"), "if you would prefer to select comparison districts.")
+                    )
                 ),
                 # Message to be shown on initializing
                 conditionalPanel("input.button == 0",
@@ -61,7 +62,9 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         h4("Using the input widgets on the left, select a school district and one or more district characteristics."),
                         br(),
                         p("For the selected district, this tool will identify the most similar districts based on the selected
-                            characteristics and display data for a selected outcome.")
+                            characteristics and display data for a selected outcome."),
+                        br(),
+                        p("Click", a(href = "https://tnedu.shinyapps.io/comparison-any", "here"), "if you would prefer to select comparison districts.")
                     )
                 ),
                 # Message to be shown if no characteristics are selected

@@ -65,7 +65,7 @@ shinyServer(function(input, output) {
         row <- ach_profile[ach_profile$District == x$District, ]
 
         paste0("<b>", row$District, "</b><br>",
-            names(outcome_list)[outcome_list == input$outcome], ": ",
+            names(outcome_list)[outcome_list == input$outcome], ": ", 
             row[names(row) == input$outcome])
     }
 
@@ -90,13 +90,13 @@ shinyServer(function(input, output) {
         } else if (yvar_name == "Average ACT Composite Score") {
             y_scale <- c(0, 36)
         } else {
-            y_scale <- c(floor(min(df_outcomes[names(df_outcomes) == input$outcome])),
-                ceiling(max(df_outcomes[names(df_outcomes) == input$outcome])))
+            y_scale <- c(floor(min(outcomes[names(outcomes) == input$outcome])),
+                ceiling(max(outcomes[names(outcomes) == input$outcome])))
         }
 
         similarityData() %>%
             ggvis(~District, yvar, key := ~District) %>%
-            layer_bars(fill := "blue", width = 0.85, fillOpacity = ~Highlighted, fillOpacity.hover := 0.9) %>%
+            layer_bars(fill := "blue", width = 0.8, fillOpacity = ~Highlighted, fillOpacity.hover := 0.9) %>%
             add_axis("x", title = "District", grid = FALSE) %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_bar, on = "hover") %>%
@@ -143,12 +143,10 @@ shinyServer(function(input, output) {
             add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_historical, on = "hover") %>%
-            scale_numeric("y", domain = c(0, 100), expand = 0) %>%
             scale_ordinal("fill", domain = similarityData()$District) %>%
             scale_ordinal("stroke", domain = similarityData()$District) %>%
             scale_numeric("opacity", range = c(0.3, 1)) %>%
-            set_options(width = 'auto', height = 600, renderer = "canvas") %>%
-            hide_legend("stroke") %>%
+            set_options(width = "auto", height = 600, renderer = "canvas") %>%
             handle_click(click_line)
     })
 
