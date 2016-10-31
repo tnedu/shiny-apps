@@ -25,7 +25,7 @@ function(request) {
                     column(3,
                         selectInput("outcome", label = "Select an Outcome:", 
                             choices = district_out, selected = "Math", width = 500),
-                        selectInput("highlight", label = "Optional: Highlight a District", 
+                        selectInput("district", label = "Optional: Highlight a District", 
                             choices = district_list, selected = NULL, width = 500)
                     ),
                     column(4,

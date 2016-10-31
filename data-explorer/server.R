@@ -13,24 +13,24 @@ shinyServer(function(input, output, session) {
 
     })
 
-    df_highlight <- reactive({
+    highlight <- reactive({
 
         # Adjust opacity of highlighted district
-        if (input$highlight != "State of Tennessee") {
-            df[df$system_name == input$highlight, ]$opacity <- 1
-            df[df$system_name != input$highlight & df$system_name != "State of Tennessee", ]$opacity <- 0.2
+        if (input$district != "State of Tennessee") {
+            ach_profile[ach_profile$system_name == input$district, ]$opacity <- 1
+            ach_profile[ach_profile$system_name != input$district & ach_profile$system_name != "State of Tennessee", ]$opacity <- 0.2
         }
 
         # Make points with missing outcome data invisible
-        df[is.na(df[names(df) == input$outcome]), ]$opacity <- 0
+        ach_profile[is.na(ach_profile[names(ach_profile) == input$outcome]), ]$opacity <- 0
     
-        df
+        return(ach_profile)
 
     })
 
     # Create tooltip with district name, selected x and y variables
     tooltip_scatter <- function(x) {
-        row <- df[df$system_name == x$system_name, ]
+        row <- ach_profile[ach_profile$system_name == x$system_name, ]
 
         paste0("<b>", row$system_name, "</b><br>",
             names(district_char)[district_char == input$char], ": ",  row[names(row) == input$char], "<br>",
@@ -57,11 +57,11 @@ shinyServer(function(input, output, session) {
         if (grepl("Percent Proficient or Advanced", yvar_name)) {
             y_scale <- c(0, 100)
         } else {
-            y_scale <- c(min(df_highlight()[names(df_highlight()) == input$outcome]),
-                ceiling(max(df_highlight()[names(df_highlight()) == input$outcome])))
+            y_scale <- c(min(highlight()[names(highlight()) == input$outcome]),
+                ceiling(max(highlight()[names(highlight()) == input$outcome])))
         }
 
-        df_highlight() %>%
+        highlight() %>%
             ggvis(xvar, yvar, key := ~system_name) %>%
             layer_points(fill = ~Region, size := 125, size.hover := 300, opacity = ~opacity, opacity.hover := 0.8) %>%
             add_axis("x", title = xvar_name, grid = FALSE) %>%
@@ -69,7 +69,7 @@ shinyServer(function(input, output, session) {
             scale_numeric("x", domain = input$range, clamp = TRUE) %>%
             scale_numeric("y", domain = y_scale, expand = 0) %>%
             add_tooltip(tooltip_scatter, on = "hover") %>%
-            scale_numeric("opacity", range = c(min(df_highlight()$opacity), 1)) %>%
+            scale_numeric("opacity", range = c(min(highlight()$opacity), 1)) %>%
             scale_nominal("fill", range = c('#000000', '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf')) %>%
             set_options(width = 'auto', height = 650) %>%
             handle_click(click_district)
@@ -80,21 +80,21 @@ shinyServer(function(input, output, session) {
 
     # Create tooltip for column chart with subject, proficiency percentages
     tooltip_bar <- function(x) {
-        long <- df %>%
-            filter(system_name == input$highlight) %>%
+        long <- ach_profile %>%
+            filter(system_name == input$district) %>%
             select(system_name, `Black/Hispanic/Native American`, `Economically Disadvantaged`, `English Learners`, `Students with Disabilities`) %>%
             gather(demographic, percentage, 2:5) %>%
             filter(demographic == x$demographic)
 
-        paste0("<b>", input$highlight, "</b><br>",
+        paste0("<b>", input$district, "</b><br>",
             "Percent ", long$demographic, ": ", long$percentage)
     }
     
     # Secondary Plot 1 - Horizontal bar chart with demographics 
     plot2 <- reactive({
 
-        df_highlight() %>%
-            filter(system_name == input$highlight) %>%
+        highlight() %>%
+            filter(system_name == input$district) %>%
             select(system_name, `Black/Hispanic/Native American`, `Economically Disadvantaged`, `English Learners`, `Students with Disabilities`) %>%
             gather(demographic, Percentage, 2:5) %>%
             ggvis(~Percentage, ~demographic) %>%
@@ -109,12 +109,12 @@ shinyServer(function(input, output, session) {
 
     plot2 %>% bind_shiny("plot2")
 
-    output$text1 <- renderText(paste(input$highlight, "Demographics", sep = " "))
+    output$text1 <- renderText(paste(input$district, "Demographics", sep = " "))
 
     # Create tooltip for column chart with subject, proficiency percentages
     tooltip_column <- function(x) {
-        long <- df %>%
-            filter(system_name == input$highlight) %>%
+        long <- ach_profile %>%
+            filter(system_name == input$district) %>%
             select(system_name, `Alg I`:Science) %>%
             gather(subject, Pct_Prof_Adv, 2:11) %>%
             filter(subject == x$subject)
@@ -126,8 +126,8 @@ shinyServer(function(input, output, session) {
     # Secondary plot 2 - Bar chart of proficiency for selected district
     plot3 <- reactive({
 
-        df_highlight() %>%
-            filter(system_name == input$highlight) %>%
+        highlight() %>%
+            filter(system_name == input$district) %>%
             select(system_name, `Alg I`:Science) %>%
             gather(subject, Pct_Prof_Adv, 2:11) %>%
             ggvis(~subject, ~Pct_Prof_Adv, key := ~subject) %>%
@@ -143,7 +143,7 @@ shinyServer(function(input, output, session) {
 
     plot3 %>% bind_shiny("plot3")
 
-    output$text2 <- renderText(paste(input$highlight, "Proficiency in All Subjects"))
+    output$text2 <- renderText(paste(input$district, "Proficiency in All Subjects"))
 
     # Reactive user information based on input characteristic and outcome
     output$info1 <- renderText({paste0("The horizontal placement of a point corresponds to a district's ",

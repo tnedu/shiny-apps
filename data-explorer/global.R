@@ -4,7 +4,7 @@ library(shiny)
 
 enableBookmarking(store = "url")
 
-df <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
+ach_profile <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
     mutate(Enrollment = ifelse(system_name == "State of Tennessee", NA, Enrollment),
         opacity = ifelse(system_name == "State of Tennessee", 1, 0.4))
 
@@ -51,10 +51,10 @@ district_out <- c("Math Percent Proficient or Advanced" = "Math",
     "Expulsion Rate" = "Expulsion Rate")
 
 # District list for highlighting
-district_list <- c(" " = "State of Tennessee", sort(df[-1, ]$system_name))
+district_list <- c(" " = "State of Tennessee", sort(ach_profile[-1, ]$system_name))
 
 # Ranges for slider
-ranges <- df %>%
+ranges <- ach_profile %>%
     select(Enrollment:Dropout) %>%
     gather(Characteristic, Value, Enrollment:Dropout) %>%
     group_by(Characteristic) %>%
