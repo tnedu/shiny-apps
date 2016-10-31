@@ -37,8 +37,8 @@ shinyServer(function(input, output) {
 
         # Narrow comparison within CORE region if specified
         if (input$restrict_CORE) {
-            filter_region <- chars_std[chars_std$District == input$district, ]$CORE_region
-            chars_std <- filter(chars_std, CORE_region == filter_region)
+            filter_region <- chars_std[chars_std$District == input$district, ]$Region
+            chars_std <- filter(chars_std, Region == filter_region)
         }
 
         chars_selected <- select(chars_std, one_of(c("District", input$district_chars)))
