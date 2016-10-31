@@ -15,7 +15,8 @@ shinyUI(
                     uiOutput("comparison_districts"),
                     br(),
                     selectInput(inputId = "outcome", label = "Select an outcome:", choices = outcome_list, selected = "Math", width = 400)
-                )
+                ),
+                p("Click", a(href = "https://tnedu.shinyapps.io/comparison-tool", "here"), "if you would like to compare against demographically similar districts.")
             ),
             column(7,
                 tabsetPanel(type = "tabs",
