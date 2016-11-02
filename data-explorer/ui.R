@@ -25,6 +25,8 @@ function(request) {
                     column(3,
                         selectInput("outcome", label = "Select an Outcome:", 
                             choices = district_out, selected = "Math", width = 500),
+                        selectInput("color", label = "Color points by:",
+                            choices = district_cat, selected = "Region", width = 500),
                         selectInput("district", label = "Optional: Highlight a District", 
                             choices = district_list, selected = NULL, width = 500)
                     ),
@@ -89,6 +91,7 @@ function(request) {
                         hr(),
                         p("Designed in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), "for the Tennessee Department of Education.",
                         tags$a(href = "https://github.com/tnedu/shiny-apps/tree/master/comparison-tool", "Source Code"), style = "font-size: 8pt"),
+                        p("Questions, Suggestions, or Errors?", tags$a(href = "mailto:alex.poon@tn.gov", "Email Me"), style = "font-size: 8pt"),
                         br(),
                         br()
                     )
