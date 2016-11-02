@@ -41,13 +41,13 @@ shinyServer(function(input, output) {
             chars_std <- filter(chars_std, Region == filter_region)
         }
 
-        chars_selected <- select(chars_std, one_of(c("District", input$district_chars)))
+        chars <- select(chars_std, one_of(c("District", input$district_chars)))
 
         # Compute similarity scores against selected district
-        similarity <- data.frame(District = chars_selected[, 1], similarity_score = NA, stringsAsFactors = FALSE)
+        similarity <- data.frame(District = chars[, 1], similarity_score = NA, stringsAsFactors = FALSE)
 
-        for (i in 1:nrow(chars_selected)) {
-            similarity[i, 2] <- sqrt(sum((chars_selected[i,2:ncol(chars_selected)] - chars_selected[which(chars_selected$District == input$district), 2:ncol(chars_selected)])^2))
+        for (i in 1:nrow(chars)) {
+            similarity[i, 2] <- sqrt(sum((chars[i, 2:ncol(chars)] - chars[which(chars$District == input$district), 2:ncol(chars)])^2))
         }
 
         # Select 8 most similar districts
@@ -116,10 +116,10 @@ shinyServer(function(input, output) {
 
     # Tooltip for historical data plot
     tooltip_historical <- function(x) {
-        row <- historical[historical$District == x$District & historical$subject == input$outcome & historical$year == x$year, ]
+        row <- historical[historical$District == x$District & historical$Subject == input$outcome & historical$Year == x$Year, ]
 
         paste0("<b>", row$District, "</b><br>",
-            row$year, " ", names(outcome_list)[outcome_list == input$outcome], ": ", row$pct_prof_adv)
+            row$Year, " ", names(outcome_list)[outcome_list == input$outcome], ": ", row$`Percent P/A`)
     }
 
     # Extract clicked district for secondary table from line graph
@@ -135,12 +135,12 @@ shinyServer(function(input, output) {
 
         historical %>%
             mutate(Opacity = ifelse(District %in% c(input$district, clicked$district), 1, 0.3)) %>%
-            filter(subject == input$outcome) %>%
+            filter(Subject == input$outcome) %>%
             inner_join(similarityData(), by = "District") %>%
-            ggvis(~year, ~pct_prof_adv, stroke = ~District, opacity = ~Opacity, opacity.hover := 0.9) %>%
+            ggvis(~Year, ~`Percent P/A`, stroke = ~District, opacity = ~Opacity, opacity.hover := 0.9) %>%
             layer_points(fill = ~District, size := 100) %>%
             layer_lines() %>%
-            add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
+            add_axis("x", grid = FALSE, values = 2011:2015, format = "d") %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_historical, on = "hover") %>%
             scale_ordinal("fill", domain = similarityData()$District) %>%

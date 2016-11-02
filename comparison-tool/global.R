@@ -9,16 +9,7 @@ ach_profile <- read_csv("data/achievement_profile_data_with_CORE.csv") %>%
     filter(system != 0)
 
 # Read in historical data
-historical <- read_csv("data/historical_data.csv") %>%
-    mutate(subject = ifelse(subject == "Algebra I", "Alg I", subject),
-        subject = ifelse(subject == "Algebra II", "Alg II", subject),
-        subject = ifelse(subject == "Biology I", "Bio I", subject),
-        subject = ifelse(subject == "English I", "Eng I", subject),
-        subject = ifelse(subject == "English II", "Eng II", subject),
-        subject = ifelse(subject == "English III", "Eng III", subject),
-        subject = ifelse(subject == "RLA", "ELA", subject)) %>%
-    spread(subject, pct_prof_adv) %>%
-    gather(subject, pct_prof_adv, `Alg I`:Science)
+historical <- read_csv("data/historical_data.csv")
 
 # District characteristics and outcomes in separate data frames
 chars <- ach_profile %>%
@@ -31,7 +22,7 @@ chars <- ach_profile %>%
 
 outcomes <- ach_profile %>%
     filter(complete.cases(chars)) %>%
-    select(District, `Alg I`:Science, `ACT Composite`:`Science Growth`)
+    select(District, `Algebra I`:Science, `ACT Composite`:`Science Growth`)
 
 # Standardize characteristic variables
 chars_std <- ach_profile %>%
@@ -61,26 +52,26 @@ standard_devs <- chars %>%
 outcome_list <- c("Math Percent Proficient or Advanced" = "Math",
     "English Language Arts Percent Proficient or Advanced" = "ELA",
     "Science Percent Proficient or Advanced" = "Science",
-    "Algebra I Percent Proficient or Advanced" = "Alg I",
-    "Algebra II Percent Proficient or Advanced" = "Alg II",
-    "Biology I Percent Proficient or Advanced" = "Bio I",
+    "Algebra I Percent Proficient or Advanced" = "Algebra I",
+    "Algebra II Percent Proficient or Advanced" = "Algebra II",
+    "Biology I Percent Proficient or Advanced" = "Biology I",
     "Chemistry Percent Proficient or Advanced" = "Chemistry",
-    "English I Percent Proficient or Advanced" = "Eng I",
-    "English II Percent Proficient or Advanced" = "Eng II",
-    "English III Percent Proficient or Advanced" = "Eng III",
+    "English I Percent Proficient or Advanced" = "English I",
+    "English II Percent Proficient or Advanced" = "English II",
+    "English III Percent Proficient or Advanced" = "English III",
     "Math Proficiency Growth" = "Math Growth",
     "English Language Arts Proficiency Growth" = "ELA Growth",
     "Science Proficiency Growth" = "Science Growth",
-    "Algebra I Proficiency Growth" = "Alg I Growth",
-    "Algebra II Proficiency Growth" = "Alg II Growth",
-    "Biology I Proficiency Growth" = "Bio I Growth",
+    "Algebra I Proficiency Growth" = "Algebra I Growth",
+    "Algebra II Proficiency Growth" = "Algebra II Growth",
+    "Biology I Proficiency Growth" = "Biology I Growth",
     "Chemistry Proficiency Growth" = "Chemistry Growth",
-    "English I Proficiency Growth" = "Eng I Growth",
-    "English II Proficiency Growth" = "Eng II Growth",
-    "English III Proficiency Growth" = "Eng III Growth",
+    "English I Proficiency Growth" = "English I Growth",
+    "English II Proficiency Growth" = "English II Growth",
+    "English III Proficiency Growth" = "English III Growth",
+    "Average ACT Composite Score" = "ACT Composite",
     "Graduation Rate" = "Graduation",
     "Dropout Rate" = "Dropout",
-    "Average ACT Composite Score" = "ACT Composite",
-    "Chronic Absence" = "Chronic Absence",
+    "Chronic Absence Rate" = "Chronic Absence",
     "Suspension Rate" = "Suspension Rate",
     "Expulsion Rate" = "Expulsion Rate")
