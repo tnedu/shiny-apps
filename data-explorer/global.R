@@ -45,8 +45,8 @@ district_out <- c("Math Percent Proficient or Advanced" = "Math",
     "English II Proficiency Growth" = "English II Growth",
     "English III Proficiency Growth" = "English III Growth",
     "Average ACT Composite Score" = "ACT Composite",
-    "Graduation Rate" = "Graduation",
-    "Dropout Rate" = "Dropout",
+    "Graduation Rate" = "Graduation Rate",
+    "Dropout Rate" = "Dropout Rate",
     "Chronic Absence Rate" = "Chronic Absence",
     "Suspension Rate" = "Suspension Rate",
     "Expulsion Rate" = "Expulsion Rate")
@@ -60,7 +60,7 @@ district_list <- c(" " = "State of Tennessee", sort(ach_profile[-1, ]$District))
 
 # Ranges for slider
 ranges <- ach_profile %>%
-    select(Enrollment:Dropout) %>%
-    gather(Characteristic, Value, Enrollment:Dropout) %>%
+    select(Enrollment:`Dropout Rate`) %>%
+    gather(Characteristic, Value, Enrollment:`Dropout Rate`) %>%
     group_by(Characteristic) %>%
     summarise(Min = min(Value, na.rm = TRUE), Max = max(Value, na.rm = TRUE))

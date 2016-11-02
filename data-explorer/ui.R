@@ -90,7 +90,7 @@ function(request) {
                     column(10, offset = 1,
                         hr(),
                         p("Designed in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), "for the Tennessee Department of Education.",
-                        tags$a(href = "https://github.com/tnedu/shiny-apps/tree/master/comparison-tool", "Source Code"), style = "font-size: 8pt"),
+                        tags$a(href = "https://github.com/tnedu/shiny-apps", "Source Code"), style = "font-size: 8pt"),
                         p("Questions, Suggestions, or Errors?", tags$a(href = "mailto:alex.poon@tn.gov", "Email Me"), style = "font-size: 8pt"),
                         br(),
                         br()

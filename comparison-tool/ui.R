@@ -53,7 +53,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         ),
                         p("Read", a(href = "https://github.com/tnedu/shiny-apps/blob/master/comparison-tool/documentation.md", "methodology"),
                           "for identifying similar districts."),
-                        p("Click", a(href = "https://tnedu.shinyapps.io/comparison-any", "here"), "if you would prefer to select comparison districts.")
+                        p("Click", a(href = "https://tnedu.shinyapps.io/comparison-any", "here"), "to select comparison districts directly.")
                     )
                 ),
                 # Message to be shown on initializing
@@ -64,7 +64,7 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                         p("For the selected district, this tool will identify the most similar districts based on the selected
                             characteristics and display data for a selected outcome."),
                         br(),
-                        p("Click", a(href = "https://tnedu.shinyapps.io/comparison-any", "here"), "if you would prefer to select comparison districts.")
+                        p("Click", a(href = "https://tnedu.shinyapps.io/comparison-any", "here"), "to select comparison districts directly.")
                     )
                 ),
                 # Message to be shown if no characteristics are selected
@@ -104,7 +104,8 @@ shinyUI(navbarPage("Comparison Tool", position = "fixed-top",
                 column(10, offset = 1,
                     hr(),
                     p("Designed in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), "for the Tennessee Department of Education.",
-                        tags$a(href = "https://github.com/tnedu/shiny-apps/tree/master/data-explorer", "Source Code"), style = "font-size: 8pt"),
+                        tags$a(href = "https://github.com/tnedu/shiny-apps", "Source Code"), style = "font-size: 8pt"),
+                    p("Questions, Suggestions, or Errors?", tags$a(href = "mailto:alex.poon@tn.gov", "Email Me"), style = "font-size: 8pt"),
                     br(),
                     br()
                 )
