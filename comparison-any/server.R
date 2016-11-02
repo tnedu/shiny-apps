@@ -54,10 +54,10 @@ shinyServer(function(input, output) {
 
     # Tooltip for historical data plot
     tooltip_historical <- function(x) {
-        row <- historical[historical$District == x$District & historical$subject == input$outcome & historical$year == x$year, ]
+        row <- historical[historical$District == x$District & historical$Subject == input$outcome & historical$Year == x$Year, ]
 
         paste0("<b>", row$District, "</b><br>",
-            row$year, " ", names(outcome_list)[outcome_list == input$outcome], ": ", row$pct_prof_adv)
+            row$Year, " ", names(outcome_list)[outcome_list == input$outcome], ": ", row$`Percent P/A`)
     }
 
     # Historical plot
@@ -68,11 +68,11 @@ shinyServer(function(input, output) {
 
         historical %>%
             filter(District %in% c(input$district, input$comparison)) %>%
-            filter(subject == input$outcome) %>%
-            ggvis(~year, ~pct_prof_adv, stroke = ~District) %>%
+            filter(Subject == input$outcome) %>%
+            ggvis(~Year, ~`Percent P/A`, stroke = ~District) %>%
             layer_points(fill = ~District) %>%
             layer_lines() %>%
-            add_axis("x", title = "Year", grid = FALSE, values = 2011:2015, format = "d") %>%
+            add_axis("x", grid = FALSE, values = 2011:2015, format = "d") %>%
             add_axis("y", title = yvar_name, grid = FALSE) %>%
             add_tooltip(tooltip_historical, on = "hover") %>%
             scale_ordinal("fill", domain = c(input$district, input$comparison)) %>%
