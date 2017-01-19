@@ -40,3 +40,4 @@ vignettes/*.pdf
 
 # OS X hidden files
 *.DS_Store
+.Rproj.user
