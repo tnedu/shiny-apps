@@ -12,43 +12,46 @@ shinyUI(navbarPage("Data Explorer",
                 selectInput(inputId = "outcome", label = "Select an Outcome:",
                     choices = district_out, selected = "Algebra I"),
                 selectInput(inputId = "color", label = "Color Points by:",
-                    choices = c("", district_color), selected = NA)
-                # selectInput(inputId = "highlight", label = "Highlight a District:",
-                #     choices = c("", ach_profile$District), selected = NA)
+                    choices = c("", district_color), selected = NA),
+                selectInput(inputId = "highlight", label = "Highlight a District:",
+                    choices = c("", sort(unique(ach_profile$District))), selected = NA)
             ),
             column(7,
                 rbokehOutput("scatter", height = "650px")
             )
         ),
-        # fluidRow(
-        #     column(10, offset = 1,
-        #         tabsetPanel(
-        #             tabPanel("District Information",
-        #                 fluidRow(
-        #                     column(6,
-        #                         leafletOutput("map")
-        #                     ),
-        #                     column(6,
-        #                         strong(p("District Name")),
-        #                         p("Number of Schools"),
-        #                         p("Grades Served"),
-        #                         p("Enrollment"),
-        #                         p("Percent ED"),
-        #                         p("Percent BHN"),
-        #                         p("Percent SWD"),
-        #                         p("Percent EL")
-        #                     )
-        #                 )
-        #             ),
-        #             tabPanel("Accountability"),
-        #             tabPanel("Human Capital")
-        #         )
-        #     )
-        # ),
+        conditionalPanel(condition = "input.highlight != ''",
+            fluidRow(
+                column(10, offset = 1,
+                    tabsetPanel(
+                        tabPanel("District Information",
+                            fluidRow(
+                                column(6,
+                                    leafletOutput("map")
+                                ),
+                                column(6,
+                                    br(),
+                                    strong(textOutput("district_name")),
+                                    br(),
+                                    textOutput("grades_served"),
+                                    textOutput("number_schools"),
+                                    textOutput("pct_bhn"),
+                                    textOutput("pct_ed"),
+                                    textOutput("pct_swd"),
+                                    textOutput("pct_el")
+                                )
+                            ),
+                            tabPanel("Accountability"),
+                            tabPanel("Human Capital")
+                        )
+                    )
+                )
+            )
+        ),
         fluidRow(
             column(10, offset = 1,
                 hr(),
-                p("Powered by", tags$a(href = "http://hafen.github.io/rbokeh/index.html", "rbokeh"), "and", tags$a(href = "http://shiny.rstudio.com/", "Shiny.")),
+                p("Created with", tags$a(href = "http://hafen.github.io/rbokeh/index.html", "rbokeh"), "and", tags$a(href = "http://shiny.rstudio.com/", "Shiny.")),
                 br(),
                 br()
 
