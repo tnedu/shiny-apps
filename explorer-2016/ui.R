@@ -3,7 +3,10 @@ shinyUI(navbarPage("Data Explorer",
 
         fluidRow(
             column(3, offset = 1,
-                strong(p("Use the dropdowns to select a District Characteristic and Outcome to plot:")),
+                strong(p("This tool allows users to explore relationships between
+                    district characteristics and outcomes for Tennessee school districts.")),
+                p("Use the dropdowns below to select a district characteristic
+                    and an outcome to plot."),
                 br(),
                 selectInput(inputId = "year", label = "School Year",
                     choices = c("2014-15" = 2015, "2015-16" = 2016), selected = 2016),
@@ -40,9 +43,19 @@ shinyUI(navbarPage("Data Explorer",
                                     textOutput("pct_swd"),
                                     textOutput("pct_el")
                                 )
-                            ),
-                            tabPanel("Accountability"),
-                            tabPanel("Human Capital")
+                            )
+                        ),
+                        tabPanel("Achievement",
+                            fluidRow(
+                                column(8,
+                                    rbokehOutput("prof", height = '700px')
+                                ),
+                                column(4,
+                                    br(),
+                                    "On track/Mastered Percentages are shown for subjects 10 or more tests and do not
+                                    reflect accountability rules (e.g., Algebra I reassigned to Math for 8th graders)."
+                                )
+                            )
                         )
                     )
                 )

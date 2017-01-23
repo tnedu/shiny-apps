@@ -81,4 +81,24 @@ shinyServer(function(input, output, session) {
                             ach_profile[ach_profile$Year == input$year &
                                         ach_profile$District == input$highlight, ]$`EL`))
 
+    output$prof <- renderRbokeh({
+
+        temp <- filtered() %>%
+            filter(District %in% c(input$highlight, "State of Tennessee")) %>%
+            select(District, ELA:`US History`) %>%
+            gather(Subject, Value, -District) %>%
+            group_by(Subject) %>%
+            mutate(Count = sum(!is.na(Value))) %>%
+            filter(Count == 2) %>%
+            ungroup()
+
+        # Don't render plot if district has no data
+        if (nrow(temp) == 0) return()
+
+        figure(xlab = "Subject", ylab = "Percent On Track/Mastered", tools = "save") %>%
+            ly_bar(x = Subject, y = Value, data = temp, hover = TRUE,
+                   color = District, position = "dodge")
+
+    })
+
 })
