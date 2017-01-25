@@ -8,7 +8,7 @@ shinyServer(function(input, output, session) {
             mutate(Selected = 1)
 
         if (input$highlight != "") {
-            mutate(temp, Selected = ifelse(District == input$highlight, 1, 0.2))
+            mutate(temp, Selected = ifelse(District == input$highlight, 1, 0.3))
         } else {
             return(temp)
         }
@@ -27,17 +27,25 @@ shinyServer(function(input, output, session) {
             color_palette <- c("#1f77b4")
         }
 
-        tooltip_content <- c("District", input$char, input$outcome)
-
         if (input$color != "") {
             tooltip_content <- c("District", input$char, input$outcome, input$color)
+        } else {
+            tooltip_content <- c("District", input$char, input$outcome)
         }
 
-        p <- figure(toolbar_location = "above", legend_location = NULL) %>%
+        p <- figure(xlab = names(district_char[district_char == input$char]),
+                ylab = names(district_out[district_out == input$outcome]),
+                toolbar_location = "above", legend_location = NULL) %>%
             ly_points(x = input$char, y = input$outcome, alpha = Selected, color = input$color,
                 data = filtered(), hover = tooltip_content, lname = "points") %>%
             set_palette(discrete_color = pal_color(color_palette))
             # tool_tap(shiny_callback("tap_info"), "points")
+
+        if (input$char == "Enrollment") {
+            x_axis(p, log = TRUE)
+        } else {
+            return(p)
+        }
 
     })
 
@@ -61,25 +69,25 @@ shinyServer(function(input, output, session) {
     })
 
     output$district_name <- renderText(paste("District Name:",
-                            geocode[geocode$District == input$highlight, ]$`District Name`))
+        geocode[geocode$District == input$highlight, ]$`District Name`))
+
     output$grades_served <- renderText(paste("Grades Served:",
-                            ach_profile[ach_profile$Year == input$year &
-                                        ach_profile$District == input$highlight, ]$`Grades Served`))
+        filtered()[filtered()$District == input$highlight, ]$`Grades Served`))
+
     output$number_schools <- renderText(paste("Number of Schools:",
-                            ach_profile[ach_profile$Year == input$year &
-                                        ach_profile$District == input$highlight, ]$`Number of Schools`))
+        filtered()[filtered()$District == input$highlight, ]$`Number of Schools`))
+
     output$pct_bhn <- renderText(paste("Percent Black/Hispanic/Native American Students:",
-                            ach_profile[ach_profile$Year == input$year &
-                                        ach_profile$District == input$highlight, ]$`BHN`))
+        filtered()[filtered()$District == input$highlight, ]$BHN))
+
     output$pct_ed <- renderText(paste("Percent Economically Disadvantaged Students:",
-                            ach_profile[ach_profile$Year == input$year &
-                                        ach_profile$District == input$highlight, ]$`ED`))
+        filtered()[filtered()$District == input$highlight, ]$ED))
+
     output$pct_swd <- renderText(paste("Percent Students with Disabilities:",
-                            ach_profile[ach_profile$Year == input$year &
-                                        ach_profile$District == input$highlight, ]$`SWD`))
+        filtered()[filtered()$District == input$highlight, ]$SWD))
+
     output$pct_el <- renderText(paste("Percent English Learners:",
-                            ach_profile[ach_profile$Year == input$year &
-                                        ach_profile$District == input$highlight, ]$`EL`))
+        filtered()[filtered()$District == input$highlight, ]$EL))
 
     output$prof <- renderRbokeh({
 
@@ -89,15 +97,14 @@ shinyServer(function(input, output, session) {
             gather(Subject, Value, -District) %>%
             group_by(Subject) %>%
             mutate(Count = sum(!is.na(Value))) %>%
-            filter(Count == 2) %>%
-            ungroup()
+            filter(Count == 2)
 
         # Don't render plot if district has no data
         if (nrow(temp) == 0) return()
 
         figure(xlab = "Subject", ylab = "Percent On Track/Mastered", tools = "save") %>%
             ly_bar(x = Subject, y = Value, data = temp, hover = TRUE,
-                   color = District, position = "dodge")
+                color = District, position = "dodge")
 
     })
 

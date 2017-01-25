@@ -12,8 +12,7 @@ ach_profile <- read_csv("data/achievement_profile_data_2015_2016.csv") %>%
            `Accountability Status 2015` = ifelse(is.na(`Accountability Status 2015`), "NA", `Accountability Status 2015`))
 
 geocode <- read_csv("data/district_location_geocode.csv") %>%
-    mutate(City = paste(City, State, sep = ", "),
-           City = paste(City, Zip, sep = " "))
+    mutate(City = paste0(City, ", ", State, " ", Zip))
 
 district_char <- c("Student Enrollment" = "Enrollment",
                    "Percent Economically Disadvantaged" = "ED",

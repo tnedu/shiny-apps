@@ -23,6 +23,7 @@ shinyUI(navbarPage("Data Explorer",
                 rbokehOutput("scatter", height = "650px")
             )
         ),
+        br(),
         conditionalPanel(condition = "input.highlight != ''",
             fluidRow(
                 column(10, offset = 1,
