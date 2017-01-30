@@ -54,70 +54,25 @@ shinyServer(function(input, output) {
         # Select 8 most similar districts
         similarity %>%
             mutate(Selected = (District == input$district),
-                   Highlighted = ifelse(District %in% c(input$district, clicked$district), 1, 0)) %>%
+                   Highlighted = ifelse(District == input$district, 1, 0)) %>%
             arrange(desc(Selected), similarity_score) %>%
             inner_join(outcomes, by = "District") %>%
             slice(1:(1 + input$num_districts))
 
     })
 
-    # Tooltip for bar graph with district name and proficiency %
-    tooltip_bar <- function(x) {
-        row <- ach_profile[ach_profile$District == x$District, ]
-
-        paste0("<b>", row$District, "</b><br>",
-               names(outcome_list)[outcome_list == input$outcome], ": ",
-               row[names(row) == input$outcome])
-    }
-
-    # Extract clicked district for secondary table from bar graph
-    clicked <- reactiveValues(district = "")
-    click_bar <- function(data, ...) {
-        clicked$district <- data$District
-    }
-
-    # Bar graph of outcome for selected, similar districts
-    plot_outcome <- reactive({
-
-        # Label for vertical axis
-        yvar_name <- names(outcome_list[outcome_list == input$outcome])
-
-        # Convert subject input (string) to variable name
-        yvar <- prop("y", as.symbol(input$outcome))
-
-        # Scale vertical axis to [0, 100] if outcome is a % P/A, otherwise, scale to min/max of variable
-        if (grepl("Percent Proficient or Advanced", yvar_name)) {
-            y_scale <- c(0, 100)
-        } else if (yvar_name == "Average ACT Composite Score") {
-            y_scale <- c(0, 36)
-        } else {
-            y_scale <- c(floor(min(outcomes[names(outcomes) == input$outcome])),
-                         ceiling(max(outcomes[names(outcomes) == input$outcome])))
-        }
-
-        similarityData() %>%
-            ggvis(~District, yvar, key := ~District) %>%
-            layer_bars(fill := "blue", width = 0.8, fillOpacity = ~Highlighted, fillOpacity.hover := 0.9) %>%
-            add_axis("x", title = "District", grid = FALSE) %>%
-            add_axis("y", title = yvar_name, grid = FALSE) %>%
-            add_tooltip(tooltip_bar, on = "hover") %>%
-            scale_ordinal("x", domain = similarityData()$District) %>%
-            scale_numeric("y", domain = y_scale, expand = 0) %>%
-            scale_numeric("opacity", range = c(0.3, 0.9)) %>%
-            set_options(width = "auto", height = 600) %>%
-            hide_legend("fill") %>%
-            handle_click(click_bar)
-
-    })
-
-    plot_outcome %>% bind_shiny("plot_outcome")
-
     output$header <- renderText({paste(names(outcome_list[outcome_list == input$outcome]),
         "for districts most similar to", input$district, sep = " ")})
 
-    # Drop comparison columns/dots when input district changes
-    observe({
-        clicked$district <- input$district
+    # Outcome plot
+    output$plot_bokeh <- renderRbokeh({
+
+        if (mean(is.na(similarityData()[input$outcome])) == 1) return()
+
+        figure(data = similarityData(), xlim = similarityData()$District,
+               padding_factor = 0) %>%
+            ly_bar(x = "District", y = input$outcome, hover = TRUE)
+
     })
 
 })

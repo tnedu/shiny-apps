@@ -35,7 +35,7 @@ shinyUI(navbarPage("Comparison Tool",
                         h4("Outcome to Plot"),
                         br(),
                         selectInput(inputId = "outcome", label = "Outcome to plot:",
-                            choices = outcome_list, selected = "Math")
+                            choices = outcome_list, selected = "Algebra I")
                         # selectInput(inputId = "year", label = "School Year",
                         #     choices = c("2014-15" = 2015, "2015-16" = 2016), selected = 2016)
                     ),
@@ -69,7 +69,7 @@ shinyUI(navbarPage("Comparison Tool",
                     column(7,
                         h4(textOutput("header")),
                         br(),
-                        ggvisOutput("plot_outcome")
+                        rbokehOutput("plot_bokeh", height = "600px")
                     )
                 )
             )
