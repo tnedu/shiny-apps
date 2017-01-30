@@ -1,3 +1,6 @@
+## District Data Explorer
+# server.R
+
 shinyServer(function(input, output, session) {
 
     # Filter data based on selected year and highlight selected district
@@ -33,11 +36,13 @@ shinyServer(function(input, output, session) {
             tooltip_content <- c("District", input$char, input$outcome)
         }
 
-        p <- figure(xlab = names(district_char[district_char == input$char]),
+        p <- figure(data = filtered(),
+                xlab = names(district_char[district_char == input$char]),
                 ylab = names(district_out[district_out == input$outcome]),
-                toolbar_location = "above", legend_location = NULL) %>%
-            ly_points(x = input$char, y = input$outcome, alpha = Selected, color = input$color,
-                data = filtered(), hover = tooltip_content, lname = "points") %>%
+                toolbar_location = "above", legend_location = NULL,
+                padding_factor = 0.04) %>%
+            ly_points(x = input$char, y = input$outcome, alpha = Selected,
+                color = input$color, hover = tooltip_content, lname = "points") %>%
             set_palette(discrete_color = pal_color(color_palette))
             # tool_tap(shiny_callback("tap_info"), "points")
 
@@ -60,38 +65,37 @@ shinyServer(function(input, output, session) {
 
         leaflet() %>%
             addTiles() %>%
-            addMarkers(lng = geocode[geocode$District == input$highlight, ]$Longitude,
-                       lat = geocode[geocode$District == input$highlight, ]$Latitude,
-                       popup = paste(sep = "<br/>",
-                           paste0("<b>", geocode[geocode$District == input$highlight, ]$`District Name`, "</b>"),
-                           geocode[geocode$District == input$highlight, ]$City))
+            addMarkers(
+                lng = geocode[geocode$District == input$highlight,]$Longitude,
+                lat = geocode[geocode$District == input$highlight,]$Latitude,
+                popup = paste(
+                    sep = "<br/>",
+                    paste0("<b>", geocode[geocode$District == input$highlight,]$`District Name`, "</b>"),
+                    geocode[geocode$District == input$highlight,]$City
+                )
+            )
 
     })
 
-    output$district_name <- renderText(paste("District Name:",
-        geocode[geocode$District == input$highlight, ]$`District Name`))
-
-    output$grades_served <- renderText(paste("Grades Served:",
-        filtered()[filtered()$District == input$highlight, ]$`Grades Served`))
-
-    output$number_schools <- renderText(paste("Number of Schools:",
-        filtered()[filtered()$District == input$highlight, ]$`Number of Schools`))
-
-    output$pct_bhn <- renderText(paste("Percent Black/Hispanic/Native American Students:",
-        filtered()[filtered()$District == input$highlight, ]$BHN))
-
-    output$pct_ed <- renderText(paste("Percent Economically Disadvantaged Students:",
-        filtered()[filtered()$District == input$highlight, ]$ED))
-
-    output$pct_swd <- renderText(paste("Percent Students with Disabilities:",
-        filtered()[filtered()$District == input$highlight, ]$SWD))
-
-    output$pct_el <- renderText(paste("Percent English Learners:",
-        filtered()[filtered()$District == input$highlight, ]$EL))
+    output$district_info <- renderText(
+        paste("<b>", "District Name:", geocode[geocode$District == input$highlight, ]$`District Name`, "</b>",
+        "<br/>",
+        "<br/>",
+        "Grades Served:", filtered()[filtered()$District == input$highlight, ]$`Grades Served`,
+        "<br/>",
+        "Number of Schools:",filtered()[filtered()$District == input$highlight, ]$`Number of Schools`,
+        "<br/>",
+        "Percent Black/Hispanic/Native American Students:", filtered()[filtered()$District == input$highlight, ]$BHN,
+        "<br/>",
+        "Percent Economically Disadvantaged Students:", filtered()[filtered()$District == input$highlight, ]$ED,
+        "<br/>",
+        "Percent Students with Disabilities:", filtered()[filtered()$District == input$highlight, ]$SWD,
+        "<br/>",
+        "Percent English Learners:", filtered()[filtered()$District == input$highlight, ]$EL))
 
     output$prof <- renderRbokeh({
 
-        temp <- filtered() %>%
+        long <- filtered() %>%
             filter(District %in% c(input$highlight, "State of Tennessee")) %>%
             select(District, ELA:`US History`) %>%
             gather(Subject, Value, -District) %>%
@@ -100,10 +104,10 @@ shinyServer(function(input, output, session) {
             filter(Count == 2)
 
         # Don't render plot if district has no data
-        if (nrow(temp) == 0) return()
+        if (nrow(long) == 0) return()
 
         figure(xlab = "Subject", ylab = "Percent On Track/Mastered", tools = "save") %>%
-            ly_bar(x = Subject, y = Value, data = temp, hover = TRUE,
+            ly_bar(x = Subject, y = Value, data = long, hover = TRUE,
                 color = District, position = "dodge")
 
     })

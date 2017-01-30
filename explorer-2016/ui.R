@@ -1,3 +1,6 @@
+## District Data Explorer
+# ui.R
+
 shinyUI(navbarPage("Data Explorer",
     tabPanel("District",
 
@@ -35,14 +38,7 @@ shinyUI(navbarPage("Data Explorer",
                                 ),
                                 column(6,
                                     br(),
-                                    strong(textOutput("district_name")),
-                                    br(),
-                                    textOutput("grades_served"),
-                                    textOutput("number_schools"),
-                                    textOutput("pct_bhn"),
-                                    textOutput("pct_ed"),
-                                    textOutput("pct_swd"),
-                                    textOutput("pct_el")
+                                    htmlOutput("district_info")
                                 )
                             )
                         ),
@@ -57,7 +53,10 @@ shinyUI(navbarPage("Data Explorer",
                                     reflect accountability rules (e.g., Algebra I reassigned to Math for 8th graders)."
                                 )
                             )
-                        )
+                        ),
+                        tabPanel("Growth"),
+                        tabPanel("Ready Graduate"),
+                        tabPanel("Opportunity to Learn")
                     )
                 )
             )
@@ -68,7 +67,6 @@ shinyUI(navbarPage("Data Explorer",
                 p("Created with", tags$a(href = "http://hafen.github.io/rbokeh/index.html", "rbokeh"), "and", tags$a(href = "http://shiny.rstudio.com/", "Shiny.")),
                 br(),
                 br()
-
             )
         )
     )
