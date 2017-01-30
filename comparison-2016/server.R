@@ -42,22 +42,14 @@ shinyServer(function(input, output) {
             chars_std <- filter(chars_std, Region == filter_region)
         }
 
-        chars <- select(chars_std, one_of(c("District", input$district_chars)))
-
-        # Compute similarity scores against selected district
-        similarity <- data_frame(District = chars$District, similarity_score = NA)
-
-        for (i in 1:nrow(chars)) {
-            similarity[i, 2] <- sqrt(sum((chars[i, 2:ncol(chars)] - chars[which(chars$District == input$district), 2:ncol(chars)])^2))
-        }
-
-        # Select 8 most similar districts
-        similarity %>%
-            mutate(Selected = (District == input$district),
-                   Highlighted = ifelse(District == input$district, 1, 0)) %>%
-            arrange(desc(Selected), similarity_score) %>%
-            inner_join(outcomes, by = "District") %>%
-            slice(1:(1 + input$num_districts))
+        # Calculate similarity scores
+        by_row(.d = chars_std,
+               ..f = ~ sqrt((sum(.x[3:ncol(chars_std)] - chars_std[which(chars_std$District == input$district), 3:ncol(chars_std)]))^2),
+               .to = "Score", .collate = "cols") %>%
+            left_join(outcomes, by = "District") %>%
+            mutate(Selected = (District == input$district)) %>%
+            arrange(desc(Selected), Score) %>%
+            slice(1:(input$num_districts + 1))
 
     })
 
@@ -67,7 +59,7 @@ shinyServer(function(input, output) {
     # Outcome plot
     output$plot_bokeh <- renderRbokeh({
 
-        if (mean(is.na(similarityData()[input$outcome])) == 1) return()
+        if (mean(is.na(similarityData()[[input$outcome]])) == 1) return()
 
         figure(data = similarityData(), xlim = similarityData()$District,
                padding_factor = 0) %>%

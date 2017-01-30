@@ -18,14 +18,12 @@ chars <- ach_profile %>%
         `Percent English Learners` = EL)
 
 outcomes <- ach_profile %>%
-    # filter(complete.cases(chars)) %>%
     select(District, ELA:`US History`, `ACT English`:`ACT 21 or Above`,
            `Chronic Absence`, Suspension, Expulsion, Grad, Dropout)
 
 # Standardize characteristic variables
 chars_std <- ach_profile %>%
-    filter(complete.cases(chars)) %>%
-    select(Year, District, Enrollment:Expenditures, Region) %>%
+    select(Year, District, Enrollment:Expenditures) %>%
     mutate_each(funs(scale(.)), Enrollment:Expenditures)
 
 # Outcomes
