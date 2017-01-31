@@ -5,34 +5,15 @@ library(shinyjs)
 
 ach_profile <- read_csv("data/achievement_profile_data_2015_2016.csv") %>%
     filter(District != "State of Tennessee") %>%
-    filter(Year == 2016)
+    mutate_each(funs(ifelse(is.na(.) & System != 970, 0, .)), Black, Hispanic, Native, EL)
 
-# District characteristics and outcomes in separate data frames
-chars <- ach_profile %>%
-    select(Year, District, Enrollment, Black, Hispanic, Native, ED, SWD, EL, Expenditures) %>%
-    rename(`Percent Black` = Black,
-        `Percent Hispanic` = Hispanic,
-        `Percent Native American` = Native,
-        `Percent Economically Disadvantaged` = ED,
-        `Percent Students with Disabilities` = SWD,
-        `Percent English Learners` = EL)
-
-outcomes <- ach_profile %>%
-    select(District, ELA:`US History`, `ACT English`:`ACT 21 or Above`,
-           `Chronic Absence`, Suspension, Expulsion, Grad, Dropout)
-
-# Standardize characteristic variables
-chars_std <- ach_profile %>%
-    select(Year, District, Enrollment:Expenditures) %>%
-    mutate_each(funs(scale(.)), Enrollment:Expenditures)
-
-# Outcomes
+# Outcome list for dropdown
 outcome_list <- c("ACT Composite Average" = "ACT Composite",
     "ACT English Average" = "ACT English",
     "ACT Math Average" = "ACT Math",
     "ACT Reading Average" = "ACT Reading",
     "ACT Science Average" = "ACT Science",
-    "ACT Composite" = "ACT 21 or Above",
+    "ACT Composite 21 or Above" = "ACT 21 or Above",
     "Math Percent Proficient/Advanced" = "Math",
     "ELA Percent Proficient/Advanced" = "ELA",
     "Science Percent On Track/Mastered" = "Science",

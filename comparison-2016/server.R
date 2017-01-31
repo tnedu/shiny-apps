@@ -3,9 +3,9 @@
 
 shinyServer(function(input, output) {
 
-    # Hide output, disable inputs, and show message if no district characteristics are selected
+    # Disable inputs and show message if no characteristics are selected
     observe({
-        if (length(input$district_chars) == 0) {
+        if (length(input$district_chars) == 0 | input$district == "") {
             hide(id = "output")
             show(id = "request_input")
             disable(id = "outcome")
@@ -31,10 +31,14 @@ shinyServer(function(input, output) {
     })
 
     # Identify most similar districts based on selected characteristics
-    similarityData <- reactive({
+    similarity <- reactive({
 
         # Ensure that app doesn't crash if no characteristics are selected
-        req(input$district_chars)
+        req(input$district, input$district_chars)
+
+        chars_std <- ach_profile %>%
+            filter(Year == input$year) %>%
+            mutate_each(funs(scale), Enrollment:Expenditures)
 
         # Narrow comparison within CORE region if specified
         if (input$restrict_CORE) {
@@ -44,25 +48,26 @@ shinyServer(function(input, output) {
 
         # Calculate similarity scores
         by_row(.d = chars_std,
-               ..f = ~ sqrt((sum(.x[3:ncol(chars_std)] - chars_std[which(chars_std$District == input$district), 3:ncol(chars_std)]))^2),
+               ..f = ~ sqrt(sum((.x[c(input$district_chars)] -
+                    chars_std[which(chars_std$District == input$district), c(input$district_chars)])^2)),
                .to = "Score", .collate = "cols") %>%
-            left_join(outcomes, by = "District") %>%
             mutate(Selected = (District == input$district)) %>%
+            filter(!is.na(Score)) %>%
             arrange(desc(Selected), Score) %>%
             slice(1:(input$num_districts + 1))
 
     })
 
     output$header <- renderText({paste(names(outcome_list[outcome_list == input$outcome]),
-        "for districts most similar to", input$district, sep = " ")})
+        "for districts most similar to", input$district)})
 
     # Outcome plot
     output$plot_bokeh <- renderRbokeh({
 
-        if (mean(is.na(similarityData()[[input$outcome]])) == 1) return()
+        if (all(is.na(similarity()[input$outcome]))) return()
 
-        figure(data = similarityData(), xlim = similarityData()$District,
-               padding_factor = 0) %>%
+        figure(data = similarity(), xlim = similarity()$District,
+                padding_factor = 0) %>%
             ly_bar(x = "District", y = input$outcome, hover = TRUE)
 
     })
