@@ -4,24 +4,21 @@ library(rbokeh)
 library(shiny)
 
 ach_profile <- read_csv("data/achievement_profile_data_2015_2016.csv") %>%
-    mutate(`TVAAS Composite` = ifelse(is.na(`TVAAS Composite`), "NA", `TVAAS Composite`),
-        `TVAAS Literacy` = ifelse(is.na(`TVAAS Literacy`), "NA", `TVAAS Literacy`),
-        `TVAAS Numeracy` = ifelse(is.na(`TVAAS Numeracy`), "NA", `TVAAS Numeracy`),
-        `TVAAS Science` = ifelse(is.na(`TVAAS Science`), "NA", `TVAAS Science`),
-        `TVAAS Social Studies` = ifelse(is.na(`TVAAS Social Studies`), "NA", `TVAAS Social Studies`),
-        `Accountability Status 2015` = ifelse(is.na(`Accountability Status 2015`), "NA", `Accountability Status 2015`))
+    mutate_each(funs(ifelse(is.na(.), "NA", .)), `TVAAS Composite`:`TVAAS Social Studies`,
+        `Accountability Status 2015`) %>%
+    mutate_each(funs(ifelse(is.na(.) & System != 970, 0, .)), Black, Hispanic, Native, EL)
 
 geocode <- read_csv("data/district_location_geocode.csv") %>%
     mutate(City = paste0(City, ", ", State, " ", Zip))
 
-district_char <- c("Student Enrollment" = "Enrollment",
+chars <- c("Student Enrollment" = "Enrollment",
     "Percent Economically Disadvantaged" = "ED",
     "Percent Black/Hispanic/Native American" = "BHN",
     "Percent Students with Disabilities" = "SWD",
     "Percent English Learners" = "EL",
     "Per-Pupil Expenditures" = "Expenditures")
 
-district_out <- c("ACT Composite Average" = "ACT Composite",
+outcomes <- c("ACT Composite Average" = "ACT Composite",
     "ACT English Average" = "ACT English",
     "ACT Math Average" = "ACT Math",
     "ACT Reading Average" = "ACT Reading",
@@ -45,7 +42,7 @@ district_out <- c("ACT Composite Average" = "ACT Composite",
     "Graduation Rate" = "Grad",
     "Dropout Rate" = "Dropout")
 
-district_color <- c("Region",
+color_by <- c("Region",
     "TVAAS Composite",
     "TVAAS Literacy",
     "TVAAS Numeracy",

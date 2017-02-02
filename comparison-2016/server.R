@@ -3,7 +3,7 @@
 
 shinyServer(function(input, output) {
 
-    # Disable inputs and show message if no characteristics are selected
+    # Disable inputs and show message if no district or characteristics are selected
     observe({
         if (length(input$district_chars) == 0 | input$district == "") {
             hide(id = "output")
@@ -48,8 +48,8 @@ shinyServer(function(input, output) {
 
         # Calculate similarity scores
         by_row(.d = chars_std,
-               ..f = ~ sqrt(sum((.x[c(input$district_chars)] -
-                    chars_std[which(chars_std$District == input$district), c(input$district_chars)])^2)),
+               ..f = ~ sqrt(sum((.x[input$district_chars] -
+                    chars_std[which(chars_std$District == input$district), input$district_chars])^2)),
                .to = "Score", .collate = "cols") %>%
             mutate(Selected = (District == input$district)) %>%
             filter(!is.na(Score)) %>%
@@ -67,7 +67,7 @@ shinyServer(function(input, output) {
         if (all(is.na(similarity()[input$outcome]))) return()
 
         figure(data = similarity(), xlim = similarity()$District,
-                padding_factor = 0) %>%
+                padding_factor = 0, tools = "save") %>%
             ly_bar(x = "District", y = input$outcome, hover = TRUE)
 
     })

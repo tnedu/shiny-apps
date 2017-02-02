@@ -7,7 +7,7 @@ shinyServer(function(input, output, session) {
     filtered <- reactive({
 
         temp <- ach_profile %>%
-            filter(Year == as.numeric(input$year)) %>%
+            filter(Year == input$year) %>%
             mutate(Selected = 1)
 
         if (input$highlight != "") {
@@ -37,8 +37,8 @@ shinyServer(function(input, output, session) {
         }
 
         p <- figure(data = filtered(),
-                xlab = names(district_char[district_char == input$char]),
-                ylab = names(district_out[district_out == input$outcome]),
+                xlab = names(chars[chars == input$char]),
+                ylab = names(outcomes[outcomes == input$outcome]),
                 toolbar_location = "above", legend_location = NULL,
                 padding_factor = 0.04) %>%
             ly_points(x = input$char, y = input$outcome, alpha = Selected,
@@ -68,8 +68,7 @@ shinyServer(function(input, output, session) {
             addMarkers(
                 lng = geocode[geocode$District == input$highlight,]$Longitude,
                 lat = geocode[geocode$District == input$highlight,]$Latitude,
-                popup = paste(
-                    sep = "<br/>",
+                popup = paste(sep = "<br/>",
                     paste0("<b>", geocode[geocode$District == input$highlight,]$`District Name`, "</b>"),
                     geocode[geocode$District == input$highlight,]$City
                 )
@@ -78,19 +77,13 @@ shinyServer(function(input, output, session) {
     })
 
     output$district_info <- renderText(
-        paste("<b>", "District Name:", geocode[geocode$District == input$highlight, ]$`District Name`, "</b>",
+        paste("<b>District Name:", geocode[geocode$District == input$highlight, ]$`District Name`, "</b><br/>",
         "<br/>",
-        "<br/>",
-        "Grades Served:", filtered()[filtered()$District == input$highlight, ]$`Grades Served`,
-        "<br/>",
-        "Number of Schools:",filtered()[filtered()$District == input$highlight, ]$`Number of Schools`,
-        "<br/>",
-        "Percent Black/Hispanic/Native American Students:", filtered()[filtered()$District == input$highlight, ]$BHN,
-        "<br/>",
-        "Percent Economically Disadvantaged Students:", filtered()[filtered()$District == input$highlight, ]$ED,
-        "<br/>",
-        "Percent Students with Disabilities:", filtered()[filtered()$District == input$highlight, ]$SWD,
-        "<br/>",
+        "Grades Served:", filtered()[filtered()$District == input$highlight, ]$`Grades Served`, "<br/>",
+        "Number of Schools:",filtered()[filtered()$District == input$highlight, ]$`Number of Schools`, "<br/>",
+        "Percent Black/Hispanic/Native American Students:", filtered()[filtered()$District == input$highlight, ]$BHN, "<br/>",
+        "Percent Economically Disadvantaged Students:", filtered()[filtered()$District == input$highlight, ]$ED, "<br/>",
+        "Percent Students with Disabilities:", filtered()[filtered()$District == input$highlight, ]$SWD, "<br/>",
         "Percent English Learners:", filtered()[filtered()$District == input$highlight, ]$EL))
 
     output$prof <- renderRbokeh({
@@ -106,7 +99,8 @@ shinyServer(function(input, output, session) {
         # Don't render plot if district has no data
         if (nrow(long) == 0) return()
 
-        figure(xlab = "Subject", ylab = "Percent On Track/Mastered", tools = "save") %>%
+        figure(xlab = "Subject", ylab = "Percent On Track/Mastered",
+               padding_factor = 0, tools = "save") %>%
             ly_bar(x = Subject, y = Value, data = long, hover = TRUE,
                 color = District, position = "dodge")
 

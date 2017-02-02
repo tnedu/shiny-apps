@@ -31,12 +31,12 @@ shinyUI(navbarPage("Comparison Tool",
                 ),
                 conditionalPanel("input.button >= 1",
                     wellPanel(
-                        h4("Outcome to Plot"),
+                        h4("Outcome"),
                         br(),
                         selectInput(inputId = "outcome", label = "Outcome to plot:",
-                            choices = outcome_list, selected = "Math"),
-                        selectInput(inputId = "year", label = "School Year",
-                            choices = c("2014-15" = 2015, "2015-16" = 2016), selected = 2015)
+                            choices = outcome_list, selected = "Algebra I"),
+                        selectInput(inputId = "year", label = "School Year:",
+                            choices = c("2015-16" = 2016, "2014-15" = 2015))
                     ),
                     wellPanel(
                         h4("Additional Options"),

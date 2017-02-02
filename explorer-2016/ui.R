@@ -3,7 +3,6 @@
 
 shinyUI(navbarPage("Data Explorer",
     tabPanel("District",
-
         fluidRow(
             column(3, offset = 1,
                 strong(p("This tool allows users to explore relationships between
@@ -14,13 +13,13 @@ shinyUI(navbarPage("Data Explorer",
                 selectInput(inputId = "year", label = "School Year",
                     choices = c("2014-15" = 2015, "2015-16" = 2016), selected = 2016),
                 selectInput(inputId = "char", label = "Select a District Characteristic:",
-                    choices = district_char, selected = "ED"),
+                    choices = chars, selected = "ED"),
                 selectInput(inputId = "outcome", label = "Select an Outcome:",
-                    choices = district_out, selected = "Algebra I"),
+                    choices = outcomes, selected = "Algebra I"),
                 selectInput(inputId = "color", label = "Color Points by:",
-                    choices = c("", district_color), selected = NA),
+                    choices = c("", color_by), selected = ""),
                 selectInput(inputId = "highlight", label = "Highlight a District:",
-                    choices = c("", sort(unique(ach_profile$District))), selected = NA)
+                    choices = c("", sort(unique(ach_profile$District))), selected = "")
             ),
             column(7,
                 rbokehOutput("scatter", height = "650px")
@@ -53,10 +52,11 @@ shinyUI(navbarPage("Data Explorer",
                                     reflect accountability rules (e.g., Algebra I reassigned to Math for 8th graders)."
                                 )
                             )
-                        ),
-                        tabPanel("Growth"),
-                        tabPanel("Ready Graduate"),
-                        tabPanel("Opportunity to Learn")
+                        )
+                        # tabPanel("Growth"),
+                        # tabPanel("Ready Graduate"),
+                        # tabPanel("Opportunity to Learn"),
+                        # tabPanel("English Proficiency")
                     )
                 )
             )
