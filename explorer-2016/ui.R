@@ -19,7 +19,8 @@ shinyUI(navbarPage("Data Explorer",
                 selectInput(inputId = "color", label = "Color Points by:",
                     choices = c("", color_by), selected = ""),
                 selectInput(inputId = "highlight", label = "Highlight a District:",
-                    choices = c("", sort(unique(ach_profile$District))), selected = "")
+                    choices = c("", sort(unique(ach_profile$District))), selected = ""),
+                downloadLink('downloadData', 'Click'), "to download the data underlying this plot."
             ),
             column(7,
                 rbokehOutput("scatter", height = "650px")

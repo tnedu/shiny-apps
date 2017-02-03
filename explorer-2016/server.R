@@ -106,4 +106,11 @@ shinyServer(function(input, output, session) {
 
     })
 
+    output$downloadData <- downloadHandler(
+        filename = "achievement_profile_data_2015_2016.csv",
+        content = function(file) {
+            write_csv(ach_profile, file, na = "")
+        }
+    )
+
 })
