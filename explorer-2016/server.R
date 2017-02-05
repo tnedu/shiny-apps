@@ -106,11 +106,32 @@ shinyServer(function(input, output, session) {
 
     })
 
+    output$tvaas_table <- renderTable({
+
+        filtered() %>%
+            filter(District == input$highlight) %>%
+            select(District, contains("TVAAS"))
+
+    })
+
     output$downloadData <- downloadHandler(
         filename = "achievement_profile_data_2015_2016.csv",
         content = function(file) {
             write_csv(ach_profile, file, na = "")
         }
     )
+
+    output$report <- downloadHandler(
+        filename = paste(input$highlight, "Report.docx"),
+        content = function(file) {
+            tempReport <- file.path(tempdir(), paste(input$highlight, "report.Rmd"))
+            file.copy("report.Rmd", tempReport, overwrite = TRUE)
+
+            rmarkdown::render(tempReport, output_file = file,
+                params = list(district = input$highlight, year = input$year),
+                envir = new.env(parent = globalenv()))
+        }
+    )
+
 
 })

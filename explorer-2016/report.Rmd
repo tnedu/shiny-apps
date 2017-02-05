@@ -1,0 +1,62 @@
+---
+output: 
+    word_document:
+        reference_docx: template.docx
+params:
+    district: NA
+    year: NA
+---
+
+## `r params$district` District Report
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+
+ach_profile <- read_csv("data/achievement_profile_data_2015_2016.csv")
+```
+
+This is a report for `r params$district` for the `r params$year` school year.
+
+&nbsp;
+
+Here is demographic data for `r params$district`:
+
+```{r demographics}
+ach_profile %>%
+    filter(District == params$district, Year == params$year) %>%
+    select(`Number of Schools`, Enrollment, Black, Hispanic, Native, EL, SWD, ED, Expenditures) %>%
+    gather(Characteristic, Value, `Number of Schools`:Expenditures) %>% 
+    knitr::kable()
+```
+
+&nbsp;
+
+Here is achievement data in accountability subjects for `r params$district`:
+
+```{r achievement}
+ach_profile %>%
+    filter(District %in% c(params$district, "State of Tennessee"), 
+        Year == params$year) %>%
+    select(District, `Algebra I`, `Algebra II`, `Geometry`, `English I`, `English II`, `English III`) %>%
+    gather(Subject, `Percent On Track/Mastered`, `Algebra I`:`English III`) %>%
+    group_by(Subject) %>%
+    mutate(Count = sum(!is.na(`Percent On Track/Mastered`))) %>%
+    filter(Count == 2) %>%
+    ggplot(aes(x = Subject, y = `Percent On Track/Mastered`, fill = District)) +
+        geom_bar(stat = "identity", position = "dodge") +
+        geom_text(aes(label = `Percent On Track/Mastered`), position = position_dodge(width = 0.9), vjust = -0.25) +
+        scale_y_continuous(limits = c(0, 100)) +
+        theme(legend.position = "bottom")
+```
+
+Here are TVAAS scores for `r params$district`:
+
+```{r tvaas}
+ach_profile %>%
+    filter(District == params$district, Year == params$year) %>% 
+    select(starts_with("TVAAS")) %>%
+    knitr::kable()
+```
+

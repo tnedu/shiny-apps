@@ -20,7 +20,7 @@ shinyUI(navbarPage("Data Explorer",
                     choices = c("", color_by), selected = ""),
                 selectInput(inputId = "highlight", label = "Highlight a District:",
                     choices = c("", sort(unique(ach_profile$District))), selected = ""),
-                downloadLink('downloadData', 'Click'), "to download the data underlying this plot."
+                downloadLink('downloadData', 'Click here'), "to download the data for this tool."
             ),
             column(7,
                 rbokehOutput("scatter", height = "650px")
@@ -53,12 +53,25 @@ shinyUI(navbarPage("Data Explorer",
                                     reflect accountability rules (e.g., Algebra I reassigned to Math for 8th graders)."
                                 )
                             )
+                        ),
+                        tabPanel("Growth",
+                            fluidRow(
+                                column(12,
+                                    tableOutput("tvaas_table")
+                                )
+                            )
                         )
-                        # tabPanel("Growth"),
                         # tabPanel("Ready Graduate"),
                         # tabPanel("Opportunity to Learn"),
                         # tabPanel("English Proficiency")
                     )
+                )
+            ),
+            fluidRow(
+                column(10, offset = 1,
+                    hr(),
+                    p("Click the button below to download this data in a document."),
+                    downloadButton("report", "Download Report")
                 )
             )
         ),
