@@ -36,15 +36,13 @@ shinyServer(function(input, output, session) {
             tooltip_content <- c("District", input$char, input$outcome)
         }
 
-        p <- figure(data = filtered(),
+        p <- figure(data = filtered(), padding_factor = 0.04,
                 xlab = names(chars[chars == input$char]),
                 ylab = names(outcomes[outcomes == input$outcome]),
-                toolbar_location = "above", legend_location = NULL,
-                padding_factor = 0.04) %>%
+                toolbar_location = "above", legend_location = NULL) %>%
             ly_points(x = input$char, y = input$outcome, alpha = Selected,
                 color = input$color, hover = tooltip_content, lname = "points") %>%
             set_palette(discrete_color = pal_color(color_palette))
-            # tool_tap(shiny_callback("tap_info"), "points")
 
         if (input$char == "Enrollment") {
             x_axis(p, log = TRUE)
@@ -54,42 +52,47 @@ shinyServer(function(input, output, session) {
 
     })
 
-    # Take only one value if multiple points are clicked
-    # values <- reactiveValues(clicked = "")
-
-    # observe({
-    #     values$clicked <- filtered()[input$tap_info + 1, ]$District[1]
-    # })
-
     output$map <- renderLeaflet({
 
         leaflet() %>%
             addTiles() %>%
             addMarkers(
-                lng = geocode[geocode$District == input$highlight,]$Longitude,
-                lat = geocode[geocode$District == input$highlight,]$Latitude,
+                lng = geocode[geocode$District == input$highlight, ]$Longitude,
+                lat = geocode[geocode$District == input$highlight, ]$Latitude,
                 popup = paste(sep = "<br/>",
-                    paste0("<b>", geocode[geocode$District == input$highlight,]$`District Name`, "</b>"),
-                    geocode[geocode$District == input$highlight,]$City
+                    paste0("<b>", geocode[geocode$District == input$highlight, ]$`District Name`, "</b>"),
+                    geocode[geocode$District == input$highlight, ]$Address,
+                    geocode[geocode$District == input$highlight, ]$City
                 )
             )
 
     })
 
-    output$district_info <- renderText(
+    output$district_info <- renderText({
+
         paste("<b>District Name:", geocode[geocode$District == input$highlight, ]$`District Name`, "</b><br/>",
         "<br/>",
         "Grades Served:", filtered()[filtered()$District == input$highlight, ]$`Grades Served`, "<br/>",
         "Number of Schools:",filtered()[filtered()$District == input$highlight, ]$`Number of Schools`, "<br/>",
+        "<br/>",
         "Percent Black/Hispanic/Native American Students:", filtered()[filtered()$District == input$highlight, ]$BHN, "<br/>",
         "Percent Economically Disadvantaged Students:", filtered()[filtered()$District == input$highlight, ]$ED, "<br/>",
         "Percent Students with Disabilities:", filtered()[filtered()$District == input$highlight, ]$SWD, "<br/>",
-        "Percent English Learners:", filtered()[filtered()$District == input$highlight, ]$EL))
+        "Percent English Learners:", filtered()[filtered()$District == input$highlight, ]$EL)
+
+    })
 
     output$prof <- renderRbokeh({
 
+        if (input$highlight < "State of Tennessee") {
+            color_palette <- c("#1f77b4", "#d62728")
+        } else {
+            color_palette <- c("#d62728", "#1f77b4")
+        }
+
         long <- filtered() %>%
             filter(District %in% c(input$highlight, "State of Tennessee")) %>%
+            mutate(District = factor(District, levels = c(input$highlight, "State of Tennessee"))) %>%
             select(District, ELA:`US History`) %>%
             gather(Subject, Value, -District) %>%
             group_by(Subject) %>%
@@ -99,10 +102,12 @@ shinyServer(function(input, output, session) {
         # Don't render plot if district has no data
         if (nrow(long) == 0) return()
 
-        figure(xlab = "Subject", ylab = "Percent On Track/Mastered",
+        figure(xlab = "", ylab = "Percent On Track/Mastered",
                padding_factor = 0, tools = "save") %>%
             ly_bar(x = Subject, y = Value, data = long, hover = TRUE,
-                color = District, position = "dodge")
+                color = District, position = "dodge") %>%
+            y_range(c(0, 100)) %>%
+            set_palette(discrete_color = pal_color(color_palette))
 
     })
 
@@ -110,7 +115,37 @@ shinyServer(function(input, output, session) {
 
         filtered() %>%
             filter(District == input$highlight) %>%
-            select(District, contains("TVAAS"))
+            select(contains("TVAAS"))
+
+    })
+
+    output$grad_chart <- renderRbokeh({
+
+        if (input$highlight < "State of Tennessee") {
+            color_palette <- c("#1f77b4", "#d62728")
+        } else {
+            color_palette <- c("#d62728", "#1f77b4")
+        }
+
+        long <- filtered() %>%
+            filter(District %in% c(input$highlight, "State of Tennessee")) %>%
+            mutate(District = factor(District, levels = c(input$highlight, "State of Tennessee"))) %>%
+            select(District, Grad, `ACT 21 or Above`) %>%
+            rename(`Graduation Rate` = Grad) %>%
+            gather(Subject, Value, -District) %>%
+            group_by(Subject) %>%
+            mutate(Count = sum(!is.na(Value))) %>%
+            filter(Count == 2)
+
+        # Don't render plot if district has no data
+        if (nrow(long) == 0) return()
+
+        figure(xlab = "", ylab = "Percent", xlim = c("Graduation Rate", "ACT 21 or Above"),
+               padding_factor = 0, tools = "save") %>%
+            ly_bar(x = Subject, y = Value, data = long, hover = TRUE,
+                   color = District, position = "dodge") %>%
+            y_range(c(0, 100)) %>%
+            set_palette(discrete_color = pal_color(color_palette))
 
     })
 
@@ -132,6 +167,5 @@ shinyServer(function(input, output, session) {
                 envir = new.env(parent = globalenv()))
         }
     )
-
 
 })
