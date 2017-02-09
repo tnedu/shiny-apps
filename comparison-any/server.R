@@ -83,5 +83,37 @@ shinyServer(function(input, output) {
 
     historical_plot %>% bind_shiny("historical_plot")
 
+    output$table <- renderTable({
+
+        temp <- ach_profile %>%
+            filter(District %in% c(input$district, input$comparison)) %>%
+            select(District, Enrollment, Black, Hispanic, `Native American`, `English Learners`,
+                `Students with Disabilities`, `Economically Disadvantaged`,
+                `Per-Pupil Expenditures`) %>%
+            rename(`Percent Black` = Black, `Percent Hispanic` = Hispanic,
+                `Percent Native American` = `Native American`,
+                `Percent Economically Disadvantaged` = `Economically Disadvantaged`,
+                `Percent English Learners` = `English Learners`,
+                `Percent Students with Disabilities` = `Students with Disabilities`) %>%
+            gather(Characteristic, Value, Enrollment:`Per-Pupil Expenditures`) %>%
+            spread(District, Value)
+
+        row_order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", "Percent Students with Disabilities",
+            "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
+        temp <- temp[match(row_order, temp$Characteristic), ]
+
+        # Format table with $, %
+        temp[2, -1] <- paste0("$", sprintf("%.2f", temp[2, -1]))
+        temp[3, -1] <- paste0(sprintf("%.1f", temp[3, -1]), "%")
+        temp[4, -1] <- paste0(sprintf("%.1f", temp[4, -1]), "%")
+        temp[5, -1] <- paste0(sprintf("%.1f", temp[5, -1]), "%")
+        temp[6, -1] <- paste0(sprintf("%.1f", temp[6, -1]), "%")
+        temp[7, -1] <- paste0(sprintf("%.1f", temp[7, -1]), "%")
+        temp[8, -1] <- paste0(sprintf("%.1f", temp[8, -1]), "%")
+
+        temp[c("Characteristic", input$district, input$comparison)]
+
+    })
+
     }
 )
