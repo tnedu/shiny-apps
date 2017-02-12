@@ -4,7 +4,7 @@
 shinyServer(function(input, output) {
 
     # Disable inputs and show message if no district or characteristics are selected
-    observe({
+    observe(
         if (length(input$district_chars) == 0 | input$district == "") {
             hide(id = "output")
             show(id = "request_input")
@@ -20,15 +20,15 @@ shinyServer(function(input, output) {
             enable(id = "num_districts")
             enable(id = "restrict_CORE")
         }
-    })
+    )
 
     # Hide "Go!" button after first use
-    observe({
+    observe(
         if (input$button >= 1) {
             hide(id = "button")
             show(id = "info")
         }
-    })
+    )
 
     # Identify most similar districts based on selected characteristics
     similarity <- reactive({
@@ -58,8 +58,8 @@ shinyServer(function(input, output) {
 
     })
 
-    output$header <- renderText({paste(names(outcome_list[outcome_list == input$outcome]),
-        "for districts most similar to", input$district)})
+    output$header <- renderText(paste(names(outcome_list[outcome_list == input$outcome]),
+        "for districts most similar to", input$district))
 
     # Outcome plot
     output$plot_bokeh <- renderRbokeh({
@@ -67,8 +67,40 @@ shinyServer(function(input, output) {
         if (all(is.na(similarity()[input$outcome]))) return()
 
         figure(data = similarity(), xlim = similarity()$District,
-                padding_factor = 0, tools = "save") %>%
+                padding_factor = 0, tools = "save", toolbar_location = "above") %>%
             ly_bar(x = "District", y = input$outcome, hover = TRUE)
+
+    })
+
+    output$table <- renderTable(align = "lcccccc", {
+
+        temp <- similarity() %>%
+            select(Year, District) %>%
+            inner_join(ach_profile, by = c("Year", "District")) %>%
+            select(District, Enrollment:Expenditures) %>%
+            rename(`Percent Black` = Black, `Percent Hispanic` = Hispanic,
+                `Percent Native American` = Native,
+                `Percent Economically Disadvantaged` = ED,
+                `Percent English Learners` = EL,
+                `Percent Students with Disabilities` = SWD,
+                `Per-Pupil Expenditures` = Expenditures) %>%
+            gather(Characteristic, Value, Enrollment:`Per-Pupil Expenditures`) %>%
+            spread(District, Value)
+
+        row_order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", "Percent Students with Disabilities",
+            "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
+        temp <- temp[match(row_order, temp$Characteristic), ]
+
+        # Format table with $, %
+        temp[2, -1] <- sprintf("$%.2f", temp[2, -1])
+        temp[3, -1] <- sprintf("%.1f%%", temp[3, -1])
+        temp[4, -1] <- sprintf("%.1f%%", temp[4, -1])
+        temp[5, -1] <- sprintf("%.1f%%", temp[5, -1])
+        temp[6, -1] <- sprintf("%.1f%%", temp[6, -1])
+        temp[7, -1] <- sprintf("%.1f%%", temp[7, -1])
+        temp[8, -1] <- sprintf("%.1f%%", temp[8, -1])
+
+        temp[c("Characteristic", similarity()$District)]
 
     })
 

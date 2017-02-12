@@ -5,6 +5,7 @@ shinyUI(navbarPage("Comparison Tool",
     tabPanel("District",
         useShinyjs(),
         fluidRow(
+            # Sidebar with user options
             column(3, offset = 1,
                 wellPanel(
                     h4("Identify Similar Districts"),
@@ -36,7 +37,7 @@ shinyUI(navbarPage("Comparison Tool",
                         selectInput(inputId = "outcome", label = "Outcome to plot:",
                             choices = outcome_list, selected = "Algebra I"),
                         selectInput(inputId = "year", label = "School Year:",
-                            choices = c("2015-16" = 2016, "2014-15" = 2015))
+                            choices = c("2015-16" = 2016, "2014-15" = 2015), selected = 2015)
                     ),
                     wellPanel(
                         h4("Additional Options"),
@@ -59,18 +60,21 @@ shinyUI(navbarPage("Comparison Tool",
                         based on the selected characteristics and display data for a selected outcome.")
                 )
             ),
-            # Message shown if no characteristics are selected
             conditionalPanel("input.button >= 1",
+                # Message shown if no characteristics are selected
                 hidden(tags$div(id = "request_input",
                     fluidRow(
                         h4("Please select a district and one or more district characteristics.")
                     )
                 )),
+                # Output panel
                 tags$div(id = "output",
                     column(7,
                         h4(textOutput("header")),
                         br(),
-                        rbokehOutput("plot_bokeh", height = "600px")
+                        rbokehOutput("plot_bokeh", height = "600px"),
+                        br(),
+                        tableOutput("table")
                     )
                 )
             )
