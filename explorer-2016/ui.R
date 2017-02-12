@@ -19,7 +19,7 @@ shinyUI(navbarPage("Data Explorer",
                 selectInput(inputId = "color", label = "Color Points by:",
                     choices = c("", color_by), selected = ""),
                 selectInput(inputId = "highlight", label = "Highlight a District:",
-                    choices = c("", sort(unique(ach_profile$District))), selected = ""),
+                    choices = c("", sort(unique(ach_profile$District)[-1])), selected = ""),
                 br(),
                 downloadLink('downloadData', 'Click here'), "to download the data for this tool."
             ),
