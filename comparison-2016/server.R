@@ -58,27 +58,41 @@ shinyServer(function(input, output) {
 
     })
 
-    output$header <- renderText(paste(names(outcome_list[outcome_list == input$outcome]),
-        "for districts most similar to", input$district))
+    output$header <- renderText(
+        paste(names(outcome_list[outcome_list == input$outcome]),
+        "for districts most similar to", input$district)
+    )
 
     # Outcome plot
     output$plot_bokeh <- renderRbokeh({
 
         if (all(is.na(similarity()[input$outcome]))) return()
 
-        figure(data = similarity(), xlim = similarity()$District,
-                padding_factor = 0, tools = "save", toolbar_location = "above") %>%
+        y_range <- switch(input$outcome,
+            "ACT English" = , "ACT Math" = , "ACT Reading" =, "ACT Science" = ,
+            "ACT Composite" = c(1, 36),
+            "Chronic Absence" = c(0, 45),
+            "Dropout" = c(0, 30),
+            "Suspension" = c(0, 25),
+            "Expulsion" = c(0, 2),
+            c(0, 100)
+        )
+
+        figure(data = similarity(), xlim = similarity()$District, ylim = y_range,
+               padding_factor = 0, xgrid = FALSE,
+               tools = "save", toolbar_location = "above") %>%
             ly_bar(x = "District", y = input$outcome, hover = TRUE)
 
     })
 
-    output$table <- renderTable(align = "lcccccc", {
+    output$table <- renderTable(striped = TRUE, {
 
         temp <- similarity() %>%
             select(Year, District) %>%
             inner_join(ach_profile, by = c("Year", "District")) %>%
             select(District, Enrollment:Expenditures) %>%
-            rename(`Percent Black` = Black, `Percent Hispanic` = Hispanic,
+            rename(`Percent Black` = Black,
+                `Percent Hispanic` = Hispanic,
                 `Percent Native American` = Native,
                 `Percent Economically Disadvantaged` = ED,
                 `Percent English Learners` = EL,

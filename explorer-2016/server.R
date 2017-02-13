@@ -20,15 +20,16 @@ shinyServer(function(input, output, session) {
 
     output$scatter <- renderRbokeh({
 
-        if (input$color == "Accountability Status 2015") {
-            color_palette <- c("#1f77b4", "#d62728", "#ff7f0e", "#2ca02c", "#7f7f7f")
-        } else if (input$color == "Region") {
-            color_palette <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9476bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22")
-        } else if (grepl("TVAAS", input$color)) {
-            color_palette <- c("#d62728", "#ff9896", "#98df8a", "#aec7e8", "#1f77b4", "#7f7f7f")
-        } else {
-            color_palette <- c("#1f77b4")
-        }
+        color_palette <- switch(input$color,
+            "Accountability Status 2015" = c("#1f77b4", "#d62728", "#ff7f0e", "#2ca02c", "#7f7f7f"),
+            "Region" = c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9476bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22"),
+            "TVAAS Literacy" = ,
+            "TVAAS Numeracy" = ,
+            "TVAAS Science" = ,
+            "TVAAS Social Studies" = ,
+            "TVAAS Composite" = c("#d62728", "#ff9896", "#98df8a", "#aec7e8", "#1f77b4", "#7f7f7f"),
+            "#1f77b4"
+        )
 
         if (input$color != "") {
             tooltip_content <- c("District", input$char, input$outcome, input$color)
@@ -52,8 +53,7 @@ shinyServer(function(input, output, session) {
 
     })
 
-    output$map <- renderLeaflet({
-
+    output$map <- renderLeaflet(
         leaflet() %>%
             addTiles() %>%
             addMarkers(
@@ -65,11 +65,9 @@ shinyServer(function(input, output, session) {
                     geocode[geocode$District == input$highlight, ]$City
                 )
             )
+    )
 
-    })
-
-    output$district_info <- renderText({
-
+    output$district_info <- renderText(
         paste("<b>District Name:", geocode[geocode$District == input$highlight, ]$`District Name`, "</b><br/>",
         "<br/>",
         "Grades Served:", filtered()[filtered()$District == input$highlight, ]$`Grades Served`, "<br/>",
@@ -79,11 +77,11 @@ shinyServer(function(input, output, session) {
         "Percent Economically Disadvantaged Students:", filtered()[filtered()$District == input$highlight, ]$ED, "<br/>",
         "Percent Students with Disabilities:", filtered()[filtered()$District == input$highlight, ]$SWD, "<br/>",
         "Percent English Learners:", filtered()[filtered()$District == input$highlight, ]$EL)
-
-    })
+    )
 
     output$prof <- renderRbokeh({
 
+        # Ensure consistent bar colors
         if (input$highlight < "State of Tennessee") {
             color_palette <- c("#1f77b4", "#d62728")
         } else {
@@ -111,16 +109,15 @@ shinyServer(function(input, output, session) {
 
     })
 
-    output$tvaas_table <- renderTable({
-
+    output$tvaas_table <- renderTable(
         filtered() %>%
             filter(District == input$highlight) %>%
             select(contains("TVAAS"))
-
-    })
+    )
 
     output$grad_chart <- renderRbokeh({
 
+        # Ensure consistent bar colors
         if (input$highlight < "State of Tennessee") {
             color_palette <- c("#1f77b4", "#d62728")
         } else {
