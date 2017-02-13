@@ -31,10 +31,10 @@ shinyServer(function(input, output, session) {
             "#1f77b4"
         )
 
-        if (input$color != "") {
-            tooltip_content <- c("District", input$char, input$outcome, input$color)
-        } else {
+        if (input$color == "") {
             tooltip_content <- c("District", input$char, input$outcome)
+        } else {
+            tooltip_content <- c("District", input$char, input$outcome, input$color)
         }
 
         p <- figure(data = filtered(), padding_factor = 0.04,
@@ -126,9 +126,9 @@ shinyServer(function(input, output, session) {
 
         long <- filtered() %>%
             filter(District %in% c(input$highlight, "State of Tennessee")) %>%
-            mutate(District = factor(District, levels = c(input$highlight, "State of Tennessee"))) %>%
-            select(District, Grad, `ACT 21 or Above`) %>%
-            rename(`Graduation Rate` = Grad) %>%
+            transmute(District = factor(District, levels = c(input$highlight, "State of Tennessee")),
+                `Graduation Rate` = Grad,
+                `ACT 21 or Above` = `ACT 21 or Above`)
             gather(Subject, Value, -District) %>%
             group_by(Subject) %>%
             mutate(Count = sum(!is.na(Value))) %>%
@@ -154,12 +154,24 @@ shinyServer(function(input, output, session) {
     )
 
     output$report <- downloadHandler(
-        filename = paste(input$highlight, "Report.docx"),
+        filename = function() paste(input$highlight, "Report.docx"),
         content = function(file) {
             tempReport <- file.path(tempdir(), paste(input$highlight, "report.Rmd"))
             file.copy("report.Rmd", tempReport, overwrite = TRUE)
 
             rmarkdown::render(tempReport, output_file = file,
+                params = list(district = input$highlight, year = input$year),
+                envir = new.env(parent = globalenv()))
+        }
+    )
+
+    output$presentation <- downloadHandler(
+        filename = function() paste(input$highlight, "Presentation.html"),
+        content = function(file) {
+            tempPresentation <- file.path(tempdir(), paste(input$highlight, "presentation.Rmd"))
+            file.copy("presentation.Rmd", tempPresentation, overwrite = TRUE)
+
+            rmarkdown::render(tempPresentation, output_file = file,
                 params = list(district = input$highlight, year = input$year),
                 envir = new.env(parent = globalenv()))
         }

@@ -11,15 +11,15 @@ shinyUI(navbarPage("Data Explorer",
                     and an outcome to plot."),
                 br(),
                 selectInput(inputId = "year", label = "School Year",
-                    choices = c("2014-15" = 2015, "2015-16" = 2016), selected = 2016),
+                    choices = c("2015-16" = 2016, "2014-15" = 2015)),
                 selectInput(inputId = "char", label = "Select a District Characteristic:",
                     choices = chars, selected = "ED"),
                 selectInput(inputId = "outcome", label = "Select an Outcome:",
                     choices = outcomes, selected = "Algebra I"),
                 selectInput(inputId = "color", label = "Color Points by:",
-                    choices = c("", color_by), selected = ""),
+                    choices = c("", color_by)),
                 selectInput(inputId = "highlight", label = "Highlight a District:",
-                    choices = c("", sort(unique(ach_profile$District)[-1])), selected = ""),
+                    choices = c("", sort(unique(ach_profile$District)[-1]))),
                 br(),
                 downloadLink('downloadData', 'Click here'), "to download the data for this tool."
             ),
@@ -88,8 +88,9 @@ shinyUI(navbarPage("Data Explorer",
             fluidRow(
                 column(10, offset = 1,
                     hr(),
-                    p("Click the button below to download this data in a document."),
-                    downloadButton("report", "Download Report")
+                    p("Click below to download this data as a document or presentation."),
+                    downloadButton("report", "Download Report"),
+                    downloadButton("presentation", "Download Presentation")
                 )
             )
         ),
