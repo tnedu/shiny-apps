@@ -11,19 +11,25 @@ shinyServer(function(input, output, session) {
     # Global vectors with dropdown options
     subgroups <- c("All Students", "Black/Hispanic/Native American", "Economically Disadvantaged",
         "Students with Disabilities", "English Learners", "Super Subgroup")
-    quintiles <- c("N/A", "19.9% or Less", "20% to 39.9%", "40% to 59.9%", "60% to 79.9%", "80% or More")
+    quintile_options <- c("N/A", "19.9% or Less", "20% to 39.9%", "40% to 59.9%", "60% to 79.9%", "80% or More")
     amo_options <- c("N/A", "Regress", "Progress but do not Meet AMO Target",
         "Meet AMO Target with Confidence Interval", "Meet AMO Target", "Meet Double AMO Target")
 
     # Observers to show/hide appropriate inputs
-    observeEvent(input$button1, {
+    observeEvent(input$button_intro, {
         show("pool", anim = TRUE)
-        hide("button1", anim = TRUE)
+        hide("button_intro", anim = TRUE)
     })
 
-    observe(if (input$eoc != "") show("button2"))
+    observeEvent(input$eoc, {
+        if (input$eoc != "") {
+            show("button_pool", anim = TRUE)
+        } else {
+            hide("button_pool", anim = TRUE)
+        }
+    })
 
-    observeEvent(input$button2, {
+    observeEvent(input$button_pool, {
         show("minimum_performance", anim = TRUE)
         hide("pool", anim = TRUE)
     })
@@ -32,59 +38,99 @@ shinyServer(function(input, output, session) {
         if (input$success_3yr %in% c("Less than 20%", "Between 20% and 35%")) {
             show("tvaas_lag", anim = TRUE)
 
-            if (input$tvaas_lag != ""){
-                show("button3", anim = TRUE)
+            if (input$tvaas_lag == ""){
+                hide("button_comprehensive", anim = TRUE)
+            } else {
+                show("button_comprehensive", anim = TRUE)
             }
 
         } else if (input$success_3yr == "Above 35%") {
-            show("button3", anim = TRUE)
+            show("button_comprehensive", anim = TRUE)
             hide("tvaas_lag", anim = TRUE)
         }
     })
 
-
-    observeEvent(input$button3, {
+    observeEvent(input$button_comprehensive, {
         show("achievement", anim = TRUE)
         hide("minimum_performance", anim = TRUE)
     })
 
-    observeEvent(input$button4, {
-        show("readiness", anim = TRUE)
-        hide("done_ach", anim = TRUE)
-    })
-
-    observe({
-        if (input$readiness_eligible == "Yes") {
-            show("readiness_table_container")
-            show("done_readiness")
+    observeEvent(input$button_achievement, {
+        # Skip Readiness for K-8 schools
+        if (input$eoc == "Yes") {
+            show("readiness", anim = TRUE)
+            hide("done_ach", anim = TRUE)
+        } else if (input$eoc == "No") {
+            show("elpa", anim = TRUE)
+            hide("done_ach", anim = TRUE)
         }
     })
 
-    observeEvent(input$button5, {
+    observeEvent(input$readiness_eligible, {
+        if (input$readiness_eligible == "Yes") {
+            show("readiness_table_container", anim = TRUE)
+            show("done_readiness", anim = TRUE)
+            hide("skip_readiness", anim = TRUE)
+        } else if (input$readiness_eligible == "No") {
+            hide("readiness_table_container", anim = TRUE)
+            hide("done_readiness", anim = TRUE)
+            show("skip_readiness", anim = TRUE)
+        } else {
+            hide("readiness_table_container", anim = TRUE)
+            hide("done_readiness", anim = TRUE)
+            hide("skip_readiness", anim = TRUE)
+        }
+    })
+
+    observeEvent(input$button_readiness, {
         show("elpa", anim = TRUE)
+        hide("readiness_eligible", anim = TRUE)
         hide("done_readiness", anim = TRUE)
     })
 
+    observeEvent(input$skip_readiness, {
+        show("elpa", anim = TRUE)
+        hide("readiness", anim = TRUE)
+        show("done_elpa", anim = TRUE)
+    })
 
-    observe({
+    observeEvent(input$elpa_eligible, {
         if (input$elpa_eligible == "Yes") {
-            show("elpa_table_container")
-            show("done_elpa")
+            show("elpa_table_container", anim = TRUE)
+            show("done_elpa", anim = TRUE)
+            hide("skip_elpa", anim = TRUE)
+        } else if (input$elpa_eligible == "No") {
+            hide("elpa_table_container", anim = TRUE)
+            hide("done_elpa", anim = TRUE)
+            show("skip_elpa", anim = TRUE)
+        } else {
+            hide("elpa_table_container", anim = TRUE)
+            hide("done_elpa", anim = TRUE)
+            hide("skip_elpa", anim = TRUE)
         }
     })
 
-    observeEvent(input$button6, {
+    observeEvent(input$button_elpa, {
         show("absenteeism", anim = TRUE)
+        hide("elpa_eligible", anim = TRUE)
         hide("done_elpa", anim = TRUE)
         show("done_absenteeism", anim = TRUE)
     })
 
-    observeEvent(input$button7, {
+    observeEvent(input$skip_elpa, {
+        show("absenteeism", anim = TRUE)
+        hide("elpa", anim = TRUE)
+        show("done_absenteeism", anim = TRUE)
+    })
+
+    observeEvent(input$button_absenteeism, {
         show("heatmap", anim = TRUE)
         show("determinations", anim = TRUE)
         hide("done_absenteeism", anim = TRUE)
     })
 
+
+    # Observers/reactives to calculate grade
     output$pool_determination <- renderText(
 
         switch(input$eoc,
@@ -97,31 +143,35 @@ shinyServer(function(input, output, session) {
 
         switch(input$success_3yr,
             "Less than 20%" = switch(input$tvaas_lag,
-                "No" = "Your school is <b>at risk of being named a Comprehensive Support School</b>.
+                "No" = "Your school is <b>at risk of being named a Comprehensive Support School</b>. <br>
+                    <br>
                     To avoid being named a Comprehensive Support School, your school must
                     perform <b>above the bottom 5 percent of schools based on a three year
                     success rate</b> in 2018.",
-                "Yes" = "Your school is <b>at risk of being named a Comprehensive Support School</b>.
+                "Yes" = "Your school is <b>at risk of being named a Comprehensive Support School</b>. <br>
+                    <br>
                     To avoid being named a Comprehensive Support School, your school must
                     perform <b>above the bottom 5 percent of schools based on a three year
                     success rate</b> OR <b>earn a TVAAS Composite Level 4 or 5</b> in 2018."),
             "Between 20% and 35%" = switch(input$tvaas_lag,
-                "No" = "Your school is on the cusp of eligibility for Comprehensive Support.
+                "No" = "Your school is <b>on the cusp of eligibility for Comprehensive Support</b>. <br>
+                    <br>
                     To avoid being named a Comprehensive Support school, your school must
                     perform <b>above the bottom 5 percent of schools based on a three year
                     success rate</b> in 2018.",
-                "Yes" = "Your school is on the cusp of eligibility for Comprehensive Support.
+                "Yes" = "Your school is <b>on the cusp of eligibility for Comprehensive Support</b>.<br>
+                    <br>
                     To avoid being named a Comprehensive Support school, your school must
                     perform <b>above the bottom 5 percent of schools based on a three year
                     success rate</b> OR <b>earn a Level 4 or 5 Composite TVAAS</b> in 2018."),
-            "Above 35%" = "Your school is unlikely to be named a Comprehensive Support School.")
+            "Above 35%" = "Your school is <b>unlikely to be named a Comprehensive Support School</b>.")
 
     )
 
     output$achievement_table <- renderRHandsontable({
 
         success_abs <- factor(c("40% to 59.9%", rep("N/A", 5)),
-            levels = quintiles, ordered = TRUE)
+            levels = quintile_options, ordered = TRUE)
 
         success_target <- factor(c("Meet AMO Target with Confidence Interval", rep("N/A", 5)),
             levels = amo_options, ordered = TRUE)
@@ -130,7 +180,7 @@ shinyServer(function(input, output, session) {
             levels = c("N/A", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5"))
 
         subgroup_growth <- factor(c("N/A", "40% to 59.9%", rep("N/A", 4)),
-            levels = quintiles, ordered = TRUE)
+            levels = quintile_options, ordered = TRUE)
 
         data.frame(success_abs, success_target, TVAAS, subgroup_growth) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
@@ -279,7 +329,7 @@ shinyServer(function(input, output, session) {
             filter(Subgroup != "All Students") %>%
             # Drop Super Subgroup observation if other subgroups are present
             mutate(temp = !is.na(subgroup_average),
-                   subgroups_count = sum(temp, na.rm = TRUE)) %>%
+                subgroups_count = sum(temp, na.rm = TRUE)) %>%
             filter(!(Subgroup == "Super Subgroup" & subgroups_count > 1)) %>%
             mutate(numerator = total_weight * subgroup_average) %>%
             summarise_each(funs(sum(., na.rm = TRUE)), total_weight, numerator) %>%
@@ -331,40 +381,6 @@ shinyServer(function(input, output, session) {
             ach_determ,
             gap_determ,
             final_determ))
-
-    })
-
-    output$achievement_determination <- renderText({
-
-        ach_average <- heat_map_metrics() %>%
-            filter(Subgroup == "All Students") %>%
-            select(subgroup_average)
-
-    })
-
-    output$subgroup_determination <- renderText({
-
-        gap_average <- heat_map_metrics() %>%
-            filter(Subgroup != "All Students") %>%
-            # Drop Super Subgroup observation if other subgroups are present
-            mutate(temp = !is.na(subgroup_average),
-                subgroups_count = sum(temp, na.rm = TRUE)) %>%
-            filter(!(Subgroup == "Super Subgroup" & subgroups_count > 1)) %>%
-            mutate(numerator = total_weight * subgroup_average) %>%
-            summarise_each(funs(sum(., na.rm = TRUE)), total_weight, numerator) %>%
-            transmute(gap_closure_average = numerator/total_weight)
-
-        if (gap_average == 0) {
-            "Your school's final subgroup grade is an <b>F</b>"
-        } else if (gap_average <= 1) {
-            "Your school's final subgroup grade is a <b>D</b>"
-        } else if (gap_average <= 2) {
-            "Your school's final subgroup grade is a <b>C</b>"
-        } else if (gap_average <= 3) {
-            "Your school's final subgroup grade is a <b>B</b>"
-        } else if (gap_average > 3) {
-            "Your school's final subgroup grade is an <b>A</b>"
-        }
 
     })
 

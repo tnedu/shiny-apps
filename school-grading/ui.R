@@ -19,7 +19,7 @@ shinyUI(
                         achievement, growth, and other indicators of school success."),
                     strong(p("We'll use your answers to project a grade under the new A-F
                         school grading system. When you are ready, click the button below.")),
-                    actionButton("button1", label = "Go!")
+                    actionButton("button_intro", label = "Go!")
                 ),
 
                 # Pool
@@ -28,11 +28,12 @@ shinyUI(
                     h4("First, we'll determine your school's grade pool for accountability purposes."),
                     br(),
                     selectInput("eoc", label = "Will your school have 30 students in grades 9 or above
-                        test in a single EOC subject this school year?", choices = c("", "Yes", "No")),
+                        test in a single high school End of Course subject this school year?",
+                        choices = c("", "Yes", "No")),
                     br(),
                     htmlOutput("pool_determination"),
                     br(),
-                    hidden(actionButton("button2", label = "Got it."))
+                    hidden(actionButton("button_pool", label = "Got it."))
                 )),
 
                 # Comprehensive Support
@@ -49,7 +50,7 @@ shinyUI(
                     br(),
                     htmlOutput("comprehensive_determination"),
                     br(),
-                    hidden(actionButton("button3", label = "Got it."))
+                    hidden(actionButton("button_comprehensive", label = "Got it."))
                 )),
 
                 # Achievement
@@ -64,7 +65,7 @@ shinyUI(
                     br(),
                     div(id = "done_ach",
                         p("When you are done, click the button below."),
-                        actionButton("button4", label = "Done")
+                        actionButton("button_achievement", label = "Done")
                     )
                 )),
 
@@ -83,10 +84,11 @@ shinyUI(
                         br(),
                         rHandsontableOutput("readiness_table")
                     )),
+                    hidden(actionButton("skip_readiness", label = "Proceed")),
                     br(),
                     hidden(div(id = "done_readiness",
                         p("When you are done, click the button below."),
-                        actionButton("button5", label = "Done")
+                        actionButton("button_readiness", label = "Done")
                     ))
                 )),
 
@@ -105,10 +107,11 @@ shinyUI(
                         br(),
                         rHandsontableOutput("elpa_table")
                     )),
+                    hidden(actionButton("skip_elpa", label = "Proceed")),
                     br(),
                     hidden(div(id = "done_elpa",
                         p("When you are done, click the button below."),
-                        actionButton("button6", label = "Done")
+                        actionButton("button_elpa", label = "Done")
                     ))
                 )),
 
@@ -125,7 +128,7 @@ shinyUI(
                     br(),
                     hidden(div(id = "done_absenteeism",
                         p("When you are done, click the button below."),
-                        actionButton("button7", label = "Done")
+                        actionButton("button_absenteeism", label = "Done")
                     ))
                 ))
 
