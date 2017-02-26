@@ -309,7 +309,7 @@ shinyServer(function(input, output, session) {
                 weight_growth = ifelse(is.na(grade_elpa) & !is.na(grade_growth) & pool == "HS", 0.3, weight_growth)) %>%
             rowwise() %>%
             # Subgroup Grades
-            mutate(total_weight = sum(starts_with("weight_"), na.rm = TRUE),
+            mutate(total_weight = sum(weight_achievement, weight_growth, weight_readiness, weight_opportunity, weight_elpa, na.rm = TRUE),
                 subgroup_average = sum(weight_achievement * grade_achievement,
                     weight_growth * grade_tvaas,
                     weight_growth * grade_growth,
@@ -356,37 +356,37 @@ shinyServer(function(input, output, session) {
         }
 
         if (ach_average == 0) {
-            ach_determ <- "Your school's final achievement grade is an <b>F</b>."
+            ach_determ <- "Your school's final achievement grade is an F."
         } else if (ach_average <= 1) {
-            ach_determ <- "Your school's final achievement grade is a <b>D</b>."
+            ach_determ <- "Your school's final achievement grade is a D."
         } else if (ach_average <= 2) {
-            ach_determ <- "Your school's final achievement grade is a <b>C</b>."
+            ach_determ <- "Your school's final achievement grade is a C."
         } else if (ach_average <= 3) {
-            ach_determ <- "Your school's final achievement grade is a <b>B</b>."
+            ach_determ <- "Your school's final achievement grade is a B."
         } else if (ach_average > 3) {
-            ach_determ <- "Your school's final achievement grade is an <b>A</b>."
+            ach_determ <- "Your school's final achievement grade is an A."
         }
 
         if (gap_average == 0) {
-            gap_determ <- "Your school's final subgroup grade is an <b>F</b>."
+            gap_determ <- "Your school's final subgroup grade is an F."
         } else if (gap_average <= 1) {
-            gap_determ <- "Your school's final subgroup grade is a <b>D</b>."
+            gap_determ <- "Your school's final subgroup grade is a D."
         } else if (gap_average <= 2) {
-            gap_determ <- "Your school's final subgroup grade is a <b>C</b>."
+            gap_determ <- "Your school's final subgroup grade is a C."
         } else if (gap_average <= 3) {
-            gap_determ <- "Your school's final subgroup grade is a <b>B</b>."
+            gap_determ <- "Your school's final subgroup grade is a B."
         } else if (gap_average > 3) {
-            gap_determ <- "Your school's final subgroup grade is an <b>A</b>."
+            gap_determ <- "Your school's final subgroup grade is an A."
         }
 
         if (final_average <= 1) {
-            final_determ <- "Your school's final grade is a <b>D</b>."
+            final_determ <- "Your school's overall final grade is a D."
         } else if (final_average <= 2) {
-            final_determ <- "Your school's final grade is a <b>C</b>."
+            final_determ <- "Your school's overall final grade is a C."
         } else if (final_average <= 3) {
-            final_determ <- "Your school's final grade is a <b>B</b>."
+            final_determ <- "Your school's overall final grade is a B."
         } else if (final_average > 3) {
-            final_determ <- "Your school's final grade is an <b>A</b>."
+            final_determ <- "Your school's overall final grade is an A."
         }
 
         return(paste(sep = "<br><br>",

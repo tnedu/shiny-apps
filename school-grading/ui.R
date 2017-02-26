@@ -166,7 +166,11 @@ shinyUI(
                     hr(),
                     h4("Your School's Final Grade:"),
                     br(),
-                    htmlOutput("determinations"),
+                    p("Based on the information you provided, we project the following grades for
+                        your school:"),
+                    br(),
+                    strong(htmlOutput("determinations")),
+                    br(),
                     br(),
                     p("Adjust any of your assumptions in the above tables to see how your school's
                         grade is affected.")
