@@ -39,14 +39,17 @@ shinyUI(
                 # Comprehensive Support
                 hidden(div(id = "minimum_performance",
                     hr(),
-                    h4("A success rate is the percentage of students who are on track or mastered,
-                        aggregated across all subjects with at least 30 tests."),
-                    br(),
-                    selectInput("success_3yr", label = "What is your school's success rate?",
+                    h4("A success rate is the percentage of students on track or mastered,
+                        aggregated across subjects with at least 30 tests."),
+                    p("For high schools, this also includes the percentage of students who
+                        earned an 21 Composite score or higher on the ACT and students
+                        who earn graduate in four years and a summer."),
+                    selectInput("success_3yr", label = "Think about your school's success rate over
+                        the last three years. What is your school's success rate?",
                         choices = c("", "Less than 20%", "Between 20% and 35%", "Above 35%")),
                     br(),
-                    hidden(selectInput("tvaas_lag", label = "Did your school earn a TVAAS Composite Level 4 or 5 in 2016?",
-                        choices = c("", "Yes", "No"))),
+                    hidden(selectInput("tvaas_lag", label = "Did your school earn a TVAAS Composite
+                        Level 4 or 5 in 2016?", choices = c("", "Yes", "No"))),
                     br(),
                     htmlOutput("comprehensive_determination"),
                     br(),
@@ -57,9 +60,17 @@ shinyUI(
                 hidden(div(id = "achievement",
                     hr(),
                     h4("About your school's achievement and growth on TNReady:"),
-                    br(),
-                    p("Using the table below, answer the following about your school's success rate,
-                        success rate growth, TVAAS (All Students only), and subgroup growth."),
+                    strong(p("Using the table below, answer the following about your school's success rate,
+                        success rate growth, TVAAS (All Students only), and subgroup growth
+                        (subgroups only).")),
+                    p("Recall that a", strong("success rate"), "is the percentage of students on track
+                        or mastered, aggregated across all subjects with at least 30 tests."),
+                    p("A success rate", strong("percentile"), "is the percentage of schools with a
+                        success rate equal to or lower than that of your school. For instance, a
+                        success rate at the 75th percentile means that your school performed on par
+                        with or better than 75 percent of schools in the state."),
+                    p(strong("Subgroup growth"), "refers to the percentage of students who maintained
+                        or improved their performance level compared to the prior year."),
                     br(),
                     rHandsontableOutput("achievement_table"),
                     br(),
@@ -74,12 +85,12 @@ shinyUI(
                     hr(),
                     h4("About your school's ACT and Graduation"),
                     br(),
-                    selectInput("readiness_eligible", label = "Does your school have a graduating cohort of 30 or more students?",
-                        choices = c("", "Yes", "No")),
+                    selectInput("readiness_eligible", label = "Does your school have a graduating
+                        cohort of 30 or more students?", choices = c("", "Yes", "No")),
                     br(),
                     hidden(div(id = "readiness_table_container",
                         p(strong("Readiness"), "refers to the percentage of students in your school's
-                            graduating cohort who earned an ACT Composite score of 21 or higher.
+                            graduating cohort who earned an 21 Composite score or higher on the ACT.
                             Answer the following about your school's readiness."),
                         br(),
                         rHandsontableOutput("readiness_table")
@@ -97,13 +108,14 @@ shinyUI(
                     hr(),
                     h4("About your school's English Language Proficiency"),
                     br(),
-                    selectInput("elpa_eligible", label = "Does your school have 10 or more students who took an English Language Proficiency Assessment?",
+                    selectInput("elpa_eligible", label = "Does your school have 10 or more students
+                        who took an English Language Proficiency Assessment (ELPA)?",
                         choices = c("", "Yes", "No")),
                     br(),
                     hidden(div(id = "elpa_table_container",
-                        p("Schools are graded on the percentage of students who exit EL status
-                            or met the growth standard on the English Language Proficiency Assessment.
-                            Answer the following about your school's ELPA."),
+                        p("Schools are graded on the percentage of students who exit EL status or
+                            met the growth standard on the English Language Proficiency Assessment.
+                            Answer the following about your school's ELPA performance."),
                         br(),
                         rHandsontableOutput("elpa_table")
                     )),
@@ -140,6 +152,8 @@ shinyUI(
             fluidRow(
                 column(8, offset = 2,
                     hr(),
+                    h4("Your School's Heat Map"),
+                    br(),
                     tableOutput("heat_map")
                 )
             )
@@ -152,7 +166,10 @@ shinyUI(
                     hr(),
                     h4("Your School's Final Grade:"),
                     br(),
-                    htmlOutput("determinations")
+                    htmlOutput("determinations"),
+                    br(),
+                    p("Adjust any of your assumptions in the above tables to see how your school's
+                        grade is affected.")
                 )
             )
         )),
@@ -160,7 +177,8 @@ shinyUI(
         fluidRow(
             column(8, offset = 2,
                 hr(),
-                p("Designed in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"), "for the Tennessee Department of Education."),
+                p("Designed in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"),
+                    "for the Tennessee Department of Education."),
                 br(),
                 br()
             )

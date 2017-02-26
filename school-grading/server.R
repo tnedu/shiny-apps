@@ -170,7 +170,7 @@ shinyServer(function(input, output, session) {
 
     output$achievement_table <- renderRHandsontable({
 
-        success_abs <- factor(c("40% to 59.9%", rep("N/A", 5)),
+        success_pctile <- factor(c("40% to 59.9%", rep("N/A", 5)),
             levels = quintile_options, ordered = TRUE)
 
         success_target <- factor(c("Meet AMO Target with Confidence Interval", rep("N/A", 5)),
@@ -182,12 +182,12 @@ shinyServer(function(input, output, session) {
         subgroup_growth <- factor(c("N/A", "40% to 59.9%", rep("N/A", 4)),
             levels = quintile_options, ordered = TRUE)
 
-        data.frame(success_abs, success_target, TVAAS, subgroup_growth) %>%
+        data.frame(success_pctile, success_target, TVAAS, subgroup_growth) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("Success Rate", "Success Rate AMO Target", "TVAAS", "Subgroup Growth")) %>%
+                colHeaders = c("Success Rate Percentile", "Success Rate AMO Target", "TVAAS", "Subgroup Growth Percentile")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("Success Rate", "Success Rate AMO Target", "TVAAS", "Subgroup Growth"), type = "dropdown")
+            hot_col(c("Success Rate Percentile", "Success Rate AMO Target", "TVAAS", "Subgroup Growth Percentile"), type = "dropdown")
 
     })
 
@@ -250,22 +250,22 @@ shinyServer(function(input, output, session) {
         ach <- hot_to_r(input$achievement_table) %>% as_data_frame()
         ach$Subgroup <- subgroups
 
-        if (!is.null(input$readiness_table)) {
-            readiness <- hot_to_r(input$readiness_table) %>% as_data_frame()
-            readiness$Subgroup <- subgroups
-        } else {
+        if (is.null(input$readiness_table)) {
             readiness <- data_frame(Subgroup = subgroups,
                 readiness_abs = rep(NA, 6),
                 readiness_target = rep(NA, 6))
+        } else {
+            readiness <- hot_to_r(input$readiness_table) %>% as_data_frame()
+            readiness$Subgroup <- subgroups
         }
 
-        if (!is.null(input$elpa_table)) {
-            elpa <- hot_to_r(input$elpa_table) %>% as_data_frame()
-            elpa$Subgroup <- subgroups
-        } else {
+        if (is.null(input$elpa_table)) {
             elpa <- data_frame(Subgroup = subgroups,
                 elpa_exit = rep(NA, 6),
                 elpa_growth = rep(NA, 6))
+        } else {
+            elpa <- hot_to_r(input$elpa_table) %>% as_data_frame()
+            elpa$Subgroup <- subgroups
         }
 
         absenteeism <- hot_to_r(input$absenteeism_table) %>% as_data_frame()
@@ -275,16 +275,16 @@ shinyServer(function(input, output, session) {
             inner_join(readiness, by = "Subgroup") %>%
             inner_join(elpa, by = "Subgroup") %>%
             inner_join(absenteeism, by = "Subgroup") %>%
-            mutate_each(funs(as.numeric), success_abs, success_target, TVAAS, subgroup_growth,
+            mutate_each(funs(as.numeric), success_pctile, success_target, TVAAS, subgroup_growth,
                 readiness_abs, readiness_target, elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
-            mutate_each(funs(ifelse(. == 1, NA, .)), success_abs, success_target, TVAAS, subgroup_growth,
+            mutate_each(funs(ifelse(. == 1, NA, .)), success_pctile, success_target, TVAAS, subgroup_growth,
                 readiness_abs, readiness_target, elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
-            mutate_each(funs(. - 2), success_abs, success_target, TVAAS, subgroup_growth,
+            mutate_each(funs(. - 2), success_pctile, success_target, TVAAS, subgroup_growth,
                 readiness_abs, readiness_target, elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
             mutate(pool = ifelse(input$eoc == "Yes", "HS", "K8"),
                 TVAAS = ifelse(Subgroup != "All Students", NA, TVAAS),
                 subgroup_growth = ifelse(Subgroup == "All Students", NA, subgroup_growth),
-                grade_achievement = pmax(success_abs, success_target, na.rm = TRUE),
+                grade_achievement = pmax(success_pctile, success_target, na.rm = TRUE),
                 grade_tvaas = TVAAS,
                 grade_growth = subgroup_growth,
                 grade_readiness = pmax(readiness_abs, readiness_target, na.rm = TRUE),
@@ -309,7 +309,7 @@ shinyServer(function(input, output, session) {
                 weight_growth = ifelse(is.na(grade_elpa) & !is.na(grade_growth) & pool == "HS", 0.3, weight_growth)) %>%
             rowwise() %>%
             # Subgroup Grades
-            mutate(total_weight = sum(weight_achievement, weight_growth, weight_opportunity, weight_readiness, weight_elpa, na.rm = TRUE),
+            mutate(total_weight = sum(starts_with("weight_"), na.rm = TRUE),
                 subgroup_average = sum(weight_achievement * grade_achievement,
                     weight_growth * grade_tvaas,
                     weight_growth * grade_growth,
@@ -324,7 +324,7 @@ shinyServer(function(input, output, session) {
 
         heat_map_metrics() %>%
             transmute(Subgroup, `Achievement Points` = grade_achievement,
-                `Growth Points` = grade_growth,
+                `Growth Points` = ifelse(Subgroup == "All Students", grade_tvaas, grade_growth),
                 `Readiness Points` = grade_readiness,
                 `Absenteeism Points` = grade_absenteeism,
                 `ELPA Points` = grade_elpa)
