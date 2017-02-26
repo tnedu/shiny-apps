@@ -34,7 +34,7 @@ shinyServer(function(input, output, session) {
         hide("pool", anim = TRUE)
     })
 
-    observe({
+    observeEvent(c(input$success_3yr, input$tvaas_lag), {
         if (input$success_3yr %in% c("Less than 20%", "Between 20% and 35%")) {
             show("tvaas_lag", anim = TRUE)
 
@@ -247,16 +247,26 @@ shinyServer(function(input, output, session) {
 
     heat_map_metrics <- reactive({
 
-        req(input$achievement_table, input$readiness_table, input$elpa_table, input$absenteeism_table)
-
         ach <- hot_to_r(input$achievement_table) %>% as_data_frame()
         ach$Subgroup <- subgroups
 
-        readiness <- hot_to_r(input$readiness_table) %>% as_data_frame()
-        readiness$Subgroup <- subgroups
+        if (!is.null(input$readiness_table)) {
+            readiness <- hot_to_r(input$readiness_table) %>% as_data_frame()
+            readiness$Subgroup <- subgroups
+        } else {
+            readiness <- data_frame(Subgroup = subgroups,
+                readiness_abs = rep(NA, 6),
+                readiness_target = rep(NA, 6))
+        }
 
-        elpa <- hot_to_r(input$elpa_table) %>% as_data_frame()
-        elpa$Subgroup <- subgroups
+        if (!is.null(input$elpa_table)) {
+            elpa <- hot_to_r(input$elpa_table) %>% as_data_frame()
+            elpa$Subgroup <- subgroups
+        } else {
+            elpa <- data_frame(Subgroup = subgroups,
+                elpa_exit = rep(NA, 6),
+                elpa_growth = rep(NA, 6))
+        }
 
         absenteeism <- hot_to_r(input$absenteeism_table) %>% as_data_frame()
         absenteeism$Subgroup <- subgroups
@@ -272,6 +282,8 @@ shinyServer(function(input, output, session) {
             mutate_each(funs(. - 2), success_abs, success_target, TVAAS, subgroup_growth,
                 readiness_abs, readiness_target, elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
             mutate(pool = ifelse(input$eoc == "Yes", "HS", "K8"),
+                TVAAS = ifelse(Subgroup != "All Students", NA, TVAAS),
+                subgroup_growth = ifelse(Subgroup == "All Students", NA, subgroup_growth),
                 grade_achievement = pmax(success_abs, success_target, na.rm = TRUE),
                 grade_tvaas = TVAAS,
                 grade_growth = subgroup_growth,
