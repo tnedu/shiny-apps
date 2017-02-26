@@ -168,6 +168,7 @@ shinyServer(function(input, output, session) {
 
     )
 
+    # handsontable with inputs for success rate, TVAAS, subgroup growth
     output$achievement_table <- renderRHandsontable({
 
         success_pctile <- factor(c("40% to 59.9%", rep("N/A", 5)),
@@ -191,6 +192,7 @@ shinyServer(function(input, output, session) {
 
     })
 
+    # handsontable with inputs for ACT and grad rate
     output$readiness_table <- renderRHandsontable({
 
         readiness_abs <- factor(c("28.1% to 35%", rep("N/A", 5)), ordered = TRUE,
@@ -209,6 +211,7 @@ shinyServer(function(input, output, session) {
 
     })
 
+    # handsontable with inputs for ELPA
     output$elpa_table <- renderRHandsontable({
 
         elpa_exit <- factor(c("12% to 23.9%", rep("N/A", 5)), ordered = TRUE,
@@ -227,6 +230,7 @@ shinyServer(function(input, output, session) {
 
     })
 
+    # handsontable with inputs for absenteeism
     output$absenteeism_table <- renderRHandsontable({
 
         absenteeism_abs <- factor(c("12.1% to 17%", rep("N/A", 5)), ordered = TRUE,
@@ -245,36 +249,60 @@ shinyServer(function(input, output, session) {
 
     })
 
-    heat_map_metrics <- reactive({
+    # Convert handsontables to reactive objects
+    ach <- reactive(
+        input$achievement_table %>%
+            hot_to_r() %>%
+            as_data_frame() %>%
+            mutate(Subgroup = subgroups)
+    )
 
-        ach <- hot_to_r(input$achievement_table) %>% as_data_frame()
-        ach$Subgroup <- subgroups
+    readiness <- reactive(
 
         if (is.null(input$readiness_table)) {
-            readiness <- data_frame(Subgroup = subgroups,
+            data_frame(Subgroup = subgroups,
                 readiness_abs = rep(NA, 6),
                 readiness_target = rep(NA, 6))
         } else {
-            readiness <- hot_to_r(input$readiness_table) %>% as_data_frame()
-            readiness$Subgroup <- subgroups
+            input$readiness_table %>%
+                hot_to_r() %>%
+                as_data_frame() %>%
+                mutate(Subgroup = subgroups)
         }
 
+    )
+
+    elpa <- reactive(
+
         if (is.null(input$elpa_table)) {
-            elpa <- data_frame(Subgroup = subgroups,
+            data_frame(Subgroup = subgroups,
                 elpa_exit = rep(NA, 6),
                 elpa_growth = rep(NA, 6))
         } else {
-            elpa <- hot_to_r(input$elpa_table) %>% as_data_frame()
-            elpa$Subgroup <- subgroups
+            input$elpa_table %>%
+                hot_to_r() %>%
+                as_data_frame() %>%
+                mutate(Subgroup = subgroups)
         }
 
-        absenteeism <- hot_to_r(input$absenteeism_table) %>% as_data_frame()
-        absenteeism$Subgroup <- subgroups
+    )
 
-        ach %>%
-            inner_join(readiness, by = "Subgroup") %>%
-            inner_join(elpa, by = "Subgroup") %>%
-            inner_join(absenteeism, by = "Subgroup") %>%
+    absenteeism <- reactive(
+
+        input$absenteeism_table %>%
+            hot_to_r() %>%
+            as_data_frame() %>%
+            mutate(Subgroup = subgroups)
+
+    )
+
+    # Calculate subgroup grades
+    heat_map_metrics <- reactive(
+
+        ach() %>%
+            inner_join(readiness(), by = "Subgroup") %>%
+            inner_join(elpa(), by = "Subgroup") %>%
+            inner_join(absenteeism(), by = "Subgroup") %>%
             mutate_each(funs(as.numeric), success_pctile, success_target, TVAAS, subgroup_growth,
                 readiness_abs, readiness_target, elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
             mutate_each(funs(ifelse(. == 1, NA, .)), success_pctile, success_target, TVAAS, subgroup_growth,
@@ -318,7 +346,7 @@ shinyServer(function(input, output, session) {
                     weight_elpa * grade_elpa, na.rm = TRUE)/total_weight) %>%
             ungroup()
 
-    })
+    )
 
     output$heat_map <- renderTable(
 

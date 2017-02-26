@@ -132,8 +132,8 @@ shinyUI(
                     hr(),
                     h4("About your school's chronic absenteeism"),
                     br(),
-                    p(strong("Chronic absenteeism"), "is defined as the percentage of students who
-                        are absent for 10% or more of a school year (18 days in a 180 day school year).
+                    p(strong("Chronic absenteeism"), "refers to the percentage of students who are
+                        absent for 10% or more of a school year (18 days in a 180 day school year).
                         Answer the following about your school's chronic absenteeism."),
                     br(),
                     rHandsontableOutput("absenteeism_table"),
@@ -164,15 +164,13 @@ shinyUI(
             fluidRow(
                 column(8, offset = 2,
                     hr(),
-                    h4("Your School's Final Grade:"),
-                    br(),
+                    h4("Your School's Final Grade"),
                     p("Based on the information you provided, we project the following grades for
                         your school:"),
                     br(),
-                    strong(htmlOutput("determinations")),
+                    strong(p(htmlOutput("determinations"))),
                     br(),
-                    br(),
-                    p("Adjust any of your assumptions in the above tables to see how your school's
+                    p("Adjust any of the values in the above tables to see how your school's
                         grade is affected.")
                 )
             )
