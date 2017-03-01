@@ -41,16 +41,11 @@ shinyUI(
                     hr(),
                     h4("A success rate is the percentage of students on track or mastered,
                         aggregated across subjects with at least 30 tests."),
-                    p("For high schools, this also includes the percentage of students who
-                        earned an 21 Composite score or higher on the ACT and students
-                        who earn graduate in four years and a summer."),
-                    selectInput("success_3yr", label = "Think about your school's success rate over
-                        the last three years. What is your school's success rate?",
-                        choices = c("", "Less than 20%", "Between 20% and 35%", "Above 35%")),
+                    selectInput("success_3yr", label = "What is your school's success rate over
+                        the last three years?", choices = c("", "Less than 20%", "Between 20% and 35%", "Above 35%")),
                     br(),
                     hidden(selectInput("tvaas_lag", label = "Did your school earn a TVAAS Composite
                         Level 4 or 5 in 2016?", choices = c("", "Yes", "No"))),
-                    br(),
                     htmlOutput("comprehensive_determination"),
                     br(),
                     hidden(actionButton("button_comprehensive", label = "Got it."))
@@ -60,9 +55,7 @@ shinyUI(
                 hidden(div(id = "achievement",
                     hr(),
                     h4("About your school's achievement and growth on TNReady:"),
-                    strong(p("Using the table below, answer the following about your school's success rate,
-                        success rate growth, TVAAS (All Students only), and subgroup growth
-                        (subgroups only).")),
+                    br(),
                     p("Recall that a", strong("success rate"), "is the percentage of students on track
                         or mastered, aggregated across all subjects with at least 30 tests."),
                     p("A success rate", strong("percentile"), "is the percentage of schools with a
@@ -72,6 +65,8 @@ shinyUI(
                     p(strong("Subgroup growth"), "refers to the percentage of students who maintained
                         or improved their performance level compared to the prior year."),
                     br(),
+                    strong(p("Using the table below, answer the following about your school's success rate,
+                        success rate growth, TVAAS (all students only), and subgroup growth (subgroups only).")),
                     rHandsontableOutput("achievement_table"),
                     br(),
                     div(id = "done_ach",
@@ -90,9 +85,9 @@ shinyUI(
                     br(),
                     hidden(div(id = "readiness_table_container",
                         p(strong("Readiness"), "refers to the percentage of students in your school's
-                            graduating cohort who earned an 21 Composite score or higher on the ACT.
-                            Answer the following about your school's readiness."),
+                            graduating cohort who earned an ACT Composite score of 21 or higher."),
                         br(),
+                        strong(p("Answer the following about your school's readiness and readiness growth.")),
                         rHandsontableOutput("readiness_table")
                     )),
                     hidden(actionButton("skip_readiness", label = "Proceed")),
@@ -114,9 +109,9 @@ shinyUI(
                     br(),
                     hidden(div(id = "elpa_table_container",
                         p("Schools are graded on the percentage of students who exit EL status or
-                            met the growth standard on the English Language Proficiency Assessment.
-                            Answer the following about your school's ELPA performance."),
+                            met the growth standard on the English Language Proficiency Assessment."),
                         br(),
+                        strong(p("Answer the following about your school's ELPA performance.")),
                         rHandsontableOutput("elpa_table")
                     )),
                     hidden(actionButton("skip_elpa", label = "Proceed")),
@@ -132,10 +127,10 @@ shinyUI(
                     hr(),
                     h4("About your school's chronic absenteeism"),
                     br(),
-                    p(strong("Chronic absenteeism"), "refers to the percentage of students who are
-                        absent for 10% or more of a school year (18 days in a 180 day school year).
-                        Answer the following about your school's chronic absenteeism."),
+                    p(strong("Chronic absenteeism"), "refers to students who are absent for 10%
+                        or more of a school year (18 days in a 180 day school year)."),
                     br(),
+                    strong(p("Answer the following about your school's absenteeism and absenteeism reduction.")),
                     rHandsontableOutput("absenteeism_table"),
                     br(),
                     hidden(div(id = "done_absenteeism",
@@ -154,7 +149,14 @@ shinyUI(
                     hr(),
                     h4("Your School's Heat Map"),
                     br(),
-                    tableOutput("heat_map")
+                    tableOutput("heatmap"),
+                    br(),
+                    htmlOutput("heatmap_text"),
+                    br(),
+                    hidden(div(id = "done_heatmap",
+                        p("Click the button below to see your school's projected final grade."),
+                        actionButton("button_heatmap", label = "Show Final Grade")
+                    ))
                 )
             )
         )),
@@ -168,10 +170,9 @@ shinyUI(
                     p("Based on the information you provided, we project the following grades for
                         your school:"),
                     br(),
-                    strong(p(htmlOutput("determinations"))),
+                    strong(htmlOutput("determinations")),
                     br(),
-                    p("Adjust any of the values in the above tables to see how your school's
-                        grade is affected.")
+                    p("Adjust any values in the tables to see how your school's grade is affected.")
                 )
             )
         )),
