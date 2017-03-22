@@ -1,5 +1,5 @@
 ---
-title: "District Performance"
+title: "`r params$district` District Performance"
 author: "<br> Office of Accountability <br> Tennessee Department of Education"
 output:
     revealjs::revealjs_presentation:
@@ -19,7 +19,7 @@ ach_profile <- read_csv("data/achievement_profile_data_2015_2016.csv") %>%
     filter(Year == params$year)
 ```
 
-This is a presentation with accountability data for `r params$district`.
+This is a report for `r params$district` for the `r params$year` school year.
 
 ## Demographic Data
 
@@ -60,7 +60,7 @@ ach_profile %>%
 
 ```{r tvaas}
 ach_profile %>%
-    filter(District == params$district) %>% 
+    filter(District == params$district) %>%
     select(starts_with("TVAAS")) %>%
     knitr::kable()
 ```
@@ -68,12 +68,13 @@ ach_profile %>%
 ## Ready Graduates
 
 ```{r ready_grad}
+
 if (params$district < "State of Tennessee") {
     color_palette <- c("#1f77b4", "#d62728")
 } else {
     color_palette <- c("#d62728", "#1f77b4")
 }
-    
+
 ach_profile %>%
     filter(District %in% c(params$district, "State of Tennessee")) %>%
     mutate(District = factor(District, levels = c(params$district, "State of Tennessee"))) %>%
