@@ -7,7 +7,7 @@ library(shinyjs)
 library(rhandsontable)
 
 shinyUI(
-    fluidPage(
+    fluidPage(theme = "doe-style.css",
         useShinyjs(),
         fluidRow(
             column(8, offset = 2,

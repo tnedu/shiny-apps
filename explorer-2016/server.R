@@ -42,7 +42,7 @@ shinyServer(function(input, output, session) {
                 ylab = names(outcomes[outcomes == input$outcome]),
                 toolbar_location = "above", legend_location = NULL) %>%
             ly_points(x = input$char, y = input$outcome, alpha = Selected,
-                color = input$color, hover = tooltip_content, lname = "points") %>%
+                color = input$color, hover = tooltip_content) %>%
             set_palette(discrete_color = pal_color(color_palette))
 
         if (input$char == "Enrollment") {
@@ -53,31 +53,35 @@ shinyServer(function(input, output, session) {
 
     })
 
-    output$map <- renderLeaflet(
+    output$map <- renderLeaflet({
+
+        geocode_highlight <- filter(geocode, District == input$highlight)
+
         leaflet() %>%
             addTiles() %>%
-            addMarkers(
-                lng = geocode[geocode$District == input$highlight, ]$Longitude,
-                lat = geocode[geocode$District == input$highlight, ]$Latitude,
+            addMarkers(lng = geocode_highlight$Longitude, lat = geocode_highlight$Latitude,
                 popup = paste(sep = "<br/>",
-                    paste0("<b>", geocode[geocode$District == input$highlight, ]$`District Name`, "</b>"),
-                    geocode[geocode$District == input$highlight, ]$Address,
-                    geocode[geocode$District == input$highlight, ]$City
+                    paste0("<b>", geocode_highlight$`District Name`, "</b>"),
+                    geocode_highlight$Address,
+                    geocode_highlight$City
                 )
             )
-    )
+    })
 
-    output$district_info <- renderText(
+    output$district_info <- renderText({
+
+        filtered_highlight <- filter(filtered(), District == input$highlight)
+
         paste("<b>District Name:", geocode[geocode$District == input$highlight, ]$`District Name`, "</b><br/>",
-        "<br/>",
-        "Grades Served:", filtered()[filtered()$District == input$highlight, ]$`Grades Served`, "<br/>",
-        "Number of Schools:",filtered()[filtered()$District == input$highlight, ]$`Number of Schools`, "<br/>",
-        "<br/>",
-        "Percent Black/Hispanic/Native American Students:", filtered()[filtered()$District == input$highlight, ]$BHN, "<br/>",
-        "Percent Economically Disadvantaged Students:", filtered()[filtered()$District == input$highlight, ]$ED, "<br/>",
-        "Percent Students with Disabilities:", filtered()[filtered()$District == input$highlight, ]$SWD, "<br/>",
-        "Percent English Learners:", filtered()[filtered()$District == input$highlight, ]$EL)
-    )
+            "<br/>",
+            "Grades Served:", filtered_highlight$`Grades Served`, "<br/>",
+            "Number of Schools:", filtered_highlight$`Number of Schools`, "<br/>",
+            "<br/>",
+            "Percent Black/Hispanic/Native American Students:", filtered_highlight$BHN, "<br/>",
+            "Percent Economically Disadvantaged Students:", filtered_highlight$ED, "<br/>",
+            "Percent Students with Disabilities:", filtered_highlight$SWD, "<br/>",
+            "Percent English Learners:", filtered_highlight$EL)
+    })
 
     output$prof <- renderRbokeh({
 
@@ -127,8 +131,7 @@ shinyServer(function(input, output, session) {
         long <- filtered() %>%
             filter(District %in% c(input$highlight, "State of Tennessee")) %>%
             transmute(District = factor(District, levels = c(input$highlight, "State of Tennessee")),
-                `Graduation Rate` = Grad,
-                `ACT 21 or Above` = `ACT 21 or Above`)
+                `Graduation Rate` = Grad, `ACT 21 or Above`) %>%
             gather(Subject, Value, -District) %>%
             group_by(Subject) %>%
             mutate(Count = sum(!is.na(Value))) %>%

@@ -58,13 +58,13 @@ shinyServer(function(input, output) {
 
     })
 
-    output$header <- renderText(
+    output$header_plot <- renderText(
         paste(names(outcome_list[outcome_list == input$outcome]),
-        "for districts most similar to", input$district)
+            "for districts most similar to", input$district)
     )
 
     # Outcome plot
-    output$plot_bokeh <- renderRbokeh({
+    output$plot <- renderRbokeh({
 
         if (all(is.na(similarity()[input$outcome]))) return()
 
@@ -78,16 +78,22 @@ shinyServer(function(input, output) {
             c(0, 100)
         )
 
-        figure(data = similarity(), xlim = similarity()$District, ylim = y_range,
+        figure(data = similarity(), xlab = "", ylab = names(outcome_list[outcome_list == input$outcome]),
+               xlim = similarity()$District, ylim = y_range,
                padding_factor = 0, xgrid = FALSE,
                tools = "save", toolbar_location = "above") %>%
             ly_bar(x = "District", y = input$outcome, hover = TRUE)
 
     })
 
+    output$header_table <- renderText(
+        paste("Profile data for", input$district, "and most similar districts")
+    )
+
+    # Table with profile data for selected and comparison districts
     output$table <- renderTable(striped = TRUE, {
 
-        temp <- similarity() %>%
+        comp_table <- similarity() %>%
             select(Year, District) %>%
             inner_join(ach_profile, by = c("Year", "District")) %>%
             select(District, Enrollment:Expenditures) %>%
@@ -103,18 +109,19 @@ shinyServer(function(input, output) {
 
         row_order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged", "Percent Students with Disabilities",
             "Percent English Learners", "Percent Black", "Percent Hispanic", "Percent Native American")
-        temp <- temp[match(row_order, temp$Characteristic), ]
+        comp_table <- comp_table[match(row_order, comp_table$Characteristic), ]
 
         # Format table with $, %
-        temp[2, -1] <- sprintf("$%.2f", temp[2, -1])
-        temp[3, -1] <- sprintf("%.1f%%", temp[3, -1])
-        temp[4, -1] <- sprintf("%.1f%%", temp[4, -1])
-        temp[5, -1] <- sprintf("%.1f%%", temp[5, -1])
-        temp[6, -1] <- sprintf("%.1f%%", temp[6, -1])
-        temp[7, -1] <- sprintf("%.1f%%", temp[7, -1])
-        temp[8, -1] <- sprintf("%.1f%%", temp[8, -1])
+        comp_table[2, -1] <- sprintf("$%.2f", comp_table[2, -1])
+        comp_table[3, -1] <- sprintf("%.1f%%", comp_table[3, -1])
+        comp_table[4, -1] <- sprintf("%.1f%%", comp_table[4, -1])
+        comp_table[5, -1] <- sprintf("%.1f%%", comp_table[5, -1])
+        comp_table[6, -1] <- sprintf("%.1f%%", comp_table[6, -1])
+        comp_table[7, -1] <- sprintf("%.1f%%", comp_table[7, -1])
+        comp_table[8, -1] <- sprintf("%.1f%%", comp_table[8, -1])
 
-        temp[c("Characteristic", similarity()$District)]
+        # Order columns by similarity
+        comp_table[c("Characteristic", similarity()$District)]
 
     })
 

@@ -4,8 +4,7 @@ library(rbokeh)
 library(shiny)
 
 ach_profile <- read_csv("data/achievement_profile_data_2015_2016.csv") %>%
-    mutate_each(funs(ifelse(is.na(.), "NA", .)), `TVAAS Composite`:`TVAAS Social Studies`,
-        `Accountability Status 2015`) %>%
+    mutate_each(funs(ifelse(is.na(.), "NA", .)), starts_with("TVAAS"), `Accountability Status 2015`) %>%
     mutate_each(funs(ifelse(is.na(.) & System != 970, 0, .)), Black, Hispanic, Native, EL)
 
 geocode <- read_csv("data/district_location_geocode.csv") %>%

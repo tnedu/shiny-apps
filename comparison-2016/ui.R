@@ -1,7 +1,7 @@
 ## District Comparison Tool
 # ui.R
 
-shinyUI(navbarPage("Comparison Tool",
+shinyUI(navbarPage("Comparison Tool", theme = "doe-style.css",
     tabPanel("District",
         useShinyjs(),
         fluidRow(
@@ -11,7 +11,7 @@ shinyUI(navbarPage("Comparison Tool",
                     h4("Identify Similar Districts"),
                     br(),
                     selectInput(inputId = "district", label = "Select a District:",
-                        choices = c("", sort(unique(ach_profile$District))), selected = ""),
+                        choices = c("", sort(unique(ach_profile$District)))),
                     br(),
                     checkboxGroupInput(inputId = "district_chars",
                         label = "Select one or More District Characteristics:",
@@ -43,7 +43,7 @@ shinyUI(navbarPage("Comparison Tool",
                         h4("Additional Options"),
                         br(),
                         sliderInput(inputId = "num_districts", label = "Number of comparison districts:",
-                            min = 1, max = 9, value = 5, step = 1, ticks = FALSE),
+                            min = 1, max = 9, step = 1, value = 5, ticks = FALSE),
                         br(),
                         tags$b("Restrict comparison districts to the same:"),
                         checkboxInput(inputId = "restrict_CORE", label = "CORE Region")
@@ -70,9 +70,11 @@ shinyUI(navbarPage("Comparison Tool",
                 # Output panel
                 tags$div(id = "output",
                     column(7,
-                        h4(textOutput("header")),
+                        h4(textOutput("header_plot")),
                         br(),
-                        rbokehOutput("plot_bokeh", height = "600px"),
+                        rbokehOutput("plot", height = "600px"),
+                        br(),
+                        h4(textOutput("header_table")),
                         br(),
                         tableOutput("table")
                     )

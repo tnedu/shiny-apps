@@ -1,7 +1,7 @@
 ## District Data Explorer
 # ui.R
 
-shinyUI(navbarPage("Data Explorer",
+shinyUI(navbarPage("Data Explorer", theme = "doe-style.css",
     tabPanel("District",
         fluidRow(
             column(3, offset = 1,
