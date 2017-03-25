@@ -22,25 +22,14 @@ shinyUI(
                     actionButton("button_intro", label = "Go!")
                 ),
 
-                # Pool
-                hidden(div(id = "pool",
-                    hr(),
-                    h4("First, we'll determine your school's grade pool for accountability purposes."),
-                    br(),
-                    selectInput("eoc", label = "Will your school have 30 students in grades 9 or above
-                        test in a single high school End of Course subject this school year?",
-                        choices = c("", "Yes", "No")),
-                    br(),
-                    htmlOutput("pool_determination"),
-                    br(),
-                    hidden(actionButton("button_pool", label = "Got it."))
-                )),
-
                 # Comprehensive Support
                 hidden(div(id = "minimum_performance",
                     hr(),
                     h4("A success rate is the percentage of students on track or mastered,
                         aggregated across subjects with at least 30 tests."),
+                    p("For high schools, this also includes students who earn a ACT Composite
+                        score of 21 or higher."),
+                    br(),
                     selectInput("success_3yr", label = "What is your school's success rate over
                         the last three years?", choices = c("", "Less than 20%", "Between 20% and 35%", "Above 35%")),
                     br(),
@@ -167,6 +156,7 @@ shinyUI(
                 column(8, offset = 2,
                     hr(),
                     h4("Your School's Final Grade"),
+                    br(),
                     p("Based on the information you provided, we project the following grades for
                         your school:"),
                     br(),
