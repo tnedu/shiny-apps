@@ -1,0 +1,29 @@
+.outer {
+  position: fixed;
+  top: 41px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.map_control {
+  background-color: white;
+  padding: 0 20px 20px 20px;
+  opacity: 0.65;
+  transition: opacity 500ms 1s;
+}
+
+.map_control:hover {
+  opacity: 0.95;
+  transition-delay: 0;
+}
+
+h1, h2 {
+    font-family: PermianSlabSerifTypeface, Georgia, serif;
+}
+
+* {
+    font-family: Open Sans, Arial, sans-serif;
+}
