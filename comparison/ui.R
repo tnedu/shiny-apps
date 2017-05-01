@@ -2,10 +2,10 @@
 # ui.R
 
 shinyUI(navbarPage("Comparison Tool", theme = "doe-style.css",
-    tabPanel("District",
+    tabPanel("Identify Similar", icon = icon("search"),
         useShinyjs(),
         fluidRow(
-            # Sidebar with user options
+            # Sidebar with input widgets
             column(3, offset = 1,
                 wellPanel(
                     h4("Identify Similar Districts"),
@@ -13,7 +13,7 @@ shinyUI(navbarPage("Comparison Tool", theme = "doe-style.css",
                     selectInput(inputId = "district", label = "Select a District:",
                         choices = c("", sort(unique(ach_profile$District)))),
                     br(),
-                    checkboxGroupInput(inputId = "district_chars",
+                    checkboxGroupInput(inputId = "chars",
                         label = "Select one or More District Characteristics:",
                         choices = c("Student Enrollment" = "Enrollment",
                             "Per-Pupil Expenditures" = "Expenditures",
@@ -30,25 +30,12 @@ shinyUI(navbarPage("Comparison Tool", theme = "doe-style.css",
                         "Adjust any of the inputs in the left panels to update the output.")
                     )
                 ),
-                conditionalPanel("input.button >= 1",
-                    wellPanel(
-                        h4("Outcome"),
-                        br(),
-                        selectInput(inputId = "outcome", label = "Outcome to plot:",
-                            choices = outcome_list, selected = "Algebra I"),
-                        selectInput(inputId = "year", label = "School Year:",
-                            choices = c("2015-16" = 2016, "2014-15" = 2015), selected = 2015)
-                    ),
-                    wellPanel(
-                        h4("Additional Options"),
-                        br(),
-                        sliderInput(inputId = "num_districts", label = "Number of comparison districts:",
-                            min = 1, max = 9, step = 1, value = 5, ticks = FALSE),
-                        br(),
-                        tags$b("Restrict comparison districts to the same:"),
-                        checkboxInput(inputId = "restrict_CORE", label = "CORE Region")
-                    )
-                )
+                hidden(wellPanel(id = "outcomes",
+                    selectInput(inputId = "outcome", label = "Select an outcome:",
+                        choices = outcome_list, selected = "Algebra I"),
+                    selectInput(inputId = "year", label = "School Year:",
+                        choices = c("2015-16" = 2016, "2014-15" = 2015), selected = 2015)
+                ))
             ),
             # Message shown on initializing
             conditionalPanel("input.button == 0",
@@ -79,6 +66,30 @@ shinyUI(navbarPage("Comparison Tool", theme = "doe-style.css",
                         tableOutput("table")
                     )
                 )
+            )
+        )
+    ),
+    tabPanel("Select", icon = icon("hand-pointer-o"),
+        fluidRow(
+            column(3, offset = 1,
+                wellPanel(
+                    h4("Select Districts"),
+                    br(),
+                    selectInput(inputId = "district2", label = "Select a district:",
+                        choices = sort(ach_profile$District)),
+                    br(),
+                    uiOutput("comparison_districts")
+                ),
+                wellPanel(
+                    selectInput(inputId = "outcome2", label = "Select an outcome:",
+                        choices = outcome_list, selected = "Math", width = 400),
+                    br(),
+                    selectInput(inputId = "year2", label = "School Year:",
+                        choices = c("2015-16" = 2016, "2014-15" = 2015), selected = 2015)
+                )
+            ),
+            column(7,
+                rbokehOutput("plot2", height = "600px")
             )
         )
     )
