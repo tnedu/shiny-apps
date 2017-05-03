@@ -5,13 +5,13 @@ library(leaflet)
 library(shiny)
 
 # District shapefile from NCES and filter out pseudo-districts
-tennessee <- readOGR("SCHOOLDISTRICT_SY1314_TL15/schooldistrict_sy1314_tl15.shp") %>%
+tennessee <- readOGR("shapefile/schooldistrict_sy1314_tl15.shp") %>%
     subset(STATEFP == 47) %>%
     subset(!grepl(" in ", NAME)) %>%
     subset(!(NAME == "School District Not Defined")) %>%
     subset(!(NAME == "Fort Campbell Schools"))
 
-# Sort by name so that merging happens correctly
+# Sort by name to merge correctly
 tennessee <- tennessee[order(tennessee$NAME), ]
 
 # Achievement/profile data
@@ -40,16 +40,13 @@ outcomes <- list(
                  "ACT English", "ACT Math", "ACT Reading", "ACT Science"),
     "Graduation" = list("Grad", "Dropout"))
 
-color_by <- c("Region",
-              "TVAAS Composite",
-              "TVAAS Literacy",
-              "TVAAS Numeracy",
-              "TVAAS Science",
-              "TVAAS Social Studies",
-              "Accountability Status 2015")
+# Options to color scatterplot points
+color_by <- c("Region", "TVAAS Composite", "TVAAS Literacy", "TVAAS Numeracy",
+              "TVAAS Science", "TVAAS Social Studies", "Accountability Status 2015")
 
 # Outcomes for map
 outcomes_map <- list(
+    "Characteristics" = list("Enrollment", "ED", "BHN", "SWD", "EL", "Expenditures"),
     "TN Ready On Track/Mastery" = list("Math", "ELA", "Science",
                                        "Algebra I", "Algebra II", "Geometry",
                                        "English I", "English II", "English III",
