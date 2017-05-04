@@ -99,7 +99,7 @@ fluidPage(theme = "doe-style.css",
                 br(),
                 hidden(div(id = "elpa_table_container",
                     p("Schools are graded on the percentage of students who exit EL status or
-                        met the growth standard on the English Language Proficiency Assessment."),
+                        meet the growth standard on the English Language Proficiency Assessment."),
                     br(),
                     strong(p("Answer the following about your school's ELPA performance.")),
                     rHandsontableOutput("elpa_table")
@@ -148,7 +148,7 @@ fluidPage(theme = "doe-style.css",
                     strong("Absenteeism"), "and", strong("Absenteeism Reduction Target"), "grades."),
                 br(),
                 p("A school only receives an Achievement/Readiness/ELPA/Absenteeism grade
-                    if it has both the absolute and target components"),
+                    if it has both the absolute and target components."),
                 hidden(div(id = "done_heatmap",
                     br(),
                     p("Click the button below to see your school's projected final grade."),

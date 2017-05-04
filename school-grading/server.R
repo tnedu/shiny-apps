@@ -1,31 +1,26 @@
 ## School Grading Walkthrough
 # server.R
 
-library(dplyr)
-library(shiny)
-library(shinyjs)
-library(rhandsontable)
-
-shinyServer(function(input, output, session) {
+function(input, output, session) {
 
     # Global vectors with dropdown options
     subgroups <- c("All Students", "Black/Hispanic/Native American", "Economically Disadvantaged",
         "Students with Disabilities", "English Learners", "Super Subgroup")
     quintile_options <- c("N/A", "19.9% or Less", "20% to 39.9%", "40% to 59.9%", "60% to 79.9%", "80% or More")
-    amo_options <- c("N/A", "Regress", "Progress but do not Meet AMO Target",
-        "Meet AMO Target with Confidence Interval", "Meet AMO Target", "Meet Double AMO Target")
+    amo_options <- c("N/A", "Regress", "Progress but do not Meet Target",
+        "Meet Target with Confidence Interval", "Meet Target", "Meet Double Target")
 
     # Observers to show/hide appropriate inputs
     observeEvent(input$button_intro, once = TRUE, {
         show("minimum_performance", anim = TRUE)
-        hide("button_intro", anim = TRUE)
+        hide("intro", anim = TRUE)
     })
 
     observeEvent(c(input$success_3yr, input$tvaas_lag), {
         if (input$success_3yr %in% c("Less than 20%", "Between 20% and 35%")) {
             show("tvaas_lag", anim = TRUE)
 
-            if (input$tvaas_lag == ""){
+            if (input$tvaas_lag == "") {
                 hide("button_comprehensive", anim = TRUE)
             } else {
                 show("button_comprehensive", anim = TRUE)
@@ -115,26 +110,28 @@ shinyServer(function(input, output, session) {
     })
 
     # Observers/reactives to calculate grade
-    output$comprehensive_determination <- renderText(switch(input$success_3yr,
-        "Less than 20%" = switch(input$tvaas_lag,
-            "No" = "<p>Your school is <b>at risk of being named a Comprehensive Support School</b>.</p>
-                <p>To avoid being named a Comprehensive Support School, your school must
-                perform <b>above the bottom 5 percent of schools based on a three year
-                success rate</b> in 2018.</p>",
-            "Yes" = "<p>Your school is <b>at risk of being named a Comprehensive Support School</b>.</p>
-                <p>To avoid being named a Comprehensive Support School, your school must
-                perform <b>above the bottom 5 percent of schools based on a three year
-                success rate</b> OR <b>earn a TVAAS Composite Level 4 or 5</b> in 2018.</p>"),
-        "Between 20% and 35%" = switch(input$tvaas_lag,
-            "No" = "<p>Your school is <b>on the cusp of eligibility for Comprehensive Support</b>.</p>
-                <p>To avoid being named a Comprehensive Support school, your school must
-                perform <b>above the bottom 5 percent of schools based on a three year
-                success rate</b> in 2018.<p>",
-            "Yes" = "<p>Your school is <b>on the cusp of eligibility for Comprehensive Support</b>.</p>
-                <p>To avoid being named a Comprehensive Support school, your school must
-                perform <b>above the bottom 5 percent of schools based on a three year
-                success rate</b> OR <b>earn a Level 4 or 5 Composite TVAAS</b> in 2018.</p>"),
-        "Above 35%" = "<p>Your school is <b>unlikely to be named a Comprehensive Support School</b>.</p>")
+    output$comprehensive_determination <- renderText(
+        switch(input$success_3yr,
+            "Less than 20%" = switch(input$tvaas_lag,
+                "No" = "<p>Your school is <b>at risk of being named a Comprehensive Support School</b>.</p>
+                    <p>To avoid being named a Comprehensive Support School, your school must
+                    perform <b>above the bottom 5 percent of schools based on a three year
+                    success rate</b> in 2018.</p>",
+                "Yes" = "<p>Your school is <b>at risk of being named a Comprehensive Support School</b>.</p>
+                    <p>To avoid being named a Comprehensive Support School, your school must
+                    perform <b>above the bottom 5 percent of schools based on a three year
+                    success rate</b> OR <b>earn a TVAAS Composite Level 4 or 5</b> in 2018.</p>"),
+            "Between 20% and 35%" = switch(input$tvaas_lag,
+                "No" = "<p>Your school is <b>on the cusp of eligibility for Comprehensive Support</b>.</p>
+                    <p>To avoid being named a Comprehensive Support school, your school must
+                    perform <b>above the bottom 5 percent of schools based on a three year
+                    success rate</b> in 2018.<p>",
+                "Yes" = "<p>Your school is <b>on the cusp of eligibility for Comprehensive Support</b>.</p>
+                    <p>To avoid being named a Comprehensive Support school, your school must
+                    perform <b>above the bottom 5 percent of schools based on a three year
+                    success rate</b> OR <b>earn a Level 4 or 5 Composite TVAAS</b> in 2018.</p>"),
+            "Above 35%" = "<p>Your school is <b>unlikely to be named a Comprehensive Support School</b>.</p>"
+        )
     )
 
     # Inputs for success rate, TVAAS, subgroup growth
@@ -143,7 +140,7 @@ shinyServer(function(input, output, session) {
         success_pctile <- factor(c("40% to 59.9%", rep("N/A", 5)),
             levels = quintile_options, ordered = TRUE)
 
-        success_target <- factor(c("Meet AMO Target with Confidence Interval", rep("N/A", 5)),
+        success_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
             levels = amo_options, ordered = TRUE)
 
         TVAAS <- factor(c("Level 3", rep("N/A", 5)), ordered = TRUE,
@@ -154,10 +151,10 @@ shinyServer(function(input, output, session) {
 
         data.frame(success_pctile, success_target, TVAAS, subgroup_growth) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("Success Rate Percentile", "Success Rate AMO Target", "TVAAS", "Subgroup Growth Percentile")) %>%
+                colHeaders = c("Success Rate Percentile", "Success Rate Target", "TVAAS", "Subgroup Growth Percentile")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("Success Rate Percentile", "Success Rate AMO Target", "TVAAS", "Subgroup Growth Percentile"), type = "dropdown")
+            hot_col(c("Success Rate Percentile", "Success Rate Target", "TVAAS", "Subgroup Growth Percentile"), type = "dropdown")
 
     })
 
@@ -167,16 +164,16 @@ shinyServer(function(input, output, session) {
         readiness_abs <- factor(c("28.1% to 35%", rep("N/A", 5)), ordered = TRUE,
             levels = c("N/A", "16% or Less", "16.1% to 28%", "28.1% to 35%", "35.1% to 49.9%", "50% or Greater"))
 
-        readiness_target <- factor(c("Meet AMO Target with Confidence Interval", rep("N/A", 5)),
+        readiness_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
             levels = amo_options, ordered = TRUE)
 
         data.frame(readiness_abs, readiness_target) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("Readiness", "Readiness AMO Target")) %>%
+                colHeaders = c("Readiness", "Readiness Target")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
             hot_cols(colWidths = c(150, 300)) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("Readiness", "Readiness AMO Target"), type = "dropdown")
+            hot_col(c("Readiness", "Readiness Target"), type = "dropdown")
 
     })
 
@@ -205,16 +202,16 @@ shinyServer(function(input, output, session) {
         absenteeism_abs <- factor(c("12.1% to 17%", rep("N/A", 5)), ordered = TRUE,
             levels = c("N/A", "Greater than 24%", "17.1% to 24%", "12.1% to 17%", "8.1% to 12%", "8% or Less"))
 
-        absenteeism_target <- factor(c("Meet AMO Target with Confidence Interval", rep("N/A", 5)),
+        absenteeism_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
             levels = amo_options, ordered = TRUE)
 
         data.frame(absenteeism_abs, absenteeism_target) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("Absenteeism", "Absenteeism Reduction AMO Target")) %>%
+                colHeaders = c("Absenteeism", "Absenteeism Reduction Target")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
             hot_cols(colWidths = c(150, 300)) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("Absenteeism", "Absenteeism Reduction AMO Target"), type = "dropdown")
+            hot_col(c("Absenteeism", "Absenteeism Reduction Target"), type = "dropdown")
 
     })
 
@@ -229,8 +226,8 @@ shinyServer(function(input, output, session) {
     readiness <- reactive(
         if (is.null(input$readiness_table) || input$readiness_eligible == "No") {
             data_frame(Subgroup = subgroups,
-                readiness_abs = rep(NA, 6),
-                readiness_target = rep(NA, 6))
+                readiness_abs = factor(rep(NA, 6)),
+                readiness_target = factor(rep(NA, 6)))
         } else {
             input$readiness_table %>%
                 hot_to_r() %>%
@@ -242,8 +239,8 @@ shinyServer(function(input, output, session) {
     elpa <- reactive(
         if (is.null(input$elpa_table) || input$elpa_eligible == "No") {
             data_frame(Subgroup = subgroups,
-                elpa_exit = rep(NA, 6),
-                elpa_growth = rep(NA, 6))
+                elpa_exit = factor(rep(NA, 6)),
+                elpa_growth = factor(rep(NA, 6)))
         } else {
             input$elpa_table %>%
                 hot_to_r() %>%
@@ -266,42 +263,36 @@ shinyServer(function(input, output, session) {
             inner_join(readiness(), by = "Subgroup") %>%
             inner_join(elpa(), by = "Subgroup") %>%
             inner_join(absenteeism(), by = "Subgroup") %>%
-            mutate_each(funs(as.numeric), success_pctile, success_target, TVAAS, subgroup_growth,
-                readiness_abs, readiness_target, elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
-            mutate_each(funs(ifelse(. == 1, NA, .)), success_pctile, success_target, TVAAS, subgroup_growth,
-                readiness_abs, readiness_target, elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
-            mutate_each(funs(. - 2), success_pctile, success_target, TVAAS, subgroup_growth,
-                readiness_abs, readiness_target, elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
-        # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and AMO pathways
+            mutate_each(funs(if_else(as.numeric(.) == 1, NA_real_, as.numeric(.) - 2)),
+                success_pctile, success_target, TVAAS, subgroup_growth, readiness_abs, readiness_target,
+                elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
+        # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and target grades
             mutate(grade_achievement = pmax(success_pctile, success_target),
-                grade_growth = ifelse(Subgroup == "All Students", TVAAS, subgroup_growth),
+                grade_growth = if_else(Subgroup == "All Students", TVAAS, subgroup_growth),
                 grade_readiness = pmax(readiness_abs, readiness_target),
                 grade_elpa = pmax(elpa_exit, elpa_growth),
                 grade_absenteeism = pmax(absenteeism_abs, absenteeism_target))
 
         if (input$readiness_eligible == "Yes") {
-
             weights <- grades %>%
-                mutate(weight_achievement = ifelse(!is.na(grade_achievement), 0.3, NA),
-                    weight_growth = ifelse(!is.na(grade_growth), 0.25, NA),
-                    weight_readiness = ifelse(!is.na(grade_readiness), 0.25, NA),
-                    weight_opportunity = ifelse(!is.na(grade_absenteeism), 0.1, NA),
-                    weight_elpa = ifelse(!is.na(grade_elpa), 0.1, NA),
+                mutate(weight_achievement = if_else(!is.na(grade_achievement), 0.3, NA_real_),
+                    weight_growth = if_else(!is.na(grade_growth), 0.25, NA_real_),
+                    weight_readiness = if_else(!is.na(grade_readiness), 0.25, NA_real_),
+                    weight_opportunity = if_else(!is.na(grade_absenteeism), 0.1, NA_real_),
+                    weight_elpa = if_else(!is.na(grade_elpa), 0.1, NA_real_),
                 # If no ELPA, adjust achievement and growth weights accordingly
-                    weight_achievement = ifelse(is.na(grade_elpa) & !is.na(grade_achievement), 0.35, weight_achievement),
-                    weight_growth = ifelse(is.na(grade_elpa) & !is.na(grade_growth), 0.3, weight_growth))
-
+                    weight_achievement = if_else(is.na(grade_elpa) & !is.na(grade_achievement), 0.35, weight_achievement),
+                    weight_growth = if_else(is.na(grade_elpa) & !is.na(grade_growth), 0.3, weight_growth))
         } else if (input$readiness_eligible == "No") {
-
             weights <- grades %>%
-                mutate(weight_achievement = ifelse(!is.na(grade_achievement), 0.45, NA),
-                    weight_growth = ifelse(!is.na(grade_growth), 0.35, NA),
-                    weight_readiness = NA,
-                    weight_opportunity = ifelse(!is.na(grade_absenteeism), 0.1, NA),
-                    weight_elpa = ifelse(!is.na(grade_elpa), 0.1, NA),
+                mutate(weight_achievement = if_else(!is.na(grade_achievement), 0.45, NA_real_),
+                    weight_growth = if_else(!is.na(grade_growth), 0.35, NA_real_),
+                    weight_readiness = NA_real_,
+                    weight_opportunity = if_else(!is.na(grade_absenteeism), 0.1, NA_real_),
+                    weight_elpa = if_else(!is.na(grade_elpa), 0.1, NA_real_),
                 # If no ELPA, adjust achievement and growth weights accordingly
-                    weight_achievement = ifelse(is.na(grade_elpa) & !is.na(grade_achievement), 0.5, weight_achievement),
-                    weight_growth = ifelse(is.na(grade_elpa) & !is.na(grade_growth), 0.4, weight_growth))
+                    weight_achievement = if_else(is.na(grade_elpa) & !is.na(grade_achievement), 0.5, weight_achievement),
+                    weight_growth = if_else(is.na(grade_elpa) & !is.na(grade_growth), 0.4, weight_growth))
         }
 
         weights %>%
@@ -328,23 +319,7 @@ shinyServer(function(input, output, session) {
                 `Absenteeism Grade` = grade_absenteeism)
     )
 
-
-    output$heatmap_text <- renderText(
-        "<p>The <b>Achievement Grade</b> is the better of your school's grades on the
-            <b>Success Rate Percentile</b> and <b>Success Rate AMO Target</b> indicators.</p>
-        <p>The <b>Growth Grade</b> is detemined by <b>TVAAS</b> for All Students and by
-            <b>Subgroup Growth</b> for subgroups.</p>
-        <p>The <b>Readiness Grade</b> is the better of your school's grades on the
-            <b>Readiness</b> and <b>Readiness AMO Target</b> indicators.</p>
-        <p>The <b>ELPA Grade</b> is the better of your school's grades on the
-            <b>ELPA Exit</b> and <b>ELPA Growth Standard</b> indicators.</p>
-        <p>The <b>Absenteeism Grade</b> is the better of your school's grades on the
-            <b>Absenteeism</b> and <b>Absenteeism Reduction AMO Target</b> indicators.</p>
-        <p>Schools only receive a grade for Achievement, Readiness, ELPA, and Absenteeism
-            if they have <b>both</b> the absolute and AMO components.</p>"
-     )
-
-    output$determinations <- renderText({
+    output$final_grades <- renderTable(width = '100%', {
 
         ach_average <- heat_map() %>%
             filter(Subgroup == "All Students") %>%
@@ -369,42 +344,50 @@ shinyServer(function(input, output, session) {
         }
 
         if (ach_average == 0) {
-            ach_determ <- "<p>Your school's final achievement grade is an F.</p>"
+            ach_grade <- "F"
         } else if (ach_average <= 1) {
-            ach_determ <- "<p>Your school's final achievement grade is a D.</p>"
+            ach_grade <- "D"
         } else if (ach_average <= 2) {
-            ach_determ <- "<p>Your school's final achievement grade is a C.</p>"
+            ach_grade <- "C"
         } else if (ach_average <= 3) {
-            ach_determ <- "<p>Your school's final achievement grade is a B.</p>"
+            ach_grade <- "B"
         } else if (ach_average > 3) {
-            ach_determ <- "<p>Your school's final achievement grade is an A.</p>"
+            ach_grade <- "A"
+        } else {
+            ach_grade <- NA
         }
 
         if (gap_average == 0) {
-            gap_determ <- "<p>Your school's final subgroup grade is an F.</p>"
+            gap_grade <- "F"
         } else if (gap_average <= 1) {
-            gap_determ <- "<p>Your school's final subgroup grade is a D.</p>"
+            gap_grade <- "D"
         } else if (gap_average <= 2) {
-            gap_determ <- "<p>Your school's final subgroup grade is a C.</p>"
+            gap_grade <- "C"
         } else if (gap_average <= 3) {
-            gap_determ <- "<p>Your school's final subgroup grade is a B.</p>"
+            gap_grade <- "B"
         } else if (gap_average > 3) {
-            gap_determ <- "<p>Your school's final subgroup grade is an A.</p>"
+            gap_grade <- "A"
+        } else {
+            gap_grade <- NA
         }
 
         if (final_average <= 1) {
-            final_determ <- "<p>Your school's overall final grade is a D.</p>"
+            final_grade <- "D"
         } else if (final_average <= 2) {
-            final_determ <- "<p>Your school's overall final grade is a C.</p>"
+            final_grade <- "C"
         } else if (final_average <= 3) {
-            final_determ <- "<p>Your school's overall final grade is a B.</p>"
+            final_grade <- "B"
         } else if (final_average > 3) {
-            final_determ <- "<p>Your school's overall final grade is an A.</p>"
+            final_grade <- "A"
+        } else {
+            final_grade <- NA
         }
 
-        return(paste(ach_determ, gap_determ, final_determ))
+        tibble::tribble(~` `, ~Achievement, ~Subgroup, ~Final,
+            "Average", ach_average, gap_average, final_average,
+            "Grade", ach_grade, gap_grade, final_grade
+        )
 
     })
 
-    }
-)
+}
