@@ -1,7 +1,7 @@
 ## District Comparison Tool
 # server.R
 
-shinyServer(function(input, output) {
+function(input, output) {
 
     # Disable inputs and show message if no district or characteristics are selected
     observe(
@@ -118,11 +118,11 @@ shinyServer(function(input, output) {
 
     })
 
-    output$comparison_districts <- renderUI({
+    output$comparison_districts <- renderUI(
         selectizeInput(inputId = "comparison", label = "Select comparison districts (Maximum 7):",
             multiple = TRUE, choices = sort(setdiff(ach_profile$District, input$district2)),
             selected = "State of Tennessee", options = list(maxItems = 7))
-    })
+    )
 
     output$plot2 <- renderRbokeh({
 
@@ -147,4 +147,4 @@ shinyServer(function(input, output) {
 
     })
 
-})
+}

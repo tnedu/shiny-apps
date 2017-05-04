@@ -1,7 +1,7 @@
 ## District Explorer
 # ui.R
 
-shinyUI(navbarPage(title = "Data Explorer",
+navbarPage(title = "Data Explorer",
 
     tabPanel("Plot", icon = icon("line-chart"),
         fluidRow(
@@ -66,4 +66,4 @@ shinyUI(navbarPage(title = "Data Explorer",
         )
     )
 
-))
+)

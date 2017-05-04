@@ -1,7 +1,7 @@
 ## District Explorer
 # server.R
 
-shinyServer(function(input, output) {
+function(input, output) {
 
     # Filter data based on year and highlight selected district
     filter_plot <- reactive({
@@ -118,4 +118,4 @@ shinyServer(function(input, output) {
         content = function(file) write_csv(ach_profile, file, na = "")
     )
 
-})
+}

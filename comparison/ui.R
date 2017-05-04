@@ -1,7 +1,8 @@
 ## District Comparison Tool
 # ui.R
 
-shinyUI(navbarPage("Comparison Tool", theme = "doe-style.css",
+navbarPage("Comparison Tool", theme = "doe-style.css",
+
     tabPanel("Identify Similar", icon = icon("search"),
         useShinyjs(),
         fluidRow(
@@ -69,6 +70,7 @@ shinyUI(navbarPage("Comparison Tool", theme = "doe-style.css",
             )
         )
     ),
+
     tabPanel("Select", icon = icon("hand-pointer-o"),
         fluidRow(
             column(3, offset = 1,
@@ -93,4 +95,4 @@ shinyUI(navbarPage("Comparison Tool", theme = "doe-style.css",
             )
         )
     )
-))
+)
