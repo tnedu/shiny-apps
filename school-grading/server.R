@@ -323,7 +323,7 @@ function(input, output, session) {
 
         ach_average <- heat_map() %>%
             filter(Subgroup == "All Students") %>%
-            select(subgroup_average)
+            magrittr::extract2("subgroup_average")
 
         gap_average <- heat_map() %>%
             filter(Subgroup != "All Students") %>%
@@ -333,17 +333,20 @@ function(input, output, session) {
             filter(!(Subgroup == "Super Subgroup" & subgroups_count > 1)) %>%
             mutate(subgroup_average_weighted = total_weight * subgroup_average) %>%
             summarise_each(funs(sum(., na.rm = TRUE)), total_weight, subgroup_average_weighted) %>%
-            transmute(gap_average = subgroup_average_weighted/total_weight)
+            transmute(gap_average = subgroup_average_weighted/total_weight) %>%
+            magrittr::extract2("gap_average")
 
-        if (!is.null(ach_average) & !is.null(gap_average)) {
+        if (!is.na(ach_average) & !is.na(gap_average)) {
             final_average <- 0.6 * ach_average + 0.4 * gap_average
-        } else if (!is.null(ach_average) & is.null(gap_average)) {
+        } else if (!is.na(ach_average) & is.na(gap_average)) {
             final_average <- ach_average
-        } else if (is.null(ach_average) & !is.null(gap_average)) {
+        } else if (is.na(ach_average) & !is.na(gap_average)) {
             final_average <- gap_average
         }
 
-        if (ach_average == 0) {
+        if (is.na(ach_average)) {
+            ach_grade <- NA
+        } else if (ach_average == 0) {
             ach_grade <- "F"
         } else if (ach_average <= 1) {
             ach_grade <- "D"
@@ -353,11 +356,11 @@ function(input, output, session) {
             ach_grade <- "B"
         } else if (ach_average > 3) {
             ach_grade <- "A"
-        } else {
-            ach_grade <- NA
         }
 
-        if (gap_average == 0) {
+        if (is.na(gap_average)) {
+            gap_grade <- NA
+        } else if (gap_average == 0) {
             gap_grade <- "F"
         } else if (gap_average <= 1) {
             gap_grade <- "D"
@@ -367,11 +370,11 @@ function(input, output, session) {
             gap_grade <- "B"
         } else if (gap_average > 3) {
             gap_grade <- "A"
-        } else {
-            gap_grade <- NA
         }
 
-        if (final_average <= 1) {
+        if (is.na(final_average)) {
+            final_grade <- NA
+        } else if (final_average <= 1) {
             final_grade <- "D"
         } else if (final_average <= 2) {
             final_grade <- "C"
@@ -379,8 +382,6 @@ function(input, output, session) {
             final_grade <- "B"
         } else if (final_average > 3) {
             final_grade <- "A"
-        } else {
-            final_grade <- NA
         }
 
         tibble::tribble(~` `, ~Achievement, ~Subgroup, ~Final,
