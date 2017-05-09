@@ -385,7 +385,7 @@ function(input, output, session) {
         }
 
         tibble::tribble(~` `, ~Achievement, ~Subgroup, ~Final,
-            "Average", ach_average, gap_average, final_average,
+            "Average", round(ach_average, 2), round(gap_average, 2), round(final_average, 2),
             "Grade", ach_grade, gap_grade, final_grade
         )
 

@@ -170,7 +170,7 @@ fluidPage(theme = "doe-style.css",
 
             # Footer
             hr(),
-            p("Designed in", tags$a(href = "http://shiny.rstudio.com/", "Shiny"),
+            p("Created with", tags$a(href = "http://shiny.rstudio.com/", "Shiny"),
               "for the Tennessee Department of Education."),
             br(),
             br()
