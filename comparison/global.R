@@ -4,7 +4,7 @@ library(shiny)
 library(shinyjs)
 
 ach_profile <- read_csv("data/achievement_profile_data_2015_2016.csv") %>%
-    filter(District != "State of Tennessee") %>%
+    filter(!System %in% c(0, 960, 961, 963, 964, 970)) %>%
     mutate_each(funs(ifelse(is.na(.) & System != 970, 0, .)), Black, Hispanic, Native, EL)
 
 # Outcome list for dropdown

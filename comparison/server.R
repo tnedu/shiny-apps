@@ -24,7 +24,7 @@ function(input, output) {
     observeEvent(input$button, once = TRUE, {
         hide(id = "button")
         show(id = "info")
-        show("outcomes", anim = TRUE)
+        show(id = "outcomes", anim = TRUE)
     })
 
     # Identify most similar districts based on selected characteristics
@@ -82,7 +82,7 @@ function(input, output) {
         paste("Profile data for", input$district, "and most similar districts")
     )
 
-    # Table with profile data for selected and comparison districts
+    # Table with district characteristics
     output$table <- renderTable(striped = TRUE, {
 
         comp_table <- similarity() %>%
@@ -118,12 +118,23 @@ function(input, output) {
 
     })
 
-    output$comparison_districts <- renderUI(
-        selectizeInput(inputId = "comparison", label = "Select comparison districts (Maximum 7):",
-            multiple = TRUE, choices = sort(setdiff(ach_profile$District, input$district2)),
-            selected = "State of Tennessee", options = list(maxItems = 7))
-    )
+    # Render widget for selecting comparison districts
+    output$comparison_districts <- renderUI({
 
+        req(input$district2)
+
+        selectizeInput(inputId = "comparison", label = "Select comparison districts (Maximum 7):",
+            choices = sort(setdiff(ach_profile$District, input$district2)),
+            multiple = TRUE, options = list(maxItems = 7))
+
+    })
+
+    # Show outcome widgets
+    observeEvent(c(input$district2, input$comparison), {
+        if (input$district2 != "" & length(input$comparison) != 0) show(id = "foo")
+    })
+
+    # Outcome plot
     output$plot2 <- renderRbokeh({
 
         req(input$district2, input$comparison)
@@ -141,9 +152,47 @@ function(input, output) {
         ach_profile %>%
             filter(District %in% c(input$district2, input$comparison), Year == input$year2) %>%
             figure(xlab = "", ylab = names(outcome_list[outcome_list == input$outcome]),
+                xlim = c(input$district2, input$comparison),
                 ylim = y_range, padding_factor = 0, xgrid = FALSE,
                 tools = "save", toolbar_location = "above") %>%
             ly_bar(x = "District", y = input$outcome2, hover = TRUE)
+
+    })
+
+    # Table with district characteristics
+    output$table2 <- renderTable({
+
+        req(input$district2, input$comparison)
+
+        comp_table <- ach_profile %>%
+            filter(District %in% c(input$district2, input$comparison), Year == input$year2) %>%
+            transmute(District, Enrollment,
+                `Percent Black` = Black,
+                `Percent Hispanic` = Hispanic,
+                `Percent Native American` = Native,
+                `Percent Economically Disadvantaged` = ED,
+                `Percent English Learners` = EL,
+                `Percent Students with Disabilities` = SWD,
+                `Per-Pupil Expenditures` = Expenditures) %>%
+            gather(Characteristic, Value, Enrollment:`Per-Pupil Expenditures`) %>%
+            spread(District, Value)
+
+        row_order <- c("Enrollment", "Per-Pupil Expenditures", "Percent Economically Disadvantaged",
+            "Percent Students with Disabilities", "Percent English Learners",
+            "Percent Black", "Percent Hispanic", "Percent Native American")
+        comp_table <- comp_table[match(row_order, comp_table$Characteristic), ]
+
+        # Format table with $, %
+        comp_table[2, -1] <- sprintf("$%.2f", comp_table[2, -1])
+        comp_table[3, -1] <- sprintf("%.1f%%", comp_table[3, -1])
+        comp_table[4, -1] <- sprintf("%.1f%%", comp_table[4, -1])
+        comp_table[5, -1] <- sprintf("%.1f%%", comp_table[5, -1])
+        comp_table[6, -1] <- sprintf("%.1f%%", comp_table[6, -1])
+        comp_table[7, -1] <- sprintf("%.1f%%", comp_table[7, -1])
+        comp_table[8, -1] <- sprintf("%.1f%%", comp_table[8, -1])
+
+        # Order columns by similarity
+        comp_table[c("Characteristic", input$district2, input$comparison)]
 
     })
 
