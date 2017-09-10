@@ -263,9 +263,10 @@ function(input, output, session) {
             inner_join(readiness(), by = "Subgroup") %>%
             inner_join(elpa(), by = "Subgroup") %>%
             inner_join(absenteeism(), by = "Subgroup") %>%
-            mutate_each(funs(if_else(as.numeric(.) == 1, NA_real_, as.numeric(.) - 2)),
-                success_pctile, success_target, TVAAS, subgroup_growth, readiness_abs, readiness_target,
-                elpa_exit, elpa_growth, absenteeism_abs, absenteeism_target) %>%
+            mutate_at(c("success_pctile", "success_target", "TVAAS", "subgroup_growth",
+                "readiness_abs", "readiness_target", "elpa_exit", "elpa_growth",
+                "absenteeism_abs", "absenteeism_target"),
+                funs(if_else(as.numeric(.) == 1, NA_real_, as.numeric(.) - 2))) %>%
         # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and target grades
             mutate(grade_achievement = pmax(success_pctile, success_target),
                 grade_growth = if_else(Subgroup == "All Students", TVAAS, subgroup_growth),
@@ -309,9 +310,9 @@ function(input, output, session) {
 
     output$heatmap <- renderTable(
         heat_map() %>%
-            mutate_each(funs(as.character), grade_achievement, grade_growth, grade_readiness, grade_absenteeism, grade_elpa) %>%
-            mutate_each(funs(recode(.,  "4" = "A", "3" = "B", "2" = "C", "1" = "D", "0" = "F")),
-                grade_achievement, grade_growth, grade_readiness, grade_absenteeism, grade_elpa) %>%
+            mutate_at(c("grade_achievement", "grade_growth", "grade_readiness", "grade_absenteeism", "grade_elpa"), as.numeric) %>%
+            mutate_at(c("grade_achievement", "grade_growth", "grade_readiness", "grade_absenteeism", "grade_elpa"),
+                funs(recode(.,  "4" = "A", "3" = "B", "2" = "C", "1" = "D", "0" = "F"))) %>%
             transmute(Subgroup, `Achievement Grade` = grade_achievement,
                 `Growth Grade` = grade_growth,
                 `Readiness Grade` = grade_readiness,
@@ -332,7 +333,7 @@ function(input, output, session) {
                 subgroups_count = sum(temp, na.rm = TRUE)) %>%
             filter(!(Subgroup == "Super Subgroup" & subgroups_count > 1)) %>%
             mutate(subgroup_average_weighted = total_weight * subgroup_average) %>%
-            summarise_each(funs(sum(., na.rm = TRUE)), total_weight, subgroup_average_weighted) %>%
+            summarise_at(c("total_weight", "subgroup_average_weighted"), sum, na.rm = TRUE) %>%
             transmute(gap_average = subgroup_average_weighted/total_weight) %>%
             magrittr::extract2("gap_average")
 
