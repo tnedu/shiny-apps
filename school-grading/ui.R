@@ -33,7 +33,7 @@ fluidPage(theme = "doe-style.css",
                     score of 21 or higher."),
                 br(),
                 selectInput("success_3yr", label = "What is your school's three-year success rate?",
-                    choices = c("", "Less than 20%", "Between 20% and 35%", "Above 35%")),
+                    choices = c("", "Less than 20%", "Between 20 and 35%", "Above 35%")),
                 br(),
                 hidden(selectInput("tvaas_lag", label = "Did your school earn a TVAAS Composite
                     Level 4 or 5 in 2016?", choices = c("", "Yes", "No"))),
@@ -49,10 +49,6 @@ fluidPage(theme = "doe-style.css",
                 br(),
                 p("Recall that a", strong("success rate"), "is the percentage of students on track or
                     mastered, aggregated across subjects (including ACT) with at least 30 tests."),
-                p("A success rate", strong("percentile"), "is the percentage of schools with a
-                    success rate equal to or lower than that of your school. For instance, a
-                    success rate at the 75th percentile means that your school performed on par
-                    with or better than 75 percent of schools in the state."),
                 p(strong("Subgroup growth"), "refers to the percentage of students who maintained
                     or improved their performance level compared to the prior year."),
                 br(),
@@ -91,7 +87,7 @@ fluidPage(theme = "doe-style.css",
             # English Language Proficiency
             hidden(div(id = "elpa",
                 hr(),
-                h4("About your school's English Language Proficiency"),
+                h4("About your school's English Language Proficiency Assessment Results"),
                 br(),
                 selectInput("elpa_eligible", label = "Does your school have 10 or more students
                     who took an English Language Proficiency Assessment (ELPA)?",
@@ -137,9 +133,11 @@ fluidPage(theme = "doe-style.css",
                 tableOutput("heatmap"),
                 br(),
                 p("Your school's", strong("Achievement Grade"), "is the better of its",
-                    strong("Success Rate Percentile"), "and", strong("Success Rate Target"), "grades."),
+                    strong("Success Rate"), "and", strong("Success Rate Target"), "grades."),
                 p("Your school's", strong("Growth Grade"), "is determined by",
                     strong("TVAAS"), "for All Students and", strong("Subgroup Growth"), "for subgroups."),
+                p("Your school's", strong("Graduation Rate Grade"), "is the better of its",
+                    strong("Graduation Rate"), "and", strong("Graduation Rate Target"), "grades."),
                 p("Your school's", strong("Readiness Grade"), "is the better of its",
                     strong("Readiness"), "and", strong("Readiness Target"), "grades."),
                 p("Your school's", strong("ELPA Grade"), "is the better of its",
@@ -147,7 +145,7 @@ fluidPage(theme = "doe-style.css",
                 p("Your school's", strong("Absenteeism Grade"), "is the better of its",
                     strong("Absenteeism"), "and", strong("Absenteeism Reduction Target"), "grades."),
                 br(),
-                p("For Achievement, Readiness, ELPA, and Absenteeism, a school only receives a grade
+                p("For Achievement, Graduation, Readiness, ELPA, and Absenteeism, a school only receives a grade
                     if it has both the absolute and target components."),
                 hidden(div(id = "done_heatmap",
                     br(),

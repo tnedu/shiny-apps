@@ -6,7 +6,7 @@ function(input, output, session) {
     # Global vectors with dropdown options
     subgroups <- c("All Students", "Black/Hispanic/Native American", "Economically Disadvantaged",
         "Students with Disabilities", "English Learners", "Super Subgroup")
-    quintile_options <- c("N/A", "19.9% or Less", "20% to 39.9%", "40% to 59.9%", "60% to 79.9%", "80% or More")
+    quintile_options <- c("N/A", "19.9% or Less", "20 to 39.9%", "40 to 59.9%", "60 to 79.9%", "80% or More")
     amo_options <- c("N/A", "Regress", "Progress but do not Meet Target",
         "Meet Target with Confidence Interval", "Meet Target", "Meet Double Target")
 
@@ -17,7 +17,7 @@ function(input, output, session) {
     })
 
     observeEvent(c(input$success_3yr, input$tvaas_lag), {
-        if (input$success_3yr %in% c("Less than 20%", "Between 20% and 35%")) {
+        if (input$success_3yr %in% c("Less than 20%", "Between 20 and 35%")) {
             show("tvaas_lag", anim = TRUE)
 
             if (input$tvaas_lag == "") {
@@ -137,8 +137,9 @@ function(input, output, session) {
     # Inputs for success rate, TVAAS, subgroup growth
     output$achievement_table <- renderRHandsontable({
 
-        success_pctile <- factor(c("40% to 59.9%", rep("N/A", 5)),
-            levels = quintile_options, ordered = TRUE)
+        ## Values are just a placeholder for now until cutoffs are decided
+        success_rate <- factor(c("30 to 39.9%", rep("N/A", 5)),
+            levels = c("N/A", "0 to 19.9%", "20 to 29.9%", "30 to 39.9%", "40 to 49.9%", "50% or Greater"), ordered = TRUE)
 
         success_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
             levels = amo_options, ordered = TRUE)
@@ -146,45 +147,51 @@ function(input, output, session) {
         TVAAS <- factor(c("Level 3", rep("N/A", 5)), ordered = TRUE,
             levels = c("N/A", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5"))
 
-        subgroup_growth <- factor(c("N/A", "40% to 59.9%", rep("N/A", 4)),
+        subgroup_growth <- factor(c("N/A", "40 to 59.9%", rep("N/A", 4)),
             levels = quintile_options, ordered = TRUE)
 
-        data.frame(success_pctile, success_target, TVAAS, subgroup_growth) %>%
+        data.frame(success_rate, success_target, TVAAS, subgroup_growth) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("Success Rate Percentile", "Success Rate Target", "TVAAS", "Subgroup Growth Percentile")) %>%
+                colHeaders = c("Success Rate", "Success Rate Target", "TVAAS", "Subgroup Growth Percentile")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("Success Rate Percentile", "Success Rate Target", "TVAAS", "Subgroup Growth Percentile"), type = "dropdown")
+            hot_col(c("Success Rate", "Success Rate Target", "TVAAS", "Subgroup Growth Percentile"), type = "dropdown")
 
     })
 
     # Inputs for ACT and grad
     output$readiness_table <- renderRHandsontable({
 
-        readiness_abs <- factor(c("28.1% to 35%", rep("N/A", 5)), ordered = TRUE,
-            levels = c("N/A", "16% or Less", "16.1% to 28%", "28.1% to 35%", "35.1% to 49.9%", "50% or Greater"))
+        grad_abs <- factor(c("80 to 89.9%", rep("N/A", 5)), ordered = TRUE,
+            levels = c("N/A", "66.9% or Less", "67 to 79.9%", "80 to 89.9%", "90 to 94.9%", "95% or Greater"))
+
+        grad_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
+            levels = amo_options, ordered = TRUE)
+
+        readiness_abs <- factor(c("30 to 39.9%", rep("N/A", 5)), ordered = TRUE,
+            levels = c("N/A", "25% or Less", "25.1 to 29.9%", "30 to 39.9%", "40 to 49.9%", "50% or Greater"))
 
         readiness_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
             levels = amo_options, ordered = TRUE)
 
-        data.frame(readiness_abs, readiness_target) %>%
+        data.frame(grad_abs, grad_target, readiness_abs, readiness_target) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("Readiness", "Readiness Target")) %>%
+                colHeaders = c("Graduation Rate", "Graduation Rate Target", "Readiness", "Readiness Target")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
             hot_cols(colWidths = c(150, 300)) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("Readiness", "Readiness Target"), type = "dropdown")
+            hot_col(c("Graduation Rate", "Graduation Rate Target", "Readiness", "Readiness Target"), type = "dropdown")
 
     })
 
     # Inputs for ELPA
     output$elpa_table <- renderRHandsontable({
 
-        elpa_exit <- factor(c("12% to 23.9%", "N/A", "N/A", "N/A", "12% to 23.9%", "N/A"), ordered = TRUE,
-            levels = c("N/A", "5.9% or Less", "6% to 11.9%", "12% to 23.9%", "24% to 35.9%", "36% or Greater"))
+        elpa_exit <- factor(c("12 to 23.9%", "N/A", "N/A", "N/A", "12 to 23.9%", "N/A"), ordered = TRUE,
+            levels = c("N/A", "5.9% or Less", "6 to 11.9%", "12 to 23.9%", "24 to 35.9%", "36% or Greater"))
 
-        elpa_growth <- factor(c("45% to 59.9%", "N/A", "N/A", "N/A", "45% to 59.9%", "N/A"), ordered = TRUE,
-            levels = c("N/A", "29.9% or Less", "30% to 44.9%", "45% to 59.9%", "60% to 69.9%", "70% or Greater"))
+        elpa_growth <- factor(c("45 to 59.9%", "N/A", "N/A", "N/A", "45 to 59.9%", "N/A"), ordered = TRUE,
+            levels = c("N/A", "29.9% or Less", "30 to 44.9%", "45 to 59.9%", "60 to 69.9%", "70% or Greater"))
 
         data.frame(elpa_exit, elpa_growth) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
@@ -199,8 +206,8 @@ function(input, output, session) {
     # Inputs for absenteeism
     output$absenteeism_table <- renderRHandsontable({
 
-        absenteeism_abs <- factor(c("12.1% to 17%", rep("N/A", 5)), ordered = TRUE,
-            levels = c("N/A", "Greater than 24%", "17.1% to 24%", "12.1% to 17%", "8.1% to 12%", "8% or Less"))
+        absenteeism_abs <- factor(c("12.1 to 17%", rep("N/A", 5)), ordered = TRUE,
+            levels = c("N/A", "Greater than 24%", "17.1 to 24%", "12.1 to 17%", "8.1 to 12%", "8% or Less"))
 
         absenteeism_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
             levels = amo_options, ordered = TRUE)
@@ -226,6 +233,8 @@ function(input, output, session) {
     readiness <- reactive(
         if (is.null(input$readiness_table) || input$readiness_eligible == "No") {
             data_frame(Subgroup = subgroups,
+                grad_abs = factor(rep(NA, 6)),
+                grad_target = factor(rep(NA, 6)),
                 readiness_abs = factor(rep(NA, 6)),
                 readiness_target = factor(rep(NA, 6)))
         } else {
@@ -263,13 +272,14 @@ function(input, output, session) {
             inner_join(readiness(), by = "Subgroup") %>%
             inner_join(elpa(), by = "Subgroup") %>%
             inner_join(absenteeism(), by = "Subgroup") %>%
-            mutate_at(c("success_pctile", "success_target", "TVAAS", "subgroup_growth",
-                "readiness_abs", "readiness_target", "elpa_exit", "elpa_growth",
-                "absenteeism_abs", "absenteeism_target"),
+            mutate_at(c("success_rate", "success_target", "TVAAS", "subgroup_growth",
+                "grad_abs", "grad_target", "readiness_abs", "readiness_target",
+                "elpa_exit", "elpa_growth", "absenteeism_abs", "absenteeism_target"),
                 funs(if_else(as.numeric(.) == 1, NA_real_, as.numeric(.) - 2))) %>%
         # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and target grades
-            mutate(grade_achievement = pmax(success_pctile, success_target),
+            mutate(grade_achievement = pmax(success_rate, success_target),
                 grade_growth = if_else(Subgroup == "All Students", TVAAS, subgroup_growth),
+                grade_grad = pmax(grad_abs, grad_target),
                 grade_readiness = pmax(readiness_abs, readiness_target),
                 grade_elpa = pmax(elpa_exit, elpa_growth),
                 grade_absenteeism = pmax(absenteeism_abs, absenteeism_target))
@@ -278,7 +288,8 @@ function(input, output, session) {
             weights <- grades %>%
                 mutate(weight_achievement = if_else(!is.na(grade_achievement), 0.3, NA_real_),
                     weight_growth = if_else(!is.na(grade_growth), 0.25, NA_real_),
-                    weight_readiness = if_else(!is.na(grade_readiness), 0.25, NA_real_),
+                    weight_grad = if_else(!is.na(grade_grad), 0.05, NA_real_),
+                    weight_readiness = if_else(!is.na(grade_readiness), 0.2, NA_real_),
                     weight_opportunity = if_else(!is.na(grade_absenteeism), 0.1, NA_real_),
                     weight_elpa = if_else(!is.na(grade_elpa), 0.1, NA_real_),
                 # If no ELPA, adjust achievement and growth weights accordingly
@@ -288,6 +299,7 @@ function(input, output, session) {
             weights <- grades %>%
                 mutate(weight_achievement = if_else(!is.na(grade_achievement), 0.45, NA_real_),
                     weight_growth = if_else(!is.na(grade_growth), 0.35, NA_real_),
+                    weight_grad = NA_real_,
                     weight_readiness = NA_real_,
                     weight_opportunity = if_else(!is.na(grade_absenteeism), 0.1, NA_real_),
                     weight_elpa = if_else(!is.na(grade_elpa), 0.1, NA_real_),
@@ -298,23 +310,26 @@ function(input, output, session) {
 
         weights %>%
             rowwise() %>%
-            mutate(total_weight = sum(weight_achievement, weight_growth, weight_readiness, weight_opportunity, weight_elpa, na.rm = TRUE),
-                subgroup_average = sum(weight_achievement * grade_achievement,
+            mutate(total_weight = sum(weight_achievement, weight_growth, weight_grad, weight_readiness, weight_opportunity, weight_elpa, na.rm = TRUE),
+                subgroup_average = round(sum(weight_achievement * grade_achievement,
                     weight_growth * grade_growth,
                     weight_opportunity * grade_absenteeism,
+                    weight_grad * grade_grad,
                     weight_readiness * grade_readiness,
-                    weight_elpa * grade_elpa, na.rm = TRUE)/total_weight) %>%
+                    weight_elpa * grade_elpa, na.rm = TRUE)/total_weight), 2) %>%
             ungroup()
 
     })
 
     output$heatmap <- renderTable(
         heat_map() %>%
-            mutate_at(c("grade_achievement", "grade_growth", "grade_readiness", "grade_absenteeism", "grade_elpa"), as.numeric) %>%
-            mutate_at(c("grade_achievement", "grade_growth", "grade_readiness", "grade_absenteeism", "grade_elpa"),
+            mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_readiness", "grade_absenteeism", "grade_elpa"), as.numeric) %>%
+            mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_readiness", "grade_absenteeism", "grade_elpa"),
                 funs(recode(.,  "4" = "A", "3" = "B", "2" = "C", "1" = "D", "0" = "F"))) %>%
-            transmute(Subgroup, `Achievement Grade` = grade_achievement,
+            transmute(Subgroup,
+                `Achievement Grade` = grade_achievement,
                 `Growth Grade` = grade_growth,
+                `Graduation Rate Grade` = grade_grad,
                 `Readiness Grade` = grade_readiness,
                 `ELPA Grade` = grade_elpa,
                 `Absenteeism Grade` = grade_absenteeism)
@@ -334,15 +349,15 @@ function(input, output, session) {
             filter(!(Subgroup == "Super Subgroup" & subgroups_count > 1)) %>%
             mutate(subgroup_average_weighted = total_weight * subgroup_average) %>%
             summarise_at(c("total_weight", "subgroup_average_weighted"), sum, na.rm = TRUE) %>%
-            transmute(gap_average = subgroup_average_weighted/total_weight) %>%
+            transmute(gap_average = round(subgroup_average_weighted/total_weight, 2)) %>%
             magrittr::extract2("gap_average")
 
         if (!is.na(ach_average) & !is.na(gap_average)) {
-            final_average <- 0.6 * ach_average + 0.4 * gap_average
+            final_average <- round(0.6 * ach_average + 0.4 * gap_average, 2)
         } else if (!is.na(ach_average) & is.na(gap_average)) {
-            final_average <- ach_average
+            final_average <- round(ach_average, 2)
         } else if (is.na(ach_average) & !is.na(gap_average)) {
-            final_average <- gap_average
+            final_average <- round(gap_average, 2)
         }
 
         if (is.na(ach_average)) {
@@ -386,7 +401,7 @@ function(input, output, session) {
         }
 
         tibble::tribble(~` `, ~Achievement, ~Subgroup, ~Final,
-            "Average", round(ach_average, 2), round(gap_average, 2), round(final_average, 2),
+            "Average", ach_average, gap_average, final_average,
             "Grade", ach_grade, gap_grade, final_grade
         )
 
