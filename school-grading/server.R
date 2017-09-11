@@ -178,7 +178,6 @@ function(input, output, session) {
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
                 colHeaders = c("Graduation Rate", "Graduation Rate Target", "Readiness", "Readiness Target")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
-            hot_cols(colWidths = c(150, 300)) %>%
             hot_rows(rowHeights = 40) %>%
             hot_col(c("Graduation Rate", "Graduation Rate Target", "Readiness", "Readiness Target"), type = "dropdown")
 
@@ -197,7 +196,7 @@ function(input, output, session) {
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
                 colHeaders = c("ELPA Exit", "ELPA Met Growth Standard")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
-            hot_cols(colWidths = c(150, 150)) %>%
+            hot_cols(colWidths = c(200, 200)) %>%
             hot_rows(rowHeights = 40) %>%
             hot_col(c("ELPA Exit", "ELPA Met Growth Standard"), type = "dropdown")
 
