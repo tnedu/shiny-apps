@@ -67,27 +67,44 @@ fluidPage(theme = "doe-style.css",
                 )
             )),
 
+            # Grad
+            hidden(div(id = "grad",
+                hr(),
+                h4("About your school's Graduation Rate"),
+                br(),
+                selectInput("grad_eligible", label = "Does your school have a graduating
+                    cohort of 30 or more students?", choices = c("", "Yes", "No")),
+                br(),
+                hidden(div(id = "grad_table_container",
+                    p(strong("Graduation Rate"), "is the percent of students in the graduating
+                        cohort who graduate in no more than four years plus a summer."),
+                    br(),
+                    strong(p("Answer the following about your school's graduation rate.")),
+                    rHandsontableOutput("grad_table")
+                )),
+                hidden(actionButton("skip_grad", label = "Proceed")),
+                br(),
+                hidden(div(id = "done_grad",
+                    p("When you are done, click the button below."),
+                    actionButton("button_grad", label = "Done")
+                ))
+            )),
+
             # Readiness
             hidden(div(id = "readiness",
                 hr(),
-                h4("About your school's ACT and Graduation"),
+                h4("About your school's Ready Graduates"),
                 br(),
-                selectInput("readiness_eligible", label = "Does your school have a graduating
-                    cohort of 30 or more students?", choices = c("", "Yes", "No")),
+                p(strong("Readiness"), "refers to the percentage of graduates who earned
+                    an ACT Composite score of 21 or higher."),
                 br(),
-                hidden(div(id = "readiness_table_container",
-                    p(strong("Readiness"), "refers to the percentage of graduates who earned
-                        an ACT Composite score of 21 or higher."),
-                    br(),
-                    strong(p("Answer the following about your school's readiness.")),
-                    rHandsontableOutput("readiness_table")
-                )),
-                hidden(actionButton("skip_readiness", label = "Proceed")),
+                strong(p("Answer the following about your school's readiness.")),
+                rHandsontableOutput("readiness_table"),
                 br(),
-                hidden(div(id = "done_readiness",
+                div(id = "done_readiness",
                     p("When you are done, click the button below."),
                     actionButton("button_readiness", label = "Done")
-                ))
+                )
             )),
 
             # English Language Proficiency
@@ -149,12 +166,12 @@ fluidPage(theme = "doe-style.css",
                     strong("Graduation Rate"), "and", strong("Graduation Rate Target"), "grades."),
                 p("Your school's", strong("Readiness Grade"), "is the better of its",
                     strong("Readiness"), "and", strong("Readiness Target"), "grades."),
-                p("Your school's", strong("ELPA Grade"), "is the better of its",
-                    strong("ELPA Exit"), "and", strong("ELPA Growth Standard"), "grades."),
+                p("Your school's", strong("ELPA Grade"), "is determined by its",
+                    strong("ELPA Growth Standard"), "grade."),
                 p("Your school's", strong("Absenteeism Grade"), "is the better of its",
                     strong("Absenteeism"), "and", strong("Absenteeism Reduction Target"), "grades."),
                 br(),
-                p("For Achievement, Graduation, Readiness, ELPA, and Absenteeism, a school only
+                p("For Achievement, Graduation Rate, Readiness, and Absenteeism, a school only
                     receives a grade if it has both the absolute and target components."),
                 hidden(div(id = "done_heatmap",
                     br(),

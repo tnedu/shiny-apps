@@ -35,35 +35,40 @@ function(input, output, session) {
     })
 
     observeEvent(input$button_achievement, once = TRUE, {
-        show("readiness", anim = TRUE)
+        show("grad", anim = TRUE)
         hide("done_ach", anim = TRUE)
     })
 
-    observeEvent(input$readiness_eligible, {
-        if (input$readiness_eligible == "Yes") {
-            show("readiness_table_container", anim = TRUE)
-            show("done_readiness", anim = TRUE)
-            hide("skip_readiness", anim = TRUE)
-        } else if (input$readiness_eligible == "No") {
-            hide("readiness_table_container", anim = TRUE)
-            hide("done_readiness", anim = TRUE)
-            show("skip_readiness", anim = TRUE)
+    observeEvent(input$grad_eligible, {
+        if (input$grad_eligible == "Yes") {
+            show("grad_table_container", anim = TRUE)
+            show("done_grad", anim = TRUE)
+            hide("skip_grad", anim = TRUE)
+        } else if (input$grad_eligible == "No") {
+            hide("grad_table_container", anim = TRUE)
+            hide("done_grad", anim = TRUE)
+            show("skip_grad", anim = TRUE)
         } else {
-            hide("readiness_table_container", anim = TRUE)
-            hide("done_readiness", anim = TRUE)
-            hide("skip_readiness", anim = TRUE)
+            hide("grad_table_container", anim = TRUE)
+            hide("done_grad", anim = TRUE)
+            hide("skip_grad", anim = TRUE)
         }
+    })
+
+    observeEvent(input$skip_grad, once = TRUE, {
+        show("elpa", anim = TRUE)
+        hide("grad", anim = TRUE)
+    })
+
+    observeEvent(input$button_grad, once = TRUE, {
+        show("readiness", anim = TRUE)
+        hide("grad_eligible", anim = TRUE)
+        hide("done_grad", anim = TRUE)
     })
 
     observeEvent(input$button_readiness, once = TRUE, {
         show("elpa", anim = TRUE)
-        hide("readiness_eligible", anim = TRUE)
         hide("done_readiness", anim = TRUE)
-    })
-
-    observeEvent(input$skip_readiness, once = TRUE, {
-        show("elpa", anim = TRUE)
-        hide("readiness", anim = TRUE)
     })
 
     observeEvent(input$elpa_eligible, {
@@ -174,13 +179,13 @@ function(input, output, session) {
     # Inputs for graduation rate
     output$grad_table <- renderRHandsontable({
 
-        grad_abs <- factor(c("80% to less than 90% of students in graduating cohort graduate on-time", rep("N/A", 5)),
+        grad_abs <- factor(c("Graduation Rate is greater than or equal to 80% but less than 90%", rep("N/A", 5)),
             levels = c("N/A",
-                "Less than 67% of students in graduating cohort graduate on time",
-                "67% to less than 80% of students in graduating cohort graduate on time",
-                "80% to less than 90% of students in graduating cohort graduate on time",
-                "90% to less than 95% of students in graduating cohort graduate on time",
-                "95% or more of students in graduating cohort graduate on time"), ordered = TRUE)
+                "Graduation Rate is less than 67%",
+                "Graduation Rate is greater than or equal to 67% but less than 80%",
+                "Graduation Rate is greater than or equal to 80% but less than 90%",
+                "Graduation Rate is greater than or equal to 90% but less than 95%",
+                "Graduation Rate is 95% or greater"), ordered = TRUE)
 
         grad_target <- factor(c("Upper bound of Graduation Rate confidence interval equals or exceeds AMO target", rep("N/A", 5)),
             levels = c("N/A",
@@ -265,13 +270,22 @@ function(input, output, session) {
     # Inputs for absenteeism
     output$absenteeism_table <- renderRHandsontable({
 
-        absenteeism_abs <- factor(c("Percent of chronically absent students is greater than 9 percent and less than or equal to 13 percent", rep("N/A", 5)),
-            levels = c("N/A",
-                "Percent of chronically absent students is greater than 20 percent",
-                "Percent of chronically absent students is greater than 13 percent and less than or equal to 20 percent",
-                "Percent of chronically absent students is greater than 9 percent and less than or equal to 13 percent",
-                "Percent of chronically absent students is greater than 6 percent and less than or equal to 9 percent",
-                "Percent of chronically absent students is less than or equal to 6 percent"), ordered = TRUE)
+        absenteeism_abs <- switch(input$grad_eligible,
+            "Yes" = factor(c("Percent of chronically absent students is greater than 14 percent and less than or equal to 20 percent", rep("N/A", 5)),
+                levels = c("N/A",
+                    "Percent of chronically absent students is greater than 30 percent",
+                    "Percent of chronically absent students is greater than 20 percent and less than or equal to 30 percent",
+                    "Percent of chronically absent students is greater than 14 percent and less than or equal to 20 percent",
+                    "Percent of chronically absent students is greater than 10 percent and less than or equal to 14 percent",
+                    "Percent of chronically absent students is less than or equal to 10 percent"), ordered = TRUE),
+            "No" = factor(c("Percent of chronically absent students is greater than 9 percent and less than or equal to 13 percent", rep("N/A", 5)),
+                levels = c("N/A",
+                    "Percent of chronically absent students is greater than 20 percent",
+                    "Percent of chronically absent students is greater than 13 percent and less than or equal to 20 percent",
+                    "Percent of chronically absent students is greater than 9 percent and less than or equal to 13 percent",
+                    "Percent of chronically absent students is greater than 6 percent and less than or equal to 9 percent",
+                    "Percent of chronically absent students is less than or equal to 6 percent"), ordered = TRUE)
+        )
 
         absenteeism_target <- factor(c("Lower bound of Chronic Absence rate confidence interval is less than or equal to AMO target", rep("N/A", 5)),
             levels = c("N/A",
@@ -299,8 +313,21 @@ function(input, output, session) {
             mutate(Subgroup = subgroups)
     )
 
+    grad <- reactive(
+        if (is.null(input$grad_table) || input$grad_eligible == "No") {
+            data_frame(Subgroup = subgroups,
+                grad_abs = factor(rep(NA, 6)),
+                grad_target = factor(rep(NA, 6)))
+        } else {
+            input$grad_table %>%
+                hot_to_r() %>%
+                as_data_frame() %>%
+                mutate(Subgroup = subgroups)
+        }
+    )
+
     readiness <- reactive(
-        if (is.null(input$readiness_table) || input$readiness_eligible == "No") {
+        if (is.null(input$readiness_table) || input$grad_eligible == "No") {
             data_frame(Subgroup = subgroups,
                 readiness_abs = factor(rep(NA, 6)),
                 readiness_target = factor(rep(NA, 6)))
@@ -335,7 +362,7 @@ function(input, output, session) {
     heat_map <- reactive({
 
         grades <- ach() %>%
-            # inner_join(grad(), by = "Subgroup") %>%
+            inner_join(grad(), by = "Subgroup") %>%
             inner_join(readiness(), by = "Subgroup") %>%
             inner_join(elpa(), by = "Subgroup") %>%
             inner_join(absenteeism(), by = "Subgroup") %>%
@@ -351,7 +378,7 @@ function(input, output, session) {
                 grade_elpa = elpa_growth,
                 grade_absenteeism = pmax(absenteeism_abs, absenteeism_target))
 
-        if (input$readiness_eligible == "Yes") {
+        if (input$grad_eligible == "Yes") {
             weights <- grades %>%
                 mutate(weight_achievement = if_else(!is.na(grade_achievement), 0.3, NA_real_),
                     weight_growth = if_else(!is.na(grade_growth), 0.25, NA_real_),
@@ -362,7 +389,7 @@ function(input, output, session) {
                 # If no ELPA, adjust achievement and growth weights accordingly
                     weight_achievement = if_else(is.na(grade_elpa) & !is.na(grade_achievement), 0.35, weight_achievement),
                     weight_growth = if_else(is.na(grade_elpa) & !is.na(grade_growth), 0.3, weight_growth))
-        } else if (input$readiness_eligible == "No") {
+        } else if (input$grad_eligible == "No") {
             weights <- grades %>%
                 mutate(weight_achievement = if_else(!is.na(grade_achievement), 0.45, NA_real_),
                     weight_growth = if_else(!is.na(grade_growth), 0.35, NA_real_),
