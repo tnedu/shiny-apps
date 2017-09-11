@@ -27,9 +27,9 @@ fluidPage(theme = "doe-style.css",
             # Priority (F) Schools
             hidden(div(id = "minimum_performance",
                 hr(),
-                h4("A success rate is the percentage of students on track or mastered
-                    in math, English Language Arts, and science, aggregated across
-                    subjects with at least 30 tests."),
+                h4("A success rate is the percentage of students on track or mastered in
+                    math, English Language Arts, and science, aggregated across subjects
+                    with at least 30 tests."),
                 p("For high schools, this also includes students who earn an ACT Composite
                     score of 21 or higher."),
                 br(),
@@ -54,9 +54,6 @@ fluidPage(theme = "doe-style.css",
                     aggregated across subjects with at least 30 tests."),
                 p(strong("Subgroup growth"), "refers to the percentage of students who
                     improved their performance level compared to the prior year."),
-                p("A school's achievement score reflects", strong("the better of"),
-                    "their success rates relative to the state of relative to their
-                    AMO targets for both all students and subgroups."),
                 br(),
                 strong(p("Answer the following about your school's achievement and growth.")),
                 rHandsontableOutput("achievement_table"),
@@ -141,6 +138,8 @@ fluidPage(theme = "doe-style.css",
                 br(),
                 p(strong("Chronic absenteeism"), "refers to students who are absent for 10%
                     or more of a school year (18 days in a 180 day school year)."),
+                p("Chronic absenteeism calculations include only students who are enrolled
+                    for at least 50 percent of the school year."),
                 br(),
                 strong(p("Answer the following about your school's absenteeism.")),
                 rHandsontableOutput("absenteeism_table"),

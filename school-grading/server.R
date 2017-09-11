@@ -219,7 +219,7 @@ function(input, output, session) {
         readiness_target <- factor(c("Upper bound of Ready Graduates confidence interval equals or exceeds AMO target", rep("N/A", 5)),
             levels = c("N/A",
                 "Upper bound of Ready Graduates confidence interval is less than or equal to prior year Ready Graduates",
-                "Upper bound of Ready Graduates confidence interval exceeds prior Ready Graduates",
+                "Upper bound of Ready Graduates confidence interval exceeds prior year Ready Graduates",
                 "Upper bound of Ready Graduates confidence interval equals or exceeds AMO target",
                 "Ready Graduates exceeds AMO target",
                 "Ready Graduates exceeds double AMO target"), ordered = TRUE)
@@ -271,29 +271,29 @@ function(input, output, session) {
     output$absenteeism_table <- renderRHandsontable({
 
         absenteeism_abs <- switch(input$grad_eligible,
-            "Yes" = factor(c("Percent of chronically absent students is greater than 14 percent and less than or equal to 20 percent", rep("N/A", 5)),
+            "Yes" = factor(c("Chronic Absenteeism is greater than 14% and less than or equal to 20%", rep("N/A", 5)),
                 levels = c("N/A",
-                    "Percent of chronically absent students is greater than 30 percent",
-                    "Percent of chronically absent students is greater than 20 percent and less than or equal to 30 percent",
-                    "Percent of chronically absent students is greater than 14 percent and less than or equal to 20 percent",
-                    "Percent of chronically absent students is greater than 10 percent and less than or equal to 14 percent",
-                    "Percent of chronically absent students is less than or equal to 10 percent"), ordered = TRUE),
-            "No" = factor(c("Percent of chronically absent students is greater than 9 percent and less than or equal to 13 percent", rep("N/A", 5)),
+                    "Chronic Absenteeism is greater than 30%",
+                    "Chronic Absenteeism is greater than 20% and less than or equal to 30%",
+                    "Chronic Absenteeism is greater than 14% and less than or equal to 20%",
+                    "Chronic Absenteeism is greater than 10% and less than or equal to 14%",
+                    "Chronic Absenteeism is less than or equal to 10%"), ordered = TRUE),
+            "No" = factor(c("Chronic Absenteeism is greater than 9% and less than or equal to 13%", rep("N/A", 5)),
                 levels = c("N/A",
-                    "Percent of chronically absent students is greater than 20 percent",
-                    "Percent of chronically absent students is greater than 13 percent and less than or equal to 20 percent",
-                    "Percent of chronically absent students is greater than 9 percent and less than or equal to 13 percent",
-                    "Percent of chronically absent students is greater than 6 percent and less than or equal to 9 percent",
-                    "Percent of chronically absent students is less than or equal to 6 percent"), ordered = TRUE)
+                    "Chronic Absenteeism is greater than 20%",
+                    "Chronic Absenteeism is greater than 13% and less than or equal to 20%",
+                    "Chronic Absenteeism is greater than 9% and less than or equal to 13%",
+                    "Chronic Absenteeism is greater than 6% and less than or equal to 9%",
+                    "Chronic Absenteeism is less than or equal to 6%"), ordered = TRUE)
         )
 
-        absenteeism_target <- factor(c("Lower bound of Chronic Absence rate confidence interval is less than or equal to AMO target", rep("N/A", 5)),
+        absenteeism_target <- factor(c("Lower bound of Chronic Absenteeism confidence interval is less than or equal to AMO target", rep("N/A", 5)),
             levels = c("N/A",
-                "Lower bound of Chronic Absence rate confidence interval equals or exceeds prior year Chronic Absence rate",
-                "Lower bound of Chronic Absence rate confidence interval is less than prior Chronic Absence rate",
-                "Lower bound of Chronic Absence rate confidence interval is less than or equal to AMO target",
-                "Chronic Absence rate is less than AMO target",
-                "Chronic Absence rate is less than or equal to double AMO target"), ordered = TRUE)
+                "Lower bound of Chronic Absenteeism confidence interval equals or exceeds prior year Chronic Absenteeism",
+                "Lower bound of Chronic Absenteeism confidence interval is less than prior year Chronic Absenteeism",
+                "Lower bound of Chronic Absenteeism confidence interval is less than or equal to AMO target",
+                "Chronic Absenteeism is less than AMO target",
+                "Chronic Absenteeism is less than or equal to double AMO target"), ordered = TRUE)
 
         data.frame(absenteeism_abs, absenteeism_target) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
