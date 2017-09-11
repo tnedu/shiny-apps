@@ -190,6 +190,8 @@ fluidPage(theme = "doe-style.css",
                 br(),
                 tableOutput("final_grades"),
                 br(),
+                textOutput("focus_warning"),
+                br(),
                 p("Adjust any inputs to see how your school's grade is affected.")
             )),
 

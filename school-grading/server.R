@@ -423,7 +423,7 @@ function(input, output, session) {
                     weight_opportunity * grade_absenteeism,
                     weight_grad * grade_grad,
                     weight_readiness * grade_readiness,
-                    weight_elpa * grade_elpa, na.rm = TRUE)/total_weight), 2) %>%
+                    weight_elpa * grade_elpa, na.rm = TRUE)/total_weight, 2)) %>%
             ungroup()
 
     })
@@ -441,6 +441,24 @@ function(input, output, session) {
                 `ELPA Grade` = grade_elpa,
                 `Absenteeism Grade` = grade_absenteeism)
     )
+
+    output$focus_warning <- renderText({
+
+        foo <- heat_map() %>%
+            filter(Subgroup %in% c("Black/Hispanic/Native American", "Economically Disadvantaged",
+                "Students with Disabilities", "English Learners"),
+                subgroup_average < 1)
+
+        if (nrow(foo) == 0) {
+            return()
+        } else if (nrow(foo) == 1) {
+            paste("In Addition, your school is at risk of being named a Focus School
+                for the following subgroups:", c(foo$Subgroup))
+        } else {
+            paste("In Addition, your school is at risk of being named a Focus School
+                for the following subgroups:", paste(foo$Subgroup, collapse = ", "))
+        }
+    })
 
     output$final_grades <- renderTable(width = '100%', {
 
