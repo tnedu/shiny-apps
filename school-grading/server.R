@@ -121,7 +121,7 @@ function(input, output, session) {
                     <p>To avoid being named a Comprehensive Support School, your school must
                     perform <b>above the bottom 5 percent of schools based on a three year
                     success rate</b> OR <b>earn a TVAAS Composite Level 4 or 5</b> in 2018.</p>"),
-            "Between 20% and 35%" = switch(input$tvaas_lag,
+            "Between 20 and 35%" = switch(input$tvaas_lag,
                 "No" = "<p>Your school is <b>on the cusp of eligibility for Comprehensive Support</b>.</p>
                     <p>To avoid being named a Comprehensive Support school, your school must
                     perform <b>above the bottom 5 percent of schools based on a three year
@@ -352,53 +352,37 @@ function(input, output, session) {
             transmute(gap_average = round(subgroup_average_weighted/total_weight, 2)) %>%
             magrittr::extract2("gap_average")
 
-        if (!is.na(ach_average) & !is.na(gap_average)) {
-            final_average <- round(0.6 * ach_average + 0.4 * gap_average, 2)
-        } else if (!is.na(ach_average) & is.na(gap_average)) {
-            final_average <- round(ach_average, 2)
-        } else if (is.na(ach_average) & !is.na(gap_average)) {
-            final_average <- round(gap_average, 2)
-        }
+        final_average <- case_when(
+            !is.na(ach_average) & !is.na(gap_average) ~ round(0.6 * ach_average + 0.4 * gap_average, 2),
+            !is.na(ach_average) & is.na(gap_average) ~ round(ach_average, 2),
+            is.na(ach_average) & !is.na(gap_average) ~ round(gap_average, 2)
+        )
 
-        if (is.na(ach_average)) {
-            ach_grade <- NA
-        } else if (ach_average == 0) {
-            ach_grade <- "F"
-        } else if (ach_average <= 1) {
-            ach_grade <- "D"
-        } else if (ach_average <= 2) {
-            ach_grade <- "C"
-        } else if (ach_average <= 3) {
-            ach_grade <- "B"
-        } else if (ach_average > 3) {
-            ach_grade <- "A"
-        }
+        ach_grade <- case_when(
+            is.na(ach_average) ~ NA_character_,
+            ach_average > 3 ~ "A",
+            ach_average > 2 ~ "B",
+            ach_average > 1 ~ "C",
+            ach_average > 0 ~ "D",
+            ach_average == 0 ~ "F"
+        )
 
-        if (is.na(gap_average)) {
-            gap_grade <- NA
-        } else if (gap_average == 0) {
-            gap_grade <- "F"
-        } else if (gap_average <= 1) {
-            gap_grade <- "D"
-        } else if (gap_average <= 2) {
-            gap_grade <- "C"
-        } else if (gap_average <= 3) {
-            gap_grade <- "B"
-        } else if (gap_average > 3) {
-            gap_grade <- "A"
-        }
+        gap_grade <- case_when(
+            is.na(gap_average) ~ NA_character_,
+            gap_average > 3 ~ "A",
+            gap_average > 2 ~ "B",
+            gap_average > 1 ~ "C",
+            gap_average > 0 ~ "D",
+            gap_average == 0 ~ "F"
+        )
 
-        if (is.na(final_average)) {
-            final_grade <- NA
-        } else if (final_average <= 1) {
-            final_grade <- "D"
-        } else if (final_average <= 2) {
-            final_grade <- "C"
-        } else if (final_average <= 3) {
-            final_grade <- "B"
-        } else if (final_average > 3) {
-            final_grade <- "A"
-        }
+        final_grade <- case_when(
+            is.na(final_average) ~ NA_character_,
+            final_average > 3 ~ "A",
+            final_average > 2 ~ "B",
+            final_average > 1 ~ "C",
+            final_average > 0 ~ "D"
+        )
 
         tibble::tribble(~` `, ~Achievement, ~Subgroup, ~Final,
             "Average", ach_average, gap_average, final_average,
