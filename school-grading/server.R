@@ -14,7 +14,7 @@ function(input, output, session) {
     })
 
     observeEvent(c(input$success_3yr, input$tvaas_lag), {
-        if (input$success_3yr %in% c("Less than 20%", "Between 20 and 35%")) {
+        if (input$success_3yr %in% c("Less than 7%", "Between 7% and 11%")) {
             show("tvaas_lag", anim = TRUE)
 
             if (input$tvaas_lag == "") {
@@ -23,7 +23,7 @@ function(input, output, session) {
                 show("button_priority", anim = TRUE)
             }
 
-        } else if (input$success_3yr == "Above 35%") {
+        } else if (input$success_3yr == "Above 11%") {
             show("button_priority", anim = TRUE)
             hide("tvaas_lag", anim = TRUE)
         }
@@ -114,7 +114,7 @@ function(input, output, session) {
     # Observers/reactives to calculate grade
     output$priority_determination <- renderText(
         switch(input$success_3yr,
-            "Less than 20%" = switch(input$tvaas_lag,
+            "Less than 7%" = switch(input$tvaas_lag,
                 "No" = "<p>Your school is <b>at risk of being named a Priority (F) School</b>.</p>
                     <p>To avoid being named a Priority School, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
@@ -123,32 +123,34 @@ function(input, output, session) {
                     <p>To avoid being named a Priority School, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
                     OR <b>earn a TVAAS Composite Level 4 or 5</b> in 2018.</p>"),
-            "Between 20 and 35%" = switch(input$tvaas_lag,
-                "No" = "<p>Your school is <b>on the cusp of eligibility for Priority (F School) Status</b>.</p>
+            "Between 7% and 11%" = switch(input$tvaas_lag,
+                "No" = "<p>Your school is <b>on the cusp of being a Priority (F) School</b>.</p>
                     <p>To avoid being named a Priority school, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
                     in 2018.<p>",
-                "Yes" = "<p>Your school is <b>on the cusp of eligibility for Priority (F School) Status</b>.</p>
+                "Yes" = "<p>Your school is <b>on the cusp of being a Priority (F) School</b>.</p>
                     <p>To avoid being named a Priority school, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
                     OR <b>earn a Level 4 or 5 Composite TVAAS</b> in 2018.</p>"),
-            "Above 35%" = "<p>Your school is <b>unlikely to be named a Priority (F) School</b>.</p>"
+            "Above 11%" = "<p>Your school is <b>unlikely to be named a Priority (F) School</b>.</p>"
         )
     )
 
     # Inputs for success rate, TVAAS, subgroup growth
     output$achievement_table <- renderRHandsontable({
 
-        success_rate <- factor(c("One-year success rate is greater than or equal to 30% but less than 40%", rep("N/A", 5)),
-            levels = c("N/A",
+        success_rate <- factor(c("One-year success rate is greater than or equal to 30% but less than 40%",
+                rep("N/A - School does not serve 30 students in this subgroup", 5)),
+            levels = c("N/A - School does not serve 30 students in this subgroup",
                 "One-year success rate is less than 20%",
                 "One-year success rate is greater than or equal to 20% but less than 30%",
                 "One-year success rate is greater than or equal to 30% but less than 40%",
                 "One-year success rate is greater than or equal to 40% and less than 50%",
                 "One-year success rate is greater or equal to 50%"), ordered = TRUE)
 
-        success_target <- factor(c("Upper bound of one-year success rate confidence interval equals or exceeds AMO target", rep("N/A", 5)),
-            levels = c("N/A",
+        success_target <- factor(c("Upper bound of one-year success rate confidence interval equals or exceeds AMO target",
+                rep("N/A - School does not serve 30 students in this subgroup", 5)),
+            levels = c("N/A - School does not serve 30 students in this subgroup",
                 "Upper bound of one-year success rate confidence interval is less than or equal to prior one-year success rate",
                 "Upper bound of one-year success rate confidence interval exceeds prior one-year success rate",
                 "Upper bound of one-year success rate confidence interval equals or exceeds AMO target",
@@ -158,8 +160,10 @@ function(input, output, session) {
         TVAAS <- factor(c("Level 3", rep("N/A", 5)), ordered = TRUE,
             levels = c("N/A", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5"))
 
-        subgroup_growth <- factor(c("N/A", "Subgroup growth is better than that of 40 percent of schools", rep("N/A", 4)),
-            levels = c("N/A",
+        subgroup_growth <- factor(c("N/A - School does not serve 30 students in this subgroup",
+                "Subgroup growth is better than that of 40 percent of schools",
+                rep("N/A - School does not serve 30 students in this subgroup", 4)),
+            levels = c("N/A - School does not serve 30 students in this subgroup",
                 "Subgroup growth is in the bottom 20 percent of schools",
                 "Subgroup growth is better than that of 20 percent of schools",
                 "Subgroup growth is better than that of 40 percent of schools",
@@ -179,16 +183,18 @@ function(input, output, session) {
     # Inputs for graduation rate
     output$grad_table <- renderRHandsontable({
 
-        grad_abs <- factor(c("Graduation Rate is greater than or equal to 80% but less than 90%", rep("N/A", 5)),
-            levels = c("N/A",
+        grad_abs <- factor(c("Graduation Rate is greater than or equal to 80% but less than 90%",
+                rep("N/A - School does not serve 30 students in this subgroup", 5)),
+            levels = c("N/A - School does not serve 30 students in this subgroup",
                 "Graduation Rate is less than 67%",
                 "Graduation Rate is greater than or equal to 67% but less than 80%",
                 "Graduation Rate is greater than or equal to 80% but less than 90%",
                 "Graduation Rate is greater than or equal to 90% but less than 95%",
                 "Graduation Rate is 95% or greater"), ordered = TRUE)
 
-        grad_target <- factor(c("Upper bound of Graduation Rate confidence interval equals or exceeds AMO target", rep("N/A", 5)),
-            levels = c("N/A",
+        grad_target <- factor(c("Upper bound of Graduation Rate confidence interval equals or exceeds AMO target",
+                rep("N/A - School does not serve 30 students in this subgroup", 5)),
+            levels = c("N/A - School does not serve 30 students in this subgroup",
                 "Upper bound of Graduation Rate confidence interval is less than or equal to prior year Graduation Rate",
                 "Upper bound of Graduation Rate confidence interval exceeds prior Graduation Rate",
                 "Upper bound of Graduation Rate confidence interval equals or exceeds AMO target",
@@ -208,16 +214,18 @@ function(input, output, session) {
     # Inputs for ACT and grad
     output$readiness_table <- renderRHandsontable({
 
-        readiness_abs <- factor(c("30% to less than 40% of graduates score a 21+ on the ACT", rep("N/A", 5)),
-            levels = c("N/A",
+        readiness_abs <- factor(c("30% to less than 40% of graduates score a 21+ on the ACT",
+                rep("N/A - School does not serve 30 students in this subgroup", 5)),
+            levels = c("N/A - School does not serve 30 students in this subgroup",
                 "Less than 25% of graduates score a 21+ on the ACT",
                 "25% to less than 30% of graduates score a 21+ on the ACT",
                 "30% to less than 40% of graduates score a 21+ on the ACT",
                 "40% to less than 50% of graduates score a 21+ on the ACT",
                 "50% or more of graduates score a 21+ on the ACT"), ordered = TRUE)
 
-        readiness_target <- factor(c("Upper bound of Ready Graduates confidence interval equals or exceeds AMO target", rep("N/A", 5)),
-            levels = c("N/A",
+        readiness_target <- factor(c("Upper bound of Ready Graduates confidence interval equals or exceeds AMO target",
+                rep("N/A - School does not serve 30 students in this subgroup", 5)),
+            levels = c("N/A - School does not serve 30 students in this subgroup",
                 "Upper bound of Ready Graduates confidence interval is less than or equal to prior year Ready Graduates",
                 "Upper bound of Ready Graduates confidence interval exceeds prior year Ready Graduates",
                 "Upper bound of Ready Graduates confidence interval equals or exceeds AMO target",
@@ -249,9 +257,11 @@ function(input, output, session) {
     # Inputs for ELPA
     output$elpa_table <- renderRHandsontable({
 
-        elpa_growth <- factor(c("40% to less than 50% of students meet growth standards", "N/A", "N/A", "N/A",
-                "40% to less than 50% of students meet growth standards", "N/A"),
-            levels = c("N/A",
+        elpa_growth <- factor(c("40% to less than 50% of students meet growth standards",
+                rep("N/A - School does not serve 10 students in this subgroup", 3),
+                "40% to less than 50% of students meet growth standards",
+                "N/A - School does not serve 10 students in this subgroup"),
+            levels = c("N/A - School does not serve 10 students in this subgroup",
                 "Less than 25% of students meet growth standards",
                 "25% to less than 40% of students meet growth standards",
                 "40% to less than 50% of students meet growth standards",
@@ -271,15 +281,17 @@ function(input, output, session) {
     output$absenteeism_table <- renderRHandsontable({
 
         absenteeism_abs <- switch(input$grad_eligible,
-            "Yes" = factor(c("Chronic Absenteeism is greater than 14% and less than or equal to 20%", rep("N/A", 5)),
-                levels = c("N/A",
+            "Yes" = factor(c("Chronic Absenteeism is greater than 14% and less than or equal to 20%",
+                    rep("N/A - School does not serve 30 students in this subgroup", 5)),
+                levels = c("N/A - School does not serve 30 students in this subgroup",
                     "Chronic Absenteeism is greater than 30%",
                     "Chronic Absenteeism is greater than 20% and less than or equal to 30%",
                     "Chronic Absenteeism is greater than 14% and less than or equal to 20%",
                     "Chronic Absenteeism is greater than 10% and less than or equal to 14%",
                     "Chronic Absenteeism is less than or equal to 10%"), ordered = TRUE),
-            "No" = factor(c("Chronic Absenteeism is greater than 9% and less than or equal to 13%", rep("N/A", 5)),
-                levels = c("N/A",
+            "No" = factor(c("Chronic Absenteeism is greater than 9% and less than or equal to 13%",
+                    rep("N/A - School does not serve 30 students in this subgroup", 5)),
+                levels = c("N/A - School does not serve 30 students in this subgroup",
                     "Chronic Absenteeism is greater than 20%",
                     "Chronic Absenteeism is greater than 13% and less than or equal to 20%",
                     "Chronic Absenteeism is greater than 9% and less than or equal to 13%",
@@ -287,8 +299,9 @@ function(input, output, session) {
                     "Chronic Absenteeism is less than or equal to 6%"), ordered = TRUE)
         )
 
-        absenteeism_target <- factor(c("Lower bound of Chronic Absenteeism confidence interval is less than or equal to AMO target", rep("N/A", 5)),
-            levels = c("N/A",
+        absenteeism_target <- factor(c("Lower bound of Chronic Absenteeism confidence interval is less than or equal to AMO target",
+                rep("N/A - School does not serve 30 students in this subgroup", 5)),
+            levels = c("N/A - School does not serve 30 students in this subgroup",
                 "Lower bound of Chronic Absenteeism confidence interval equals or exceeds prior year Chronic Absenteeism",
                 "Lower bound of Chronic Absenteeism confidence interval is less than prior year Chronic Absenteeism",
                 "Lower bound of Chronic Absenteeism confidence interval is less than or equal to AMO target",

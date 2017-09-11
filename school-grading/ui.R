@@ -35,7 +35,7 @@ fluidPage(theme = "doe-style.css",
                 br(),
                 selectInput("success_3yr", label = "What is your school's one-year success rate or
                     two-year success rate if your school serves high school grades?",
-                    choices = c("", "Less than 20%", "Between 20 and 35%", "Above 35%")),
+                    choices = c("", "Less than 7%", "Between 7% and 11%", "Above 11%")),
                 br(),
                 hidden(selectInput("tvaas_lag", label = "Did your school earn a TVAAS Composite
                     Level 4 or 5 in 2017?", choices = c("", "Yes", "No"))),
@@ -137,8 +137,8 @@ fluidPage(theme = "doe-style.css",
                 h4("About your school's chronic absenteeism"),
                 br(),
                 p(strong("Chronic absenteeism"), "refers to students who are absent for 10%
-                    or more of a school year (18 days in a 180 day school year)."),
-                p("Chronic absenteeism calculations include only students who are enrolled
+                    or more of a school year (18 days in a 180 day school year). Chronic
+                    absenteeism calculations only include students who are enrolled
                     for at least 50 percent of the school year."),
                 br(),
                 strong(p("Answer the following about your school's absenteeism.")),
@@ -172,6 +172,8 @@ fluidPage(theme = "doe-style.css",
                 br(),
                 p("For Achievement, Graduation Rate, Readiness, and Absenteeism, a school only
                     receives a grade if it has both the absolute and target components."),
+                p("Super Subgroup results only count toward school grading if no other
+                    subgroup meets the minimum N count for any indicator."),
                 hidden(div(id = "done_heatmap",
                     br(),
                     p("Click the button below to see your school's projected final grade."),
