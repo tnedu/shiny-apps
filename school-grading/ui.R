@@ -28,9 +28,9 @@ fluidPage(theme = "doe-style.css",
             hidden(div(id = "minimum_performance",
                 hr(),
                 h4("A success rate is the percentage of students on track or mastered in
-                    math, English Language Arts, and science, aggregated across subjects
+                    math, English language arts, and science, aggregated across subjects
                     with at least 30 tests."),
-                p("For high schools, this also includes students who earn an ACT Composite
+                p("For high schools, this also includes students who earn an ACT composite
                     score of 21 or higher."),
                 br(),
                 selectInput("success_3yr", label = "What is your school's one-year success rate or
@@ -52,8 +52,9 @@ fluidPage(theme = "doe-style.css",
                 p("Recall that a", strong("success rate"), "is the percentage of students on track
                     or mastered in math, ELA, and science (including ACT for high schools),
                     aggregated across subjects with at least 30 tests."),
-                p(strong("Subgroup growth"), "refers to the percentage of students who
-                    improved their performance level compared to the prior year."),
+                p(strong("Subgroup growth"), "refers to the percentage of students from a
+                    particular subgroup who improved their performance level compared
+                    to the prior year."),
                 br(),
                 strong(p("Answer the following about your school's achievement and growth.")),
                 rHandsontableOutput("achievement_table"),
@@ -92,10 +93,11 @@ fluidPage(theme = "doe-style.css",
                 hr(),
                 h4("About your school's Ready Graduates"),
                 br(),
-                p(strong("Readiness"), "refers to the percentage of graduates who earned
-                    an ACT Composite score of 21 or higher."),
+                p(strong("Ready Graduates"), "refers to graduates who earned an ACT composite
+                    score of 21 or higher. In future years, ready graduates will also
+                    include students who complete early postsecondary opportunities."),
                 br(),
-                strong(p("Answer the following about your school's readiness.")),
+                strong(p("Answer the following about your school's ready graduates.")),
                 rHandsontableOutput("readiness_table"),
                 br(),
                 div(id = "done_readiness",
@@ -163,14 +165,14 @@ fluidPage(theme = "doe-style.css",
                     strong("TVAAS"), "for All Students and", strong("Subgroup Growth"), "for subgroups."),
                 p("Your school's", strong("Graduation Rate Grade"), "is the better of its",
                     strong("Graduation Rate"), "and", strong("Graduation Rate Target"), "grades."),
-                p("Your school's", strong("Readiness Grade"), "is the better of its",
-                    strong("Readiness"), "and", strong("Readiness Target"), "grades."),
+                p("Your school's", strong("Ready Graduates Grade"), "is the better of its",
+                    strong("Ready Graduates"), "and", strong("Ready Graduates Target"), "grades."),
                 p("Your school's", strong("ELPA Grade"), "is determined by its",
                     strong("ELPA Growth Standard"), "grade."),
                 p("Your school's", strong("Absenteeism Grade"), "is the better of its",
                     strong("Absenteeism"), "and", strong("Absenteeism Reduction Target"), "grades."),
                 br(),
-                p("For Achievement, Graduation Rate, Readiness, and Absenteeism, a school only
+                p("For Achievement, Graduation Rate, Ready Graduates, and Absenteeism, a school only
                     receives a grade if it has both the absolute and target components."),
                 p("Super Subgroup results only count toward school grading if no other
                     subgroup meets the minimum N count for any indicator."),

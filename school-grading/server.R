@@ -214,7 +214,7 @@ function(input, output, session) {
     # Inputs for ACT and grad
     output$readiness_table <- renderRHandsontable({
 
-        readiness_abs <- factor(c("30% to less than 40% of graduates score a 21+ on the ACT",
+        ready_grad_abs <- factor(c("30% to less than 40% of graduates score a 21+ on the ACT",
                 rep("N/A - School does not serve 30 students in this subgroup", 5)),
             levels = c("N/A - School does not serve 30 students in this subgroup",
                 "Less than 25% of graduates score a 21+ on the ACT",
@@ -223,7 +223,7 @@ function(input, output, session) {
                 "40% to less than 50% of graduates score a 21+ on the ACT",
                 "50% or more of graduates score a 21+ on the ACT"), ordered = TRUE)
 
-        readiness_target <- factor(c("Upper bound of Ready Graduates confidence interval equals or exceeds AMO target",
+        ready_grad_target <- factor(c("Upper bound of Ready Graduates confidence interval equals or exceeds AMO target",
                 rep("N/A - School does not serve 30 students in this subgroup", 5)),
             levels = c("N/A - School does not serve 30 students in this subgroup",
                 "Upper bound of Ready Graduates confidence interval is less than or equal to prior year Ready Graduates",
@@ -232,13 +232,13 @@ function(input, output, session) {
                 "Ready Graduates exceeds AMO target",
                 "Ready Graduates exceeds double AMO target"), ordered = TRUE)
 
-        data.frame(readiness_abs, readiness_target) %>%
+        data.frame(ready_grad_abs, ready_grad_target) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("Readiness", "Readiness Target")) %>%
+                colHeaders = c("Ready Graduates", "Ready Graduates Target")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
             hot_cols(colWidths = c(350, 350)) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("Readiness", "Readiness Target"), type = "dropdown")
+            hot_col(c("Ready Graduates", "Ready Graduates Target"), type = "dropdown")
 
     })
 
@@ -342,8 +342,8 @@ function(input, output, session) {
     readiness <- reactive(
         if (is.null(input$readiness_table) || input$grad_eligible == "No") {
             data_frame(Subgroup = subgroups,
-                readiness_abs = factor(rep(NA, 6)),
-                readiness_target = factor(rep(NA, 6)))
+                ready_grad_abs = factor(rep(NA, 6)),
+                ready_grad_target = factor(rep(NA, 6)))
         } else {
             input$readiness_table %>%
                 hot_to_r() %>%
@@ -380,14 +380,14 @@ function(input, output, session) {
             inner_join(elpa(), by = "Subgroup") %>%
             inner_join(absenteeism(), by = "Subgroup") %>%
             mutate_at(c("success_rate", "success_target", "TVAAS", "subgroup_growth",
-                "grad_abs", "grad_target", "readiness_abs", "readiness_target",
+                "grad_abs", "grad_target", "ready_grad_abs", "ready_grad_target",
                 "elpa_growth", "absenteeism_abs", "absenteeism_target"),
                 funs(if_else(as.numeric(.) == 1, NA_real_, as.numeric(.) - 2))) %>%
         # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and target grades
             mutate(grade_achievement = pmax(success_rate, success_target),
                 grade_growth = if_else(Subgroup == "All Students", TVAAS, subgroup_growth),
                 grade_grad = pmax(grad_abs, grad_target),
-                grade_readiness = pmax(readiness_abs, readiness_target),
+                grade_ready_grad = pmax(ready_grad_abs, ready_grad_target),
                 grade_elpa = elpa_growth,
                 grade_absenteeism = pmax(absenteeism_abs, absenteeism_target))
 
@@ -396,7 +396,7 @@ function(input, output, session) {
                 mutate(weight_achievement = if_else(!is.na(grade_achievement), 0.3, NA_real_),
                     weight_growth = if_else(!is.na(grade_growth), 0.25, NA_real_),
                     weight_grad = if_else(!is.na(grade_grad), 0.05, NA_real_),
-                    weight_readiness = if_else(!is.na(grade_readiness), 0.2, NA_real_),
+                    weight_ready_grad = if_else(!is.na(grade_ready_grad), 0.2, NA_real_),
                     weight_opportunity = if_else(!is.na(grade_absenteeism), 0.1, NA_real_),
                     weight_elpa = if_else(!is.na(grade_elpa), 0.1, NA_real_),
                 # If no ELPA, adjust achievement and growth weights accordingly
@@ -407,7 +407,7 @@ function(input, output, session) {
                 mutate(weight_achievement = if_else(!is.na(grade_achievement), 0.45, NA_real_),
                     weight_growth = if_else(!is.na(grade_growth), 0.35, NA_real_),
                     weight_grad = NA_real_,
-                    weight_readiness = NA_real_,
+                    weight_ready_grad = NA_real_,
                     weight_opportunity = if_else(!is.na(grade_absenteeism), 0.1, NA_real_),
                     weight_elpa = if_else(!is.na(grade_elpa), 0.1, NA_real_),
                 # If no ELPA, adjust achievement and growth weights accordingly
@@ -417,12 +417,12 @@ function(input, output, session) {
 
         weights %>%
             rowwise() %>%
-            mutate(total_weight = sum(weight_achievement, weight_growth, weight_grad, weight_readiness, weight_opportunity, weight_elpa, na.rm = TRUE),
+            mutate(total_weight = sum(weight_achievement, weight_growth, weight_grad, weight_ready_grad, weight_opportunity, weight_elpa, na.rm = TRUE),
                 subgroup_average = round(sum(weight_achievement * grade_achievement,
                     weight_growth * grade_growth,
                     weight_opportunity * grade_absenteeism,
                     weight_grad * grade_grad,
-                    weight_readiness * grade_readiness,
+                    weight_ready_grad * grade_ready_grad,
                     weight_elpa * grade_elpa, na.rm = TRUE)/total_weight, 2)) %>%
             ungroup()
 
@@ -430,14 +430,14 @@ function(input, output, session) {
 
     output$heatmap <- renderTable(
         heat_map() %>%
-            mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_readiness", "grade_absenteeism", "grade_elpa"), as.numeric) %>%
-            mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_readiness", "grade_absenteeism", "grade_elpa"),
+            mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa"), as.numeric) %>%
+            mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa"),
                 funs(recode(.,  "4" = "A", "3" = "B", "2" = "C", "1" = "D", "0" = "F"))) %>%
             transmute(Subgroup,
                 `Achievement Grade` = grade_achievement,
                 `Growth Grade` = grade_growth,
                 `Graduation Rate Grade` = grade_grad,
-                `Readiness Grade` = grade_readiness,
+                `Ready Graduates Grade` = grade_ready_grad,
                 `ELPA Grade` = grade_elpa,
                 `Absenteeism Grade` = grade_absenteeism)
     )
