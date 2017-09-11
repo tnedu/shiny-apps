@@ -183,23 +183,23 @@ function(input, output, session) {
     # Inputs for graduation rate
     output$grad_table <- renderRHandsontable({
 
-        grad_abs <- factor(c("Graduation Rate is greater than or equal to 80% but less than 90%",
+        grad_abs <- factor(c("Graduation rate is greater than or equal to 80% but less than 90%",
                 rep("N/A - School does not serve 30 students in this subgroup", 5)),
             levels = c("N/A - School does not serve 30 students in this subgroup",
-                "Graduation Rate is less than 67%",
-                "Graduation Rate is greater than or equal to 67% but less than 80%",
-                "Graduation Rate is greater than or equal to 80% but less than 90%",
-                "Graduation Rate is greater than or equal to 90% but less than 95%",
-                "Graduation Rate is 95% or greater"), ordered = TRUE)
+                "Graduation rate is less than 67%",
+                "Graduation rate is greater than or equal to 67% but less than 80%",
+                "Graduation rate is greater than or equal to 80% but less than 90%",
+                "Graduation rate is greater than or equal to 90% but less than 95%",
+                "Graduation rate is 95% or greater"), ordered = TRUE)
 
-        grad_target <- factor(c("Upper bound of Graduation Rate confidence interval equals or exceeds AMO target",
+        grad_target <- factor(c("Upper bound of graduation rate confidence interval equals or exceeds AMO target",
                 rep("N/A - School does not serve 30 students in this subgroup", 5)),
             levels = c("N/A - School does not serve 30 students in this subgroup",
-                "Upper bound of Graduation Rate confidence interval is less than or equal to prior year Graduation Rate",
-                "Upper bound of Graduation Rate confidence interval exceeds prior Graduation Rate",
-                "Upper bound of Graduation Rate confidence interval equals or exceeds AMO target",
-                "Graduation Rate exceeds AMO target",
-                "Graduation Rate exceeds double AMO target"), ordered = TRUE)
+                "Upper bound of graduation rate confidence interval is less than or equal to prior year graduation rate",
+                "Upper bound of graduation rate confidence interval exceeds prior graduation rate",
+                "Upper bound of graduation rate confidence interval equals or exceeds AMO target",
+                "Graduation rate exceeds AMO target",
+                "Graduation rate exceeds double AMO target"), ordered = TRUE)
 
         data.frame(grad_abs, grad_target) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
@@ -212,7 +212,7 @@ function(input, output, session) {
     })
 
     # Inputs for ACT and grad
-    output$readiness_table <- renderRHandsontable({
+    output$ready_grad_table <- renderRHandsontable({
 
         ready_grad_abs <- factor(c("30% to less than 40% of graduates score a 21+ on the ACT",
                 rep("N/A - School does not serve 30 students in this subgroup", 5)),
@@ -223,14 +223,14 @@ function(input, output, session) {
                 "40% to less than 50% of graduates score a 21+ on the ACT",
                 "50% or more of graduates score a 21+ on the ACT"), ordered = TRUE)
 
-        ready_grad_target <- factor(c("Upper bound of Ready Graduates confidence interval equals or exceeds AMO target",
+        ready_grad_target <- factor(c("Upper bound of ready graduates confidence interval equals or exceeds AMO target",
                 rep("N/A - School does not serve 30 students in this subgroup", 5)),
             levels = c("N/A - School does not serve 30 students in this subgroup",
-                "Upper bound of Ready Graduates confidence interval is less than or equal to prior year Ready Graduates",
-                "Upper bound of Ready Graduates confidence interval exceeds prior year Ready Graduates",
-                "Upper bound of Ready Graduates confidence interval equals or exceeds AMO target",
-                "Ready Graduates exceeds AMO target",
-                "Ready Graduates exceeds double AMO target"), ordered = TRUE)
+                "Upper bound of ready graduates confidence interval is less than or equal to prior year ready graduates",
+                "Upper bound of ready graduates confidence interval exceeds prior year ready graduates",
+                "Upper bound of ready graduates confidence interval equals or exceeds AMO target",
+                "Ready graduates exceeds AMO target",
+                "Ready graduates exceeds double AMO target"), ordered = TRUE)
 
         data.frame(ready_grad_abs, ready_grad_target) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
@@ -339,13 +339,13 @@ function(input, output, session) {
         }
     )
 
-    readiness <- reactive(
-        if (is.null(input$readiness_table) || input$grad_eligible == "No") {
+    ready_grad <- reactive(
+        if (is.null(input$ready_grad_table) || input$grad_eligible == "No") {
             data_frame(Subgroup = subgroups,
                 ready_grad_abs = factor(rep(NA, 6)),
                 ready_grad_target = factor(rep(NA, 6)))
         } else {
-            input$readiness_table %>%
+            input$ready_grad_table %>%
                 hot_to_r() %>%
                 as_data_frame() %>%
                 mutate(Subgroup = subgroups)
@@ -376,7 +376,7 @@ function(input, output, session) {
 
         grades <- ach() %>%
             inner_join(grad(), by = "Subgroup") %>%
-            inner_join(readiness(), by = "Subgroup") %>%
+            inner_join(ready_grad(), by = "Subgroup") %>%
             inner_join(elpa(), by = "Subgroup") %>%
             inner_join(absenteeism(), by = "Subgroup") %>%
             mutate_at(c("success_rate", "success_target", "TVAAS", "subgroup_growth",
@@ -444,21 +444,31 @@ function(input, output, session) {
 
     output$focus_warning <- renderText({
 
-        foo <- heat_map() %>%
+        subgroup_below_one <- heat_map() %>%
             filter(Subgroup %in% c("Black/Hispanic/Native American", "Economically Disadvantaged",
                 "Students with Disabilities", "English Learners"),
                 subgroup_average < 1)
 
-        if (nrow(foo) == 0) {
+        if (nrow(subgroup_below_one) == 0) {
             return()
-        } else if (nrow(foo) == 1) {
-            paste("In Addition, your school is at risk of being named a Focus School
-                for the following subgroups:", c(foo$Subgroup))
+        } else if (nrow(subgroup_below_one) == 1) {
+            paste("In addition, your school is at risk of being named a Focus School
+                for the following subgroups:", c(subgroup_below_one$Subgroup))
         } else {
-            paste("In Addition, your school is at risk of being named a Focus School
-                for the following subgroups:", paste(foo$Subgroup, collapse = ", "))
+            paste("In addition, your school is at risk of being named a Focus School
+                for the following subgroups:", paste(subgroup_below_one$Subgroup, collapse = ", "))
         }
     })
+
+    output$priority_grad_warning <- renderText(
+        if (heat_map()[heat_map()$Subgroup == "All Students", ]$grad_abs == 0) {
+            "Your school is at risk of being named a Priority (F) Schools for
+            having a graduation rate below 67%."
+        } else {
+            return()
+        }
+
+    )
 
     output$final_grades <- renderTable(width = '100%', {
 

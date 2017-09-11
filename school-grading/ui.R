@@ -68,13 +68,13 @@ fluidPage(theme = "doe-style.css",
             # Grad
             hidden(div(id = "grad",
                 hr(),
-                h4("About your school's Graduation Rate"),
+                h4("About your school's graduation rate"),
                 br(),
                 selectInput("grad_eligible", label = "Does your school have a graduating
                     cohort of 30 or more students?", choices = c("", "Yes", "No")),
                 br(),
                 hidden(div(id = "grad_table_container",
-                    p(strong("Graduation Rate"), "is the percent of students in the graduating
+                    p(strong("Graduation rate"), "is the percent of students in the graduating
                         cohort who graduate in no more than four years plus a summer."),
                     br(),
                     strong(p("Answer the following about your school's graduation rate.")),
@@ -91,14 +91,14 @@ fluidPage(theme = "doe-style.css",
             # Readiness
             hidden(div(id = "readiness",
                 hr(),
-                h4("About your school's Ready Graduates"),
+                h4("About your school's ready graduates"),
                 br(),
-                p(strong("Ready Graduates"), "refers to graduates who earned an ACT composite
+                p(strong("Ready graduates"), "refers to graduates who earned an ACT composite
                     score of 21 or higher. In future years, ready graduates will also
                     include students who complete early postsecondary opportunities."),
                 br(),
                 strong(p("Answer the following about your school's ready graduates.")),
-                rHandsontableOutput("readiness_table"),
+                rHandsontableOutput("ready_grad_table"),
                 br(),
                 div(id = "done_readiness",
                     p("When you are done, click the button below."),
@@ -191,6 +191,8 @@ fluidPage(theme = "doe-style.css",
                 p("Based on the information you provided, we project the following grades:"),
                 br(),
                 tableOutput("final_grades"),
+                br(),
+                textOutput("priority_grad_warning"),
                 br(),
                 textOutput("focus_warning"),
                 br(),
