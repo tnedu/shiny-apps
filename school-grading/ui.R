@@ -24,22 +24,24 @@ fluidPage(theme = "doe-style.css",
                 actionButton("button_intro", label = "Go!")
             ),
 
-            # Comprehensive Support
+            # Priority (F) Schools
             hidden(div(id = "minimum_performance",
                 hr(),
-                h4("A success rate is the percentage of students on track or mastered,
-                    aggregated across subjects with at least 30 tests."),
-                p("For high schools, this also includes students who earn a ACT Composite
+                h4("A success rate is the percentage of students on track or mastered
+                    in math, English Language Arts, and science, aggregated across
+                    subjects with at least 30 tests."),
+                p("For high schools, this also includes students who earn an ACT Composite
                     score of 21 or higher."),
                 br(),
-                selectInput("success_3yr", label = "What is your school's three-year success rate?",
+                selectInput("success_3yr", label = "What is your school's one-year success rate or
+                    two-year success rate if your school serves high school grades?",
                     choices = c("", "Less than 20%", "Between 20 and 35%", "Above 35%")),
                 br(),
                 hidden(selectInput("tvaas_lag", label = "Did your school earn a TVAAS Composite
-                    Level 4 or 5 in 2016?", choices = c("", "Yes", "No"))),
-                htmlOutput("comprehensive_determination"),
+                    Level 4 or 5 in 2017?", choices = c("", "Yes", "No"))),
+                htmlOutput("priority_determination"),
                 br(),
-                hidden(actionButton("button_comprehensive", label = "Got it."))
+                hidden(actionButton("button_priority", label = "Got it."))
             )),
 
             # Achievement
@@ -47,10 +49,14 @@ fluidPage(theme = "doe-style.css",
                 hr(),
                 h4("About your school's achievement and growth on TNReady:"),
                 br(),
-                p("Recall that a", strong("success rate"), "is the percentage of students on track or
-                    mastered, aggregated across subjects (including ACT) with at least 30 tests."),
-                p(strong("Subgroup growth"), "refers to the percentage of students who maintained
-                    or improved their performance level compared to the prior year."),
+                p("Recall that a", strong("success rate"), "is the percentage of students on track
+                    or mastered in math, ELA, and science (including ACT for high schools),
+                    aggregated across subjects with at least 30 tests."),
+                p(strong("Subgroup growth"), "refers to the percentage of students who
+                    improved their performance level compared to the prior year."),
+                p("A school's achievement score reflects", strong("the better of"),
+                    "their success rates relative to the state of relative to their
+                    AMO targets for both all students and subgroups."),
                 br(),
                 strong(p("Answer the following about your school's achievement and growth.")),
                 rHandsontableOutput("achievement_table"),
@@ -70,8 +76,8 @@ fluidPage(theme = "doe-style.css",
                     cohort of 30 or more students?", choices = c("", "Yes", "No")),
                 br(),
                 hidden(div(id = "readiness_table_container",
-                    p(strong("Readiness"), "refers to the percentage of students in your school's
-                        graduating cohort who earned an ACT Composite score of 21 or higher."),
+                    p(strong("Readiness"), "refers to the percentage of graduates who earned
+                        an ACT Composite score of 21 or higher."),
                     br(),
                     strong(p("Answer the following about your school's readiness.")),
                     rHandsontableOutput("readiness_table")
@@ -94,8 +100,11 @@ fluidPage(theme = "doe-style.css",
                     choices = c("", "Yes", "No")),
                 br(),
                 hidden(div(id = "elpa_table_container",
-                    p("Schools are graded on the percentage of students who exit EL status or
-                        meet the growth standard on the English Language Proficiency Assessment."),
+                    p("Schools are graded on the percentage of students who meet the
+                        growth standard on the English Language Proficiency Assessment."),
+                    p("The growth standards are based on the performance of the students
+                        in the prior year. They are as follows:"),
+                    tableOutput("elpa_growth_standard"),
                     br(),
                     strong(p("Answer the following about your school's ELPA performance.")),
                     rHandsontableOutput("elpa_table")
@@ -145,8 +154,8 @@ fluidPage(theme = "doe-style.css",
                 p("Your school's", strong("Absenteeism Grade"), "is the better of its",
                     strong("Absenteeism"), "and", strong("Absenteeism Reduction Target"), "grades."),
                 br(),
-                p("For Achievement, Graduation, Readiness, ELPA, and Absenteeism, a school only receives a grade
-                    if it has both the absolute and target components."),
+                p("For Achievement, Graduation, Readiness, ELPA, and Absenteeism, a school only
+                    receives a grade if it has both the absolute and target components."),
                 hidden(div(id = "done_heatmap",
                     br(),
                     p("Click the button below to see your school's projected final grade."),

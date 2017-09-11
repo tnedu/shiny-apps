@@ -3,12 +3,9 @@
 
 function(input, output, session) {
 
-    # Global vectors with dropdown options
+    # Global vector for subgroups
     subgroups <- c("All Students", "Black/Hispanic/Native American", "Economically Disadvantaged",
         "Students with Disabilities", "English Learners", "Super Subgroup")
-    quintile_options <- c("N/A", "19.9% or Less", "20 to 39.9%", "40 to 59.9%", "60 to 79.9%", "80% or More")
-    amo_options <- c("N/A", "Regress", "Progress but do not Meet Target",
-        "Meet Target with Confidence Interval", "Meet Target", "Meet Double Target")
 
     # Observers to show/hide appropriate inputs
     observeEvent(input$button_intro, once = TRUE, {
@@ -21,18 +18,18 @@ function(input, output, session) {
             show("tvaas_lag", anim = TRUE)
 
             if (input$tvaas_lag == "") {
-                hide("button_comprehensive", anim = TRUE)
+                hide("button_priority", anim = TRUE)
             } else {
-                show("button_comprehensive", anim = TRUE)
+                show("button_priority", anim = TRUE)
             }
 
         } else if (input$success_3yr == "Above 35%") {
-            show("button_comprehensive", anim = TRUE)
+            show("button_priority", anim = TRUE)
             hide("tvaas_lag", anim = TRUE)
         }
     })
 
-    observeEvent(input$button_comprehensive, once = TRUE, {
+    observeEvent(input$button_priority, once = TRUE, {
         show("achievement", anim = TRUE)
         hide("minimum_performance", anim = TRUE)
     })
@@ -110,112 +107,185 @@ function(input, output, session) {
     })
 
     # Observers/reactives to calculate grade
-    output$comprehensive_determination <- renderText(
+    output$priority_determination <- renderText(
         switch(input$success_3yr,
             "Less than 20%" = switch(input$tvaas_lag,
-                "No" = "<p>Your school is <b>at risk of being named a Comprehensive Support School</b>.</p>
-                    <p>To avoid being named a Comprehensive Support School, your school must
-                    perform <b>above the bottom 5 percent of schools based on a three year
-                    success rate</b> in 2018.</p>",
-                "Yes" = "<p>Your school is <b>at risk of being named a Comprehensive Support School</b>.</p>
-                    <p>To avoid being named a Comprehensive Support School, your school must
-                    perform <b>above the bottom 5 percent of schools based on a three year
-                    success rate</b> OR <b>earn a TVAAS Composite Level 4 or 5</b> in 2018.</p>"),
+                "No" = "<p>Your school is <b>at risk of being named a Priority (F) School</b>.</p>
+                    <p>To avoid being named a Priority School, your school must perform
+                    <b>above the bottom 5 percent of schools based on a three year success rate</b>
+                    in 2018.</p>",
+                "Yes" = "<p>Your school is <b>at risk of being named a Priority (F) School</b>.</p>
+                    <p>To avoid being named a Priority School, your school must perform
+                    <b>above the bottom 5 percent of schools based on a three year success rate</b>
+                    OR <b>earn a TVAAS Composite Level 4 or 5</b> in 2018.</p>"),
             "Between 20 and 35%" = switch(input$tvaas_lag,
-                "No" = "<p>Your school is <b>on the cusp of eligibility for Comprehensive Support</b>.</p>
-                    <p>To avoid being named a Comprehensive Support school, your school must
-                    perform <b>above the bottom 5 percent of schools based on a three year
-                    success rate</b> in 2018.<p>",
-                "Yes" = "<p>Your school is <b>on the cusp of eligibility for Comprehensive Support</b>.</p>
-                    <p>To avoid being named a Comprehensive Support school, your school must
-                    perform <b>above the bottom 5 percent of schools based on a three year
-                    success rate</b> OR <b>earn a Level 4 or 5 Composite TVAAS</b> in 2018.</p>"),
-            "Above 35%" = "<p>Your school is <b>unlikely to be named a Comprehensive Support School</b>.</p>"
+                "No" = "<p>Your school is <b>on the cusp of eligibility for Priority (F School) Status</b>.</p>
+                    <p>To avoid being named a Priority school, your school must perform
+                    <b>above the bottom 5 percent of schools based on a three year success rate</b>
+                    in 2018.<p>",
+                "Yes" = "<p>Your school is <b>on the cusp of eligibility for Priority (F School) Status</b>.</p>
+                    <p>To avoid being named a Priority school, your school must perform
+                    <b>above the bottom 5 percent of schools based on a three year success rate</b>
+                    OR <b>earn a Level 4 or 5 Composite TVAAS</b> in 2018.</p>"),
+            "Above 35%" = "<p>Your school is <b>unlikely to be named a Priority (F) School</b>.</p>"
         )
     )
 
     # Inputs for success rate, TVAAS, subgroup growth
     output$achievement_table <- renderRHandsontable({
 
-        ## Values are just a placeholder for now until cutoffs are decided
-        success_rate <- factor(c("30 to 39.9%", rep("N/A", 5)),
-            levels = c("N/A", "0 to 19.9%", "20 to 29.9%", "30 to 39.9%", "40 to 49.9%", "50% or Greater"), ordered = TRUE)
+        success_rate <- factor(c("One-year success rate is greater than or equal to 30% but less than 40%", rep("N/A", 5)),
+            levels = c("N/A",
+                "One-year success rate is less than 20%",
+                "One-year success rate is greater than or equal to 20% but less than 30%",
+                "One-year success rate is greater than or equal to 30% but less than 40%",
+                "One-year success rate is greater than or equal to 40% and less than 50%",
+                "One-year success rate is greater or equal to 50%"), ordered = TRUE)
 
-        success_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
-            levels = amo_options, ordered = TRUE)
+        success_target <- factor(c("Upper bound of one-year success rate confidence interval equals or exceeds AMO target", rep("N/A", 5)),
+            levels = c("N/A",
+                "Upper bound of one-year success rate confidence interval is less than or equal to prior one-year success rate",
+                "Upper bound of one-year success rate confidence interval exceeds prior one-year success rate",
+                "Upper bound of one-year success rate confidence interval equals or exceeds AMO target",
+                "One-year success rate exceeds AMO target",
+                "One-year success rate exceeds double AMO target"), ordered = TRUE)
 
         TVAAS <- factor(c("Level 3", rep("N/A", 5)), ordered = TRUE,
             levels = c("N/A", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5"))
 
-        subgroup_growth <- factor(c("N/A", "40 to 59.9%", rep("N/A", 4)),
-            levels = quintile_options, ordered = TRUE)
+        subgroup_growth <- factor(c("N/A", "Subgroup growth is better than that of 40 percent of schools", rep("N/A", 4)),
+            levels = c("N/A",
+                "Subgroup growth is in the bottom 20 percent of schools",
+                "Subgroup growth is better than that of 20 percent of schools",
+                "Subgroup growth is better than that of 40 percent of schools",
+                "Subgroup growth is better than that of 60 percent of schools",
+                "Subgroup growth is better than that of 80 percent of schools"), ordered = TRUE)
 
         data.frame(success_rate, success_target, TVAAS, subgroup_growth) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("Success Rate", "Success Rate Target", "TVAAS", "Subgroup Growth Percentile")) %>%
+                colHeaders = c("Success Rate", "Success Rate Target", "TVAAS", "Subgroup Growth")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
+            hot_cols(colWidths = c(200, 200, 100, 200)) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("Success Rate", "Success Rate Target", "TVAAS", "Subgroup Growth Percentile"), type = "dropdown")
+            hot_col(c("Success Rate", "Success Rate Target", "TVAAS", "Subgroup Growth"), type = "dropdown")
+
+    })
+
+    # Inputs for graduation rate
+    output$grad_table <- renderRHandsontable({
+
+        grad_abs <- factor(c("80% to less than 90% of students in graduating cohort graduate on-time", rep("N/A", 5)),
+            levels = c("N/A",
+                "Less than 67% of students in graduating cohort graduate on time",
+                "67% to less than 80% of students in graduating cohort graduate on time",
+                "80% to less than 90% of students in graduating cohort graduate on time",
+                "90% to less than 95% of students in graduating cohort graduate on time",
+                "95% or more of students in graduating cohort graduate on time"), ordered = TRUE)
+
+        grad_target <- factor(c("Upper bound of Graduation Rate confidence interval equals or exceeds AMO target", rep("N/A", 5)),
+            levels = c("N/A",
+                "Upper bound of Graduation Rate confidence interval is less than or equal to prior year Graduation Rate",
+                "Upper bound of Graduation Rate confidence interval exceeds prior Graduation Rate",
+                "Upper bound of Graduation Rate confidence interval equals or exceeds AMO target",
+                "Graduation Rate exceeds AMO target",
+                "Graduation Rate exceeds double AMO target"), ordered = TRUE)
+
+        data.frame(grad_abs, grad_target) %>%
+            rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
+                colHeaders = c("Graduation Rate", "Graduation Rate Target")) %>%
+            hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
+            hot_cols(colWidths = c(350, 350)) %>%
+            hot_rows(rowHeights = 40) %>%
+            hot_col(c("Graduation Rate", "Graduation Rate Target"), type = "dropdown")
 
     })
 
     # Inputs for ACT and grad
     output$readiness_table <- renderRHandsontable({
 
-        grad_abs <- factor(c("80 to 89.9%", rep("N/A", 5)), ordered = TRUE,
-            levels = c("N/A", "66.9% or Less", "67 to 79.9%", "80 to 89.9%", "90 to 94.9%", "95% or Greater"))
+        readiness_abs <- factor(c("30% to less than 40% of graduates score a 21+ on the ACT", rep("N/A", 5)),
+            levels = c("N/A",
+                "Less than 25% of graduates score a 21+ on the ACT",
+                "25% to less than 30% of graduates score a 21+ on the ACT",
+                "30% to less than 40% of graduates score a 21+ on the ACT",
+                "40% to less than 50% of graduates score a 21+ on the ACT",
+                "50% or more of graduates score a 21+ on the ACT"), ordered = TRUE)
 
-        grad_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
-            levels = amo_options, ordered = TRUE)
+        readiness_target <- factor(c("Upper bound of Ready Graduates confidence interval equals or exceeds AMO target", rep("N/A", 5)),
+            levels = c("N/A",
+                "Upper bound of Ready Graduates confidence interval is less than or equal to prior year Ready Graduates",
+                "Upper bound of Ready Graduates confidence interval exceeds prior Ready Graduates",
+                "Upper bound of Ready Graduates confidence interval equals or exceeds AMO target",
+                "Ready Graduates exceeds AMO target",
+                "Ready Graduates exceeds double AMO target"), ordered = TRUE)
 
-        readiness_abs <- factor(c("30 to 39.9%", rep("N/A", 5)), ordered = TRUE,
-            levels = c("N/A", "25% or Less", "25.1 to 29.9%", "30 to 39.9%", "40 to 49.9%", "50% or Greater"))
-
-        readiness_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
-            levels = amo_options, ordered = TRUE)
-
-        data.frame(grad_abs, grad_target, readiness_abs, readiness_target) %>%
+        data.frame(readiness_abs, readiness_target) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("Graduation Rate", "Graduation Rate Target", "Readiness", "Readiness Target")) %>%
+                colHeaders = c("Readiness", "Readiness Target")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
+            hot_cols(colWidths = c(350, 350)) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("Graduation Rate", "Graduation Rate Target", "Readiness", "Readiness Target"), type = "dropdown")
+            hot_col(c("Readiness", "Readiness Target"), type = "dropdown")
 
     })
+
+    # Table to show ELPA Growth Standard
+    output$elpa_growth_standard <- renderTable(
+        tibble::tribble(~`Prior Year ELP Range`, ~`Growth Standard`,
+            "1.0 - 1.4", "1.3",
+            "1.5 - 1.9", "0.7",
+            "2.0 - 2.4", "0.8",
+            "2.5 - 2.9", "0.7",
+            "3.0 - 3.4", "0.4",
+            "3.5 - 3.9", "0.5",
+            "4.0 - 4.4", "0.4")
+    )
 
     # Inputs for ELPA
     output$elpa_table <- renderRHandsontable({
 
-        elpa_exit <- factor(c("12 to 23.9%", "N/A", "N/A", "N/A", "12 to 23.9%", "N/A"), ordered = TRUE,
-            levels = c("N/A", "5.9% or Less", "6 to 11.9%", "12 to 23.9%", "24 to 35.9%", "36% or Greater"))
+        elpa_growth <- factor(c("40% to less than 50% of students meet growth standards", "N/A", "N/A", "N/A",
+                "40% to less than 50% of students meet growth standards", "N/A"),
+            levels = c("N/A",
+                "Less than 25% of students meet growth standards",
+                "25% to less than 40% of students meet growth standards",
+                "40% to less than 50% of students meet growth standards",
+                "50% to less than 60% of students meet growth standards",
+                "60% of students or more meet growth standards"), ordered = TRUE)
 
-        elpa_growth <- factor(c("45 to 59.9%", "N/A", "N/A", "N/A", "45 to 59.9%", "N/A"), ordered = TRUE,
-            levels = c("N/A", "29.9% or Less", "30 to 44.9%", "45 to 59.9%", "60 to 69.9%", "70% or Greater"))
-
-        data.frame(elpa_exit, elpa_growth) %>%
+        data.frame(elpa_growth) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
-                colHeaders = c("ELPA Exit", "ELPA Met Growth Standard")) %>%
+                colHeaders = c("Percent of Students Meeting Differentiated Growth Standard")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
-            hot_cols(colWidths = c(200, 200)) %>%
             hot_rows(rowHeights = 40) %>%
-            hot_col(c("ELPA Exit", "ELPA Met Growth Standard"), type = "dropdown")
+            hot_col(c("Percent of Students Meeting Differentiated Growth Standard"), type = "dropdown")
 
     })
 
     # Inputs for absenteeism
     output$absenteeism_table <- renderRHandsontable({
 
-        absenteeism_abs <- factor(c("12.1 to 17%", rep("N/A", 5)), ordered = TRUE,
-            levels = c("N/A", "Greater than 24%", "17.1 to 24%", "12.1 to 17%", "8.1 to 12%", "8% or Less"))
+        absenteeism_abs <- factor(c("Percent of chronically absent students is greater than 9 percent and less than or equal to 13 percent", rep("N/A", 5)),
+            levels = c("N/A",
+                "Percent of chronically absent students is greater than 20 percent",
+                "Percent of chronically absent students is greater than 13 percent and less than or equal to 20 percent",
+                "Percent of chronically absent students is greater than 9 percent and less than or equal to 13 percent",
+                "Percent of chronically absent students is greater than 6 percent and less than or equal to 9 percent",
+                "Percent of chronically absent students is less than or equal to 6 percent"), ordered = TRUE)
 
-        absenteeism_target <- factor(c("Meet Target with Confidence Interval", rep("N/A", 5)),
-            levels = amo_options, ordered = TRUE)
+        absenteeism_target <- factor(c("Lower bound of Chronic Absence rate confidence interval is less than or equal to AMO target", rep("N/A", 5)),
+            levels = c("N/A",
+                "Lower bound of Chronic Absence rate confidence interval equals or exceeds prior year Chronic Absence rate",
+                "Lower bound of Chronic Absence rate confidence interval is less than prior Chronic Absence rate",
+                "Lower bound of Chronic Absence rate confidence interval is less than or equal to AMO target",
+                "Chronic Absence rate is less than AMO target",
+                "Chronic Absence rate is less than or equal to double AMO target"), ordered = TRUE)
 
         data.frame(absenteeism_abs, absenteeism_target) %>%
             rhandsontable(rowHeaderWidth = 225, rowHeaders = subgroups,
                 colHeaders = c("Absenteeism", "Absenteeism Reduction Target")) %>%
             hot_context_menu(allowColEdit = FALSE, allowRowEdit = FALSE) %>%
-            hot_cols(colWidths = c(150, 300)) %>%
+            hot_cols(colWidths = c(350, 350)) %>%
             hot_rows(rowHeights = 40) %>%
             hot_col(c("Absenteeism", "Absenteeism Reduction Target"), type = "dropdown")
 
@@ -232,8 +302,6 @@ function(input, output, session) {
     readiness <- reactive(
         if (is.null(input$readiness_table) || input$readiness_eligible == "No") {
             data_frame(Subgroup = subgroups,
-                grad_abs = factor(rep(NA, 6)),
-                grad_target = factor(rep(NA, 6)),
                 readiness_abs = factor(rep(NA, 6)),
                 readiness_target = factor(rep(NA, 6)))
         } else {
@@ -247,7 +315,6 @@ function(input, output, session) {
     elpa <- reactive(
         if (is.null(input$elpa_table) || input$elpa_eligible == "No") {
             data_frame(Subgroup = subgroups,
-                elpa_exit = factor(rep(NA, 6)),
                 elpa_growth = factor(rep(NA, 6)))
         } else {
             input$elpa_table %>%
@@ -268,19 +335,20 @@ function(input, output, session) {
     heat_map <- reactive({
 
         grades <- ach() %>%
+            # inner_join(grad(), by = "Subgroup") %>%
             inner_join(readiness(), by = "Subgroup") %>%
             inner_join(elpa(), by = "Subgroup") %>%
             inner_join(absenteeism(), by = "Subgroup") %>%
             mutate_at(c("success_rate", "success_target", "TVAAS", "subgroup_growth",
                 "grad_abs", "grad_target", "readiness_abs", "readiness_target",
-                "elpa_exit", "elpa_growth", "absenteeism_abs", "absenteeism_target"),
+                "elpa_growth", "absenteeism_abs", "absenteeism_target"),
                 funs(if_else(as.numeric(.) == 1, NA_real_, as.numeric(.) - 2))) %>%
         # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and target grades
             mutate(grade_achievement = pmax(success_rate, success_target),
                 grade_growth = if_else(Subgroup == "All Students", TVAAS, subgroup_growth),
                 grade_grad = pmax(grad_abs, grad_target),
                 grade_readiness = pmax(readiness_abs, readiness_target),
-                grade_elpa = pmax(elpa_exit, elpa_growth),
+                grade_elpa = elpa_growth,
                 grade_absenteeism = pmax(absenteeism_abs, absenteeism_target))
 
         if (input$readiness_eligible == "Yes") {
