@@ -525,13 +525,11 @@ function(input, output, session) {
     })
 
     output$priority_grad_warning <- renderText(
-        if (is.na(heat_map()[1, ]$grad_abs)) {
+        if (is.na(heat_map()[1, ]$grad_abs || heat_map()[1, ]$grad_abs != 0)) {
             return()
         } else if (heat_map()[1, ]$grad_abs == 0) {
             "Your school is at risk of being named a Priority (F) School for
             having a graduation rate below 67%."
-        } else {
-            return()
         }
     )
 

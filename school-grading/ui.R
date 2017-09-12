@@ -199,7 +199,11 @@ fluidPage(theme = "doe-style.css",
                 br(),
                 textOutput("focus_warning"),
                 br(),
-                p("Adjust any inputs to see how your school's grade is affected.")
+                p("Adjust any inputs to see how your school's grade is affected."),
+                br(),
+                strong(p("This tool is for planning purposes only. Data thresholds
+                    and what it means to earn each letter grade on each indicator
+                    is subject to change."))
             )),
 
             # Footer
