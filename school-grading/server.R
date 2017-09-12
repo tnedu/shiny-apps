@@ -14,7 +14,7 @@ function(input, output, session) {
     })
 
     observeEvent(c(input$success_3yr, input$tvaas_lag), {
-        if (input$success_3yr %in% c("Less than 7%", "Between 7% and 11%")) {
+        if (input$success_3yr %in% c("Less than 10%", "Between 10% and 15%")) {
             show("tvaas_lag", anim = TRUE)
 
             if (input$tvaas_lag == "") {
@@ -23,7 +23,7 @@ function(input, output, session) {
                 show("button_priority", anim = TRUE)
             }
 
-        } else if (input$success_3yr == "Above 11%") {
+        } else if (input$success_3yr == "Above 15%") {
             show("button_priority", anim = TRUE)
             hide("tvaas_lag", anim = TRUE)
         }
@@ -61,14 +61,14 @@ function(input, output, session) {
     })
 
     observeEvent(input$button_grad, once = TRUE, {
-        show("readiness", anim = TRUE)
+        show("ready_grad", anim = TRUE)
         hide("grad_eligible", anim = TRUE)
         hide("done_grad", anim = TRUE)
     })
 
-    observeEvent(input$button_readiness, once = TRUE, {
+    observeEvent(input$button_ready_grad, once = TRUE, {
         show("elpa", anim = TRUE)
-        hide("done_readiness", anim = TRUE)
+        hide("done_ready_grad", anim = TRUE)
     })
 
     observeEvent(input$elpa_eligible, {
@@ -114,7 +114,7 @@ function(input, output, session) {
     # Observers/reactives to calculate grade
     output$priority_determination <- renderText(
         switch(input$success_3yr,
-            "Less than 7%" = switch(input$tvaas_lag,
+            "Less than 10%" = switch(input$tvaas_lag,
                 "No" = "<p>Your school is <b>at risk of being named a Priority (F) School</b>.</p>
                     <p>To avoid being named a Priority School, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
@@ -123,7 +123,7 @@ function(input, output, session) {
                     <p>To avoid being named a Priority School, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
                     OR <b>earn a TVAAS Composite Level 4 or 5</b> in 2018.</p>"),
-            "Between 7% and 11%" = switch(input$tvaas_lag,
+            "Between 10% and 15%" = switch(input$tvaas_lag,
                 "No" = "<p>Your school is <b>on the cusp of being a Priority (F) School</b>.</p>
                     <p>To avoid being named a Priority school, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
@@ -132,7 +132,7 @@ function(input, output, session) {
                     <p>To avoid being named a Priority school, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
                     OR <b>earn a Level 4 or 5 Composite TVAAS</b> in 2018.</p>"),
-            "Above 11%" = "<p>Your school is <b>unlikely to be named a Priority (F) School</b>.</p>"
+            "Above 15%" = "<p>Your school is <b>unlikely to be named a Priority (F) School</b>.</p>"
         )
     )
 
@@ -452,11 +452,15 @@ function(input, output, session) {
         if (nrow(subgroup_below_one) == 0) {
             return()
         } else if (nrow(subgroup_below_one) == 1) {
-            paste("In addition, your school is at risk of being named a Focus School
-                for the following subgroups:", c(subgroup_below_one$Subgroup))
+            paste0("In addition, your school is at risk of being named a Focus School
+                for the following subgroups: ", c(subgroup_below_one$Subgroup),
+                ". This means your school would receive a minus on its grade,
+                unless its overall grade is D or F")
         } else {
-            paste("In addition, your school is at risk of being named a Focus School
-                for the following subgroups:", paste(subgroup_below_one$Subgroup, collapse = ", "))
+            paste0("In addition, your school is at risk of being named a Focus School
+                for the following subgroups: ", paste(subgroup_below_one$Subgroup, collapse = ", "),
+                ". This means your school would receive a minus on its grade,
+                unless its overall grade is D or F")
         }
     })
 

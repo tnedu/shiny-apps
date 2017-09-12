@@ -35,7 +35,7 @@ fluidPage(theme = "doe-style.css",
                 br(),
                 selectInput("success_3yr", label = "What is your school's one-year success rate or
                     two-year success rate if your school serves high school grades?",
-                    choices = c("", "Less than 7%", "Between 7% and 11%", "Above 11%")),
+                    choices = c("", "Less than 10%", "Between 10% and 15%", "Above 15%")),
                 br(),
                 hidden(selectInput("tvaas_lag", label = "Did your school earn a TVAAS Composite
                     Level 4 or 5 in 2017?", choices = c("", "Yes", "No"))),
@@ -54,7 +54,7 @@ fluidPage(theme = "doe-style.css",
                     aggregated across subjects with at least 30 tests."),
                 p(strong("Subgroup growth"), "refers to the percentage of students from a
                     particular subgroup who improved their performance level compared
-                    to the prior year."),
+                    to the prior year or maintained the highest level of achievement."),
                 br(),
                 strong(p("Answer the following about your school's achievement and growth.")),
                 rHandsontableOutput("achievement_table"),
@@ -68,16 +68,16 @@ fluidPage(theme = "doe-style.css",
             # Grad
             hidden(div(id = "grad",
                 hr(),
-                h4("About your school's graduation rate"),
+                h4("About your school's 2017 graduation rate"),
                 br(),
-                selectInput("grad_eligible", label = "Does your school have a graduating
-                    cohort of 30 or more students?", choices = c("", "Yes", "No")),
+                selectInput("grad_eligible", label = "Does your school have a 2017 graduating
+                    cohort (2013 cohort) of 30 or more students?", choices = c("", "Yes", "No")),
                 br(),
                 hidden(div(id = "grad_table_container",
                     p(strong("Graduation rate"), "is the percent of students in the graduating
                         cohort who graduate in no more than four years plus a summer."),
                     br(),
-                    strong(p("Answer the following about your school's graduation rate.")),
+                    strong(p("Answer the following about your school's 2017 graduation rate.")),
                     rHandsontableOutput("grad_table")
                 )),
                 hidden(actionButton("skip_grad", label = "Proceed")),
@@ -88,21 +88,24 @@ fluidPage(theme = "doe-style.css",
                 ))
             )),
 
-            # Readiness
-            hidden(div(id = "readiness",
+            # Ready Graduates
+            hidden(div(id = "ready_grad",
                 hr(),
-                h4("About your school's ready graduates"),
+                h4("About your school's 2017 ready graduates"),
                 br(),
-                p(strong("Ready graduates"), "refers to graduates who earned an ACT composite
-                    score of 21 or higher. In future years, ready graduates will also
-                    include students who complete early postsecondary opportunities."),
+                p(strong("Ready graduates"), "refers to 2017 graduates who earned
+                    an ACT composite score of 21 or higher. In future years, ready
+                    graduates will also include students who complete four early
+                    postsecondary opportunities, complete two postsecondary opportunities
+                    and earn an industry certification, or complete two postsecondary
+                    opportunities and hit specified criteria on the AFQT."),
                 br(),
                 strong(p("Answer the following about your school's ready graduates.")),
                 rHandsontableOutput("ready_grad_table"),
                 br(),
-                div(id = "done_readiness",
+                div(id = "done_ready_grad",
                     p("When you are done, click the button below."),
-                    actionButton("button_readiness", label = "Done")
+                    actionButton("button_ready_grad", label = "Done")
                 )
             )),
 
@@ -111,8 +114,8 @@ fluidPage(theme = "doe-style.css",
                 hr(),
                 h4("About your school's English Language Proficiency Assessment Results"),
                 br(),
-                selectInput("elpa_eligible", label = "Does your school have 10 or more students
-                    who took an English Language Proficiency Assessment (ELPA)?",
+                selectInput("elpa_eligible", label = "Does your school have 10 or more
+                    students who took an English Language Proficiency Assessment (ELPA)?",
                     choices = c("", "Yes", "No")),
                 br(),
                 hidden(div(id = "elpa_table_container",
@@ -122,7 +125,7 @@ fluidPage(theme = "doe-style.css",
                         in the prior year. They are as follows:"),
                     tableOutput("elpa_growth_standard"),
                     br(),
-                    strong(p("Answer the following about your school's ELPA performance.")),
+                    strong(p("Answer the following about your school's ELPA growth.")),
                     rHandsontableOutput("elpa_table")
                 )),
                 hidden(actionButton("skip_elpa", label = "Proceed")),
@@ -139,11 +142,11 @@ fluidPage(theme = "doe-style.css",
                 h4("About your school's chronic absenteeism"),
                 br(),
                 p(strong("Chronic absenteeism"), "refers to students who are absent for 10%
-                    or more of a school year (18 days in a 180 day school year). Chronic
-                    absenteeism calculations only include students who are enrolled
+                    or more of a school year (e.g., 18 days in a 180 day school year).
+                    Chronic absenteeism calculations only include students who are enrolled
                     for at least 50 percent of the school year."),
                 br(),
-                strong(p("Answer the following about your school's absenteeism.")),
+                strong(p("Answer the following about your school's chronic absenteeism.")),
                 rHandsontableOutput("absenteeism_table"),
                 br(),
                 hidden(div(id = "done_absenteeism",
