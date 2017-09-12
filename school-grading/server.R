@@ -442,49 +442,16 @@ function(input, output, session) {
                 `Absenteeism Grade` = grade_absenteeism)
     )
 
-    output$focus_warning <- renderText({
-
-        subgroup_below_one <- heat_map() %>%
-            filter(Subgroup %in% c("Black/Hispanic/Native American", "Economically Disadvantaged",
-                "Students with Disabilities", "English Learners"),
-                subgroup_average < 1)
-
-        if (nrow(subgroup_below_one) == 0) {
-            return()
-        } else if (nrow(subgroup_below_one) == 1) {
-            paste0("In addition, your school is at risk of being named a Focus School
-                for the following subgroups: ", c(subgroup_below_one$Subgroup),
-                ". This means your school would receive a minus on its grade,
-                unless its overall grade is D or F")
-        } else {
-            paste0("In addition, your school is at risk of being named a Focus School
-                for the following subgroups: ", paste(subgroup_below_one$Subgroup, collapse = ", "),
-                ". This means your school would receive a minus on its grade,
-                unless its overall grade is D or F")
-        }
-    })
-
-    output$priority_grad_warning <- renderText(
-        if (heat_map()[heat_map()$Subgroup == "All Students", ]$grad_abs == 0) {
-            "Your school is at risk of being named a Priority (F) Schools for
-            having a graduation rate below 67%."
-        } else {
-            return()
-        }
-
-    )
-
-    output$final_grades <- renderTable(width = '100%', {
-
+    final_grades <- reactive({
         ach_average <- heat_map() %>%
             filter(Subgroup == "All Students") %>%
             magrittr::extract2("subgroup_average")
 
         gap_average <- heat_map() %>%
             filter(Subgroup != "All Students") %>%
-        # Drop Super Subgroup if other subgroups are present
+            # Drop Super Subgroup if other subgroups are present
             mutate(temp = !is.na(subgroup_average),
-                subgroups_count = sum(temp, na.rm = TRUE)) %>%
+                   subgroups_count = sum(temp, na.rm = TRUE)) %>%
             filter(!(Subgroup == "Super Subgroup" & subgroups_count > 1)) %>%
             mutate(subgroup_average_weighted = total_weight * subgroup_average) %>%
             summarise_at(c("total_weight", "subgroup_average_weighted"), sum, na.rm = TRUE) %>%
@@ -527,7 +494,46 @@ function(input, output, session) {
             "Average", ach_average, gap_average, final_average,
             "Grade", ach_grade, gap_grade, final_grade
         )
+    })
+
+    output$final_grades <- renderTable(width = '100%', final_grades())
+
+    output$focus_warning <- renderText({
+
+        subgroup_below_one <- heat_map() %>%
+            filter(Subgroup %in% c("Black/Hispanic/Native American", "Economically Disadvantaged",
+                    "Students with Disabilities", "English Learners"),
+                subgroup_average < 1)
+
+        if (final_grades()[2, ]$Final == "D") {
+            "Based on your school's projected D grade, your school is at risk of being
+            named a focus school."
+        } else if (nrow(subgroup_below_one) == 0) {
+            return()
+        } else if (nrow(subgroup_below_one) == 1) {
+            paste0("In addition, your school is at risk of being named a Focus School
+                for the following subgroup: ", c(subgroup_below_one$Subgroup),
+                ". This means your school would receive a minus on its overall grade,
+                unless its grade is D or F.")
+        } else if (nrow(subgroup_below_one) > 1) {
+            paste0("In addition, your school is at risk of being named a Focus School
+                for the following subgroups: ", paste(subgroup_below_one$Subgroup, collapse = ", "),
+                ". This means your school would receive a minus on its overall grade,
+                unless its grade is D or F.")
+        }
 
     })
+
+    output$priority_grad_warning <- renderText(
+        if (is.na(heat_map()[1, ]$grad_abs)) {
+            return()
+        } else if (heat_map()[1, ]$grad_abs == 0) {
+            "Your school is at risk of being named a Priority (F) School for
+            having a graduation rate below 67%."
+        } else {
+            return()
+        }
+    )
+
 
 }
