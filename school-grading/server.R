@@ -214,14 +214,14 @@ function(input, output, session) {
     # Inputs for ACT and grad
     output$ready_grad_table <- renderRHandsontable({
 
-        ready_grad_abs <- factor(c("30% to less than 40% of graduates score a 21+ on the ACT",
+        ready_grad_abs <- factor(c("25% to less than 30% of graduates score a 21+ on the ACT",
                 rep("N/A - School does not serve 30 students in this subgroup", 5)),
             levels = c("N/A - School does not serve 30 students in this subgroup",
-                "Less than 25% of graduates score a 21+ on the ACT",
+                "Less than 16% of graduates score a 21+ on the ACT",
+                "16% to less than 25% of graduates score a 21+ on the ACT",
                 "25% to less than 30% of graduates score a 21+ on the ACT",
                 "30% to less than 40% of graduates score a 21+ on the ACT",
-                "40% to less than 50% of graduates score a 21+ on the ACT",
-                "50% or more of graduates score a 21+ on the ACT"), ordered = TRUE)
+                "40% or more of graduates score a 21+ on the ACT"), ordered = TRUE)
 
         ready_grad_target <- factor(c("Upper bound of ready graduates confidence interval equals or exceeds AMO target",
                 rep("N/A - School does not serve 30 students in this subgroup", 5)),

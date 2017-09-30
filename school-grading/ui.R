@@ -21,6 +21,11 @@ fluidPage(theme = "doe-style.css",
                     achievement, growth, and other indicators of school success."),
                 strong(p("We'll use your answers to project a grade under the new A-F
                     school grading system. When you are ready, click the button below.")),
+                br(),
+                p("Note: This tool is for planning purposes only. Data thresholds
+                    and what it means to earn each letter grade on each indicator
+                    is subject to change."),
+                br(),
                 actionButton("button_intro", label = "Go!")
             ),
 
@@ -47,12 +52,12 @@ fluidPage(theme = "doe-style.css",
             # Achievement
             hidden(div(id = "achievement",
                 hr(),
-                h4("About your school's achievement and growth on TNReady:"),
+                h4("About your school's achievement and growth on TNReady"),
                 br(),
                 p("Recall that a", strong("success rate"), "is the percentage of students on track
                     or mastered in math, ELA, and science (including ACT for high schools),
                     aggregated across subjects with at least 30 tests."),
-                p(strong("Subgroup growth"), "refers to the percentage of students from a
+                p(strong("Subgroup growth"), "refers to the percentage of students in a
                     particular subgroup who improved their performance level compared
                     to the prior year or maintained the highest level of achievement."),
                 br(),
@@ -74,7 +79,7 @@ fluidPage(theme = "doe-style.css",
                     cohort (2013 cohort) of 30 or more students?", choices = c("", "Yes", "No")),
                 br(),
                 hidden(div(id = "grad_table_container",
-                    p(strong("Graduation rate"), "is the percent of students in the graduating
+                    p(strong("Graduation rate"), "is the percentage of students in the graduating
                         cohort who graduate in no more than four years plus a summer."),
                     br(),
                     strong(p("Answer the following about your school's 2017 graduation rate.")),
@@ -94,11 +99,12 @@ fluidPage(theme = "doe-style.css",
                 h4("About your school's 2017 ready graduates"),
                 br(),
                 p(strong("Ready graduates"), "refers to 2017 graduates who earned
-                    an ACT composite score of 21 or higher. In future years, ready
-                    graduates will also include students who complete four early
-                    postsecondary opportunities, complete two postsecondary opportunities
-                    and earn an industry certification, or complete two postsecondary
-                    opportunities and hit specified criteria on the AFQT."),
+                    an ACT composite score of 21 or higher."),
+                p("In future years, ready graduates will also include students who
+                    complete four early postsecondary opportunities, complete two
+                    postsecondary opportunities and earn an industry certification,
+                    or complete two postsecondary opportunities and meet specified
+                    criteria on the AFQT."),
                 br(),
                 strong(p("Answer the following about your school's ready graduates.")),
                 rHandsontableOutput("ready_grad_table"),
@@ -199,11 +205,7 @@ fluidPage(theme = "doe-style.css",
                 br(),
                 textOutput("focus_warning"),
                 br(),
-                p("Adjust any inputs to see how your school's grade is affected."),
-                br(),
-                strong(p("This tool is for planning purposes only. Data thresholds
-                    and what it means to earn each letter grade on each indicator
-                    is subject to change."))
+                p("Adjust any inputs to see how your school's grade is affected.")
             )),
 
             # Footer
