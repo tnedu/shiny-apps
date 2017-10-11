@@ -139,13 +139,13 @@ function(input, output, session) {
     # Inputs for success rate, TVAAS, subgroup growth
     output$achievement_table <- renderRHandsontable({
 
-        success_rate <- factor(c("One-year success rate is greater than or equal to 30% but less than 40%",
+        success_rate <- factor(c("One-year success rate is greater than or equal to 35% but less than 45%",
                 rep("N/A - School does not serve 30 students in this subgroup", 5)),
             levels = c("N/A - School does not serve 30 students in this subgroup",
-                "One-year success rate is less than 20%",
-                "One-year success rate is greater than or equal to 20% but less than 30%",
-                "One-year success rate is greater than or equal to 30% but less than 40%",
-                "One-year success rate is greater than or equal to 40% and less than 50%",
+                "One-year success rate is less than 25%",
+                "One-year success rate is greater than or equal to 25% but less than 35%",
+                "One-year success rate is greater than or equal to 35% but less than 45%",
+                "One-year success rate is greater than or equal to 45% and less than 50%",
                 "One-year success rate is greater or equal to 50%"), ordered = TRUE)
 
         success_target <- factor(c("Upper bound of one-year success rate confidence interval equals or exceeds AMO target",
