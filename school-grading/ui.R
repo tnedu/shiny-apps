@@ -210,8 +210,7 @@ fluidPage(theme = "doe-style.css",
 
             # Footer
             hr(),
-            p("Created with", tags$a(href = "http://shiny.rstudio.com/", "Shiny"),
-              "for the Tennessee Department of Education."),
+            p("© 2017 Tennessee Department of Education. Please email", tags$a(href = "tned.accountability@tn.gov", "tned.accountability@tn.gov"), "with any questions."),
             br(),
             br()
         )
