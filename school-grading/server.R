@@ -647,4 +647,27 @@ function(input, output, session) {
         }
     )
 
+
+
+    output$download_data <- downloadHandler(
+        filename = "school_grading.xlsx",
+        content = function(file) {
+            write_xlsx(path = file,
+                x = list(
+                    "Heat Map" = heat_map() %>%
+                        mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa"), as.numeric) %>%
+                        mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa"),
+                            funs(recode(.,  "4" = "A", "3" = "B", "2" = "C", "1" = "D", "0" = "F"))) %>%
+                        transmute(Subgroup,
+                            `Achievement Grade` = grade_achievement,
+                            `Growth Grade` = grade_growth,
+                            `Graduation Rate Grade` = grade_grad,
+                            `Ready Graduates Grade` = grade_ready_grad,
+                            `ELPA Grade` = grade_elpa,
+                            `Absenteeism Grade` = grade_absenteeism)
+                )
+            )
+        }
+    )
+
 }

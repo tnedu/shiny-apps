@@ -123,7 +123,8 @@ fluidPage(theme = "doe-style.css",
             br(),
             textOutput("focus_warning"),
             br(),
-            p("Adjust any inputs to see how your school's grade is affected.")
+            p("Adjust any inputs to see how your school's grade is affected."),
+            downloadLink("download_data", "Click here"), "to download this data."
         )),
 
         # Footer
