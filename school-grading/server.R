@@ -30,12 +30,33 @@ function(input, output, session) {
     })
 
     observeEvent(input$button_priority, once = TRUE, {
-        show("achievement", anim = TRUE)
         hide("minimum_performance", anim = TRUE)
+        show("tabs_panel", anim = TRUE)
     })
 
-    observeEvent(input$button_achievement, once = TRUE, {
-        show("grad", anim = TRUE)
+    observeEvent(input$button_ach, once = TRUE, {
+        appendTab(inputId = "tabs", select = TRUE,
+            tabPanel("Grad",
+                h4("About your school's 2017 graduation rate"),
+                br(),
+                selectInput("grad_eligible", label = "Does your school have a 2017 graduating
+                    cohort (2013 cohort) of 30 or more students?", choices = c("", "Yes", "No")),
+                br(),
+                hidden(div(id = "grad_table_container",
+                    p(strong("Graduation rate"), "is the percentage of students in the graduating
+                        cohort who graduate in no more than four years plus a summer."),
+                    br(),
+                    strong(p("Answer the following about your school's 2017 graduation rate.")),
+                    rHandsontableOutput("grad_table")
+                )),
+                hidden(actionButton("skip_grad", label = "Proceed")),
+                    br(),
+                hidden(div(id = "done_grad",
+                    p("When you are done, click the button below."),
+                    actionButton("button_grad", label = "Done")
+                ))
+            )
+        )
         hide("done_ach", anim = TRUE)
     })
 
@@ -56,19 +77,90 @@ function(input, output, session) {
     })
 
     observeEvent(input$skip_grad, once = TRUE, {
-        show("elpa", anim = TRUE)
         hide("grad", anim = TRUE)
+        hide("skip_grad", anim = TRUE)
+        appendTab(inputId = "tabs", select = TRUE,
+            tabPanel("ELPA",
+                h4("About your school's English Language Proficiency Assessment Results"),
+                br(),
+                selectInput("elpa_eligible", label = "Does your school have 10 or more
+                    students who took an English Language Proficiency Assessment (ELPA)?",
+                    choices = c("", "Yes", "No")),
+                br(),
+                hidden(div(id = "elpa_table_container",
+                    p("Schools are graded on the percentage of students who meet the
+                        growth standard on the English Language Proficiency Assessment."),
+                    p("The growth standards are based on the performance of the students
+                        in the prior year. They are as follows:"),
+                    tableOutput("elpa_growth_standard"),
+                    br(),
+                    strong(p("Answer the following about your school's ELPA growth.")),
+                    rHandsontableOutput("elpa_table")
+                )),
+                hidden(actionButton("skip_elpa", label = "Proceed")),
+                br(),
+                hidden(div(id = "done_elpa",
+                    p("When you are done, click the button below."),
+                    actionButton("button_elpa", label = "Done")
+                ))
+            )
+        )
     })
 
     observeEvent(input$button_grad, once = TRUE, {
-        show("ready_grad", anim = TRUE)
         hide("grad_eligible", anim = TRUE)
         hide("done_grad", anim = TRUE)
+        appendTab(inputId = "tabs", select = TRUE,
+            tabPanel("Ready Graduates",
+                h4("About your school's 2017 ready graduates"),
+                br(),
+                p(strong("Ready graduates"), "refers to 2017 graduates who earned
+                    an ACT composite score of 21 or higher."),
+                p("In future years, ready graduates will also include students who
+                    complete four early postsecondary opportunities, complete two
+                    postsecondary opportunities and earn an industry certification,
+                    or complete two postsecondary opportunities and meet specified
+                    criteria on the AFQT."),
+                br(),
+                strong(p("Answer the following about your school's ready graduates.")),
+                rHandsontableOutput("ready_grad_table"),
+                br(),
+                div(id = "done_ready_grad",
+                    p("When you are done, click the button below."),
+                    actionButton("button_ready_grad", label = "Done")
+                )
+            )
+        )
     })
 
     observeEvent(input$button_ready_grad, once = TRUE, {
-        show("elpa", anim = TRUE)
         hide("done_ready_grad", anim = TRUE)
+        appendTab(inputId = "tabs", select = TRUE,
+            tabPanel("ELPA",
+                h4("About your school's English Language Proficiency Assessment Results"),
+                br(),
+                selectInput("elpa_eligible", label = "Does your school have 10 or more
+                    students who took an English Language Proficiency Assessment (ELPA)?",
+                    choices = c("", "Yes", "No")),
+                br(),
+                hidden(div(id = "elpa_table_container",
+                    p("Schools are graded on the percentage of students who meet the
+                        growth standard on the English Language Proficiency Assessment."),
+                    p("The growth standards are based on the performance of the students
+                        in the prior year. They are as follows:"),
+                    tableOutput("elpa_growth_standard"),
+                    br(),
+                    strong(p("Answer the following about your school's ELPA growth.")),
+                    rHandsontableOutput("elpa_table")
+                )),
+                hidden(actionButton("skip_elpa", label = "Proceed")),
+                br(),
+                hidden(div(id = "done_elpa",
+                    p("When you are done, click the button below."),
+                    actionButton("button_elpa", label = "Done")
+                ))
+            )
+        )
     })
 
     observeEvent(input$elpa_eligible, {
@@ -88,16 +180,50 @@ function(input, output, session) {
     })
 
     observeEvent(input$button_elpa, once = TRUE, {
-        show("absenteeism", anim = TRUE)
         hide("elpa_eligible", anim = TRUE)
         hide("done_elpa", anim = TRUE)
-        show("done_absenteeism", anim = TRUE)
+        appendTab(inputId = "tabs", select = TRUE,
+            tabPanel("Absenteeism",
+                h4("About your school's chronic absenteeism"),
+                br(),
+                p(strong("Chronic absenteeism"), "refers to students who are absent for 10%
+                    or more of a school year (e.g., 18 days in a 180 day school year).
+                    Chronic absenteeism calculations only include students who are enrolled
+                    for at least 50 percent of the school year."),
+                br(),
+                strong(p("Answer the following about your school's chronic absenteeism.")),
+                rHandsontableOutput("absenteeism_table"),
+                br(),
+                div(id = "done_absenteeism",
+                    p("When you are done, click the button below."),
+                    actionButton("button_absenteeism", label = "Done")
+                )
+            )
+        )
     })
 
     observeEvent(input$skip_elpa, once = TRUE, {
-        show("absenteeism", anim = TRUE)
         hide("elpa", anim = TRUE)
+        hide("skip_elpa", anim = TRUE)
         show("done_absenteeism", anim = TRUE)
+        appendTab(inputId = "tabs", select = TRUE,
+            tabPanel("Absenteeism",
+                h4("About your school's chronic absenteeism"),
+                br(),
+                p(strong("Chronic absenteeism"), "refers to students who are absent for 10%
+                    or more of a school year (e.g., 18 days in a 180 day school year).
+                    Chronic absenteeism calculations only include students who are enrolled
+                    for at least 50 percent of the school year."),
+                br(),
+                strong(p("Answer the following about your school's chronic absenteeism.")),
+                rHandsontableOutput("absenteeism_table"),
+                br(),
+                div(id = "done_absenteeism",
+                    p("When you are done, click the button below."),
+                    actionButton("button_absenteeism", label = "Done")
+                )
+            )
+        )
     })
 
     observeEvent(input$button_absenteeism, once = TRUE,  {
@@ -119,24 +245,24 @@ function(input, output, session) {
                     <p>To avoid being named a Priority School, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
                     in 2018.</p>",
-                "Yes" = "<p>Your school is <b>at risk of being named a Priority (F) School</b>.</p>
+                    "Yes" = "<p>Your school is <b>at risk of being named a Priority (F) School</b>.</p>
                     <p>To avoid being named a Priority School, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
                     OR <b>earn a TVAAS Composite Level 4 or 5</b> in 2018.</p>"),
-            "Between 10% and 15%" = switch(input$tvaas_lag,
-                "No" = "<p>Your school is <b>on the cusp of being a Priority (F) School</b>.</p>
+               "Between 10% and 15%" = switch(input$tvaas_lag,
+                    "No" = "<p>Your school is <b>on the cusp of being a Priority (F) School</b>.</p>
                     <p>To avoid being named a Priority school, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
                     in 2018.<p>",
-                "Yes" = "<p>Your school is <b>on the cusp of being a Priority (F) School</b>.</p>
+                    "Yes" = "<p>Your school is <b>on the cusp of being a Priority (F) School</b>.</p>
                     <p>To avoid being named a Priority school, your school must perform
                     <b>above the bottom 5 percent of schools based on a three year success rate</b>
                     OR <b>earn a Level 4 or 5 Composite TVAAS</b> in 2018.</p>"),
-            "Above 15%" = "<p>Your school is <b>unlikely to be named a Priority (F) School</b>.</p>"
+               "Above 15%" = "<p>Your school is <b>unlikely to be named a Priority (F) School</b>.</p>"
         )
     )
 
-    # Inputs for success rate, TVAAS, subgroup growth
+    # Inputs for achievement/growth
     output$achievement_table <- renderRHandsontable({
 
         success_rate <- factor(c("One-year success rate is greater than or equal to 35% but less than 45%",
@@ -241,18 +367,6 @@ function(input, output, session) {
             hot_col(c("Ready Graduates", "Ready Graduates Target"), type = "dropdown")
 
     })
-
-    # Table to show ELPA Growth Standard
-    output$elpa_growth_standard <- renderTable(
-        tibble::tribble(~`Prior Year ELP Range`, ~`Growth Standard`,
-            "1.0 - 1.4", "1.3",
-            "1.5 - 1.9", "0.7",
-            "2.0 - 2.4", "0.8",
-            "2.5 - 2.9", "0.7",
-            "3.0 - 3.4", "0.4",
-            "3.5 - 3.9", "0.5",
-            "4.0 - 4.4", "0.4")
-    )
 
     # Inputs for ELPA
     output$elpa_table <- renderRHandsontable({
@@ -380,10 +494,10 @@ function(input, output, session) {
             inner_join(elpa(), by = "Subgroup") %>%
             inner_join(absenteeism(), by = "Subgroup") %>%
             mutate_at(c("success_rate", "success_target", "TVAAS", "subgroup_growth",
-                "grad_abs", "grad_target", "ready_grad_abs", "ready_grad_target",
-                "elpa_growth", "absenteeism_abs", "absenteeism_target"),
+                    "grad_abs", "grad_target", "ready_grad_abs", "ready_grad_target",
+                    "elpa_growth", "absenteeism_abs", "absenteeism_target"),
                 funs(if_else(as.numeric(.) == 1, NA_real_, as.numeric(.) - 2))) %>%
-        # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and target grades
+            # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and target grades
             mutate(grade_achievement = pmax(success_rate, success_target),
                 grade_growth = if_else(Subgroup == "All Students", TVAAS, subgroup_growth),
                 grade_grad = pmax(grad_abs, grad_target),
@@ -449,9 +563,9 @@ function(input, output, session) {
 
         gap_average <- heat_map() %>%
             filter(Subgroup != "All Students") %>%
-            # Drop Super Subgroup if other subgroups are present
+        # Drop Super Subgroup if other subgroups are present
             mutate(temp = !is.na(subgroup_average),
-                   subgroups_count = sum(temp, na.rm = TRUE)) %>%
+                subgroups_count = sum(temp, na.rm = TRUE)) %>%
             filter(!(Subgroup == "Super Subgroup" & subgroups_count > 1)) %>%
             mutate(subgroup_average_weighted = total_weight * subgroup_average) %>%
             summarise_at(c("total_weight", "subgroup_average_weighted"), sum, na.rm = TRUE) %>%
@@ -496,7 +610,7 @@ function(input, output, session) {
         )
     })
 
-    output$final_grades <- renderTable(width = '100%', final_grades())
+    output$final_grades <- renderTable(width = "100%", final_grades())
 
     output$focus_warning <- renderText({
 
@@ -522,7 +636,7 @@ function(input, output, session) {
                 unless its grade is D or F.")
         }
 
-    })
+        })
 
     output$priority_grad_warning <- renderText(
         if (is.na(heat_map()[1, ]$grad_abs || heat_map()[1, ]$grad_abs != 0)) {
@@ -532,6 +646,5 @@ function(input, output, session) {
             having a graduation rate below 67%."
         }
     )
-
 
 }
