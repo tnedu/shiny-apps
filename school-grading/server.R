@@ -134,33 +134,37 @@ function(input, output, session) {
     })
 
     observeEvent(input$button_ready_grad, once = TRUE, {
+
         hide("done_ready_grad", anim = TRUE)
-        appendTab(inputId = "tabs", select = TRUE,
-            tabPanel("ELPA",
-                h4("About your school's English Language Proficiency Assessment Results"),
-                br(),
-                selectInput("elpa_eligible", label = "Does your school have 10 or more
-                    students who took an English Language Proficiency Assessment (ELPA)?",
-                    choices = c("", "Yes", "No")),
-                br(),
-                hidden(div(id = "elpa_table_container",
-                    p("Schools are graded on the percentage of students who meet the
-                        growth standard on the English Language Proficiency Assessment."),
-                    p("The growth standards are based on the performance of the students
-                        in the prior year. They are as follows:"),
-                    tableOutput("elpa_growth_standard"),
+
+        if (input$skip_grad == 0) {
+            appendTab(inputId = "tabs", select = TRUE,
+                tabPanel("ELPA",
+                    h4("About your school's English Language Proficiency Assessment Results"),
                     br(),
-                    strong(p("Answer the following about your school's ELPA growth.")),
-                    rHandsontableOutput("elpa_table")
-                )),
-                hidden(actionButton("skip_elpa", label = "Proceed")),
-                br(),
-                hidden(div(id = "done_elpa",
-                    p("When you are done, click the button below."),
-                    actionButton("button_elpa", label = "Done")
-                ))
+                    selectInput("elpa_eligible", label = "Does your school have 10 or more
+                        students who took an English Language Proficiency Assessment (ELPA)?",
+                        choices = c("", "Yes", "No")),
+                    br(),
+                    hidden(div(id = "elpa_table_container",
+                        p("Schools are graded on the percentage of students who meet the
+                            growth standard on the English Language Proficiency Assessment."),
+                        p("The growth standards are based on the performance of the students
+                            in the prior year. They are as follows:"),
+                        tableOutput("elpa_growth_standard"),
+                        br(),
+                        strong(p("Answer the following about your school's ELPA growth.")),
+                        rHandsontableOutput("elpa_table")
+                    )),
+                    hidden(actionButton("skip_elpa", label = "Proceed")),
+                    br(),
+                    hidden(div(id = "done_elpa",
+                        p("When you are done, click the button below."),
+                        actionButton("button_elpa", label = "Done")
+                    ))
+                )
             )
-        )
+        }
     })
 
     observeEvent(input$elpa_eligible, {
