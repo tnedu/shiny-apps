@@ -651,24 +651,54 @@ function(input, output, session) {
         }
     )
 
-
-
     output$download_data <- downloadHandler(
         filename = "school_grading.xlsx",
         content = function(file) {
+
+            letter_grades <- heat_map() %>%
+                mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa",
+                    "success_rate", "success_target", "TVAAS", "subgroup_growth", "grad_abs", "grad_target",
+                    "ready_grad_abs", "ready_grad_target", "elpa_growth", "absenteeism_abs", "absenteeism_target"),
+                    as.numeric) %>%
+                mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa",
+                    "success_rate", "success_target", "TVAAS", "subgroup_growth", "grad_abs", "grad_target",
+                    "ready_grad_abs", "ready_grad_target", "elpa_growth", "absenteeism_abs", "absenteeism_target"),
+                    funs(recode(.,  "4" = "A", "3" = "B", "2" = "C", "1" = "D", "0" = "F")))
+
             write_xlsx(path = file,
                 x = list(
-                    "Heat Map" = heat_map() %>%
-                        mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa"), as.numeric) %>%
-                        mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa"),
-                            funs(recode(.,  "4" = "A", "3" = "B", "2" = "C", "1" = "D", "0" = "F"))) %>%
-                        transmute(Subgroup,
+                    "Heat Map" = letter_grades %>%
+                        select(Subgroup,
                             `Achievement Grade` = grade_achievement,
                             `Growth Grade` = grade_growth,
                             `Graduation Rate Grade` = grade_grad,
                             `Ready Graduates Grade` = grade_ready_grad,
                             `ELPA Grade` = grade_elpa,
-                            `Absenteeism Grade` = grade_absenteeism)
+                            `Absenteeism Grade` = grade_absenteeism
+                        ),
+                    "Achievement" = letter_grades %>%
+                        select(Subgroup,
+                            `Success Rate` = success_rate,
+                            `Success Rate Target` = success_target,
+                            `TVAAS` = TVAAS,
+                            `Subgroup Growth` = subgroup_growth
+                        ),
+                    "Graduation" = letter_grades %>%
+                        select(Subgroup,
+                            `Graduation Rate` = grad_abs,
+                            `Graduation Rate Target` = grad_target,
+                            `Ready Graduates` = ready_grad_abs,
+                            `Ready Graduates Target` = ready_grad_target
+                        ),
+                    "ELPA" = letter_grades %>%
+                        select(Subgroup,
+                            `ELPA Growth Standard` = elpa_growth
+                        ),
+                    "Absenteeism" = letter_grades %>%
+                        select(Subgroup,
+                            `Chronic Absenteeism` = absenteeism_abs,
+                            `Chronic Absenteeism Reduction Target` = absenteeism_target
+                        )
                 )
             )
         }
