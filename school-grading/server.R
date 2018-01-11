@@ -90,9 +90,6 @@ function(input, output, session) {
                 hidden(div(id = "elpa_table_container",
                     p("Schools are graded on the percentage of students who meet the
                         growth standard on the English Language Proficiency Assessment."),
-                    p("The growth standards are based on the performance of the students
-                        in the prior year. They are as follows:"),
-                    tableOutput("elpa_growth_standard"),
                     br(),
                     strong(p("Answer the following about your school's ELPA growth.")),
                     rHandsontableOutput("elpa_table")
