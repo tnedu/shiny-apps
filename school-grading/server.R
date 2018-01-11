@@ -146,10 +146,6 @@ function(input, output, session) {
                     hidden(div(id = "elpa_table_container",
                         p("Schools are graded on the percentage of students who meet the
                             growth standard on the English Language Proficiency Assessment."),
-                        p("The growth standards are based on the performance of the students
-                            in the prior year. They are as follows:"),
-                        tableOutput("elpa_growth_standard"),
-                        br(),
                         strong(p("Answer the following about your school's ELPA growth.")),
                         rHandsontableOutput("elpa_table")
                     )),
@@ -183,24 +179,27 @@ function(input, output, session) {
     observeEvent(input$button_elpa, once = TRUE, {
         hide("elpa_eligible", anim = TRUE)
         hide("done_elpa", anim = TRUE)
-        appendTab(inputId = "tabs", select = TRUE,
-            tabPanel("Absenteeism",
-                h4("About your school's chronic absenteeism"),
-                br(),
-                p(strong("Chronic absenteeism"), "refers to students who are absent for 10%
-                    or more of a school year (e.g., 18 days in a 180 day school year).
-                    Chronic absenteeism calculations only include students who are enrolled
-                    for at least 50 percent of the school year."),
-                br(),
-                strong(p("Answer the following about your school's chronic absenteeism.")),
-                rHandsontableOutput("absenteeism_table"),
-                br(),
-                div(id = "done_absenteeism",
-                    p("When you are done, click the button below."),
-                    actionButton("button_absenteeism", label = "Done")
+
+        if (input$skip_elpa == 0) {
+            appendTab(inputId = "tabs", select = TRUE,
+                tabPanel("Absenteeism",
+                    h4("About your school's chronic absenteeism"),
+                    br(),
+                    p(strong("Chronic absenteeism"), "refers to students who are absent for 10%
+                        or more of a school year (e.g., 18 days in a 180 day school year).
+                        Chronic absenteeism calculations only include students who are enrolled
+                        for at least 50 percent of the school year."),
+                    br(),
+                    strong(p("Answer the following about your school's chronic absenteeism.")),
+                    rHandsontableOutput("absenteeism_table"),
+                    br(),
+                    div(id = "done_absenteeism",
+                        p("When you are done, click the button below."),
+                        actionButton("button_absenteeism", label = "Done")
+                    )
                 )
             )
-        )
+        }
     })
 
     observeEvent(input$skip_elpa, once = TRUE, {
