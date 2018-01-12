@@ -35,13 +35,15 @@ function(input, output, session) {
     })
 
     observeEvent(input$button_ach, once = TRUE, {
+
+        hide("done_ach", anim = TRUE)
+
         appendTab(inputId = "tabs", select = TRUE,
             tabPanel("Grad",
                 h4("About your school's 2017 graduation rate"),
                 br(),
                 selectInput("grad_eligible", label = "Does your school have a 2017 graduating
                     cohort (2013 cohort) of 30 or more students?", choices = c("", "Yes", "No")),
-                br(),
                 hidden(div(id = "grad_table_container",
                     p(strong("Graduation rate"), "is the percentage of students in the graduating
                         cohort who graduate in no more than four years plus a summer."),
@@ -57,7 +59,7 @@ function(input, output, session) {
                 ))
             )
         )
-        hide("done_ach", anim = TRUE)
+
     })
 
     observeEvent(input$grad_eligible, {
@@ -77,8 +79,10 @@ function(input, output, session) {
     })
 
     observeEvent(input$skip_grad, once = TRUE, {
+
         hide("grad", anim = TRUE)
         hide("skip_grad", anim = TRUE)
+
         appendTab(inputId = "tabs", select = TRUE,
             tabPanel("ELPA",
                 h4("About your school's English Language Proficiency Assessment Results"),
@@ -86,10 +90,9 @@ function(input, output, session) {
                 selectInput("elpa_eligible", label = "Does your school have 10 or more
                     students who took an English Language Proficiency Assessment (ELPA)?",
                     choices = c("", "Yes", "No")),
-                br(),
                 hidden(div(id = "elpa_table_container",
-                    p("Schools are graded on the percentage of students who meet the
-                        growth standard on the English Language Proficiency Assessment."),
+                    p("Schools are graded on the percentage of students who meet the",
+                        strong("growth standard"), "on the English Language Proficiency Assessment."),
                     br(),
                     strong(p("Answer the following about your school's ELPA growth.")),
                     rHandsontableOutput("elpa_table")
@@ -102,11 +105,14 @@ function(input, output, session) {
                 ))
             )
         )
+
     })
 
     observeEvent(input$button_grad, once = TRUE, {
+
         hide("grad_eligible", anim = TRUE)
         hide("done_grad", anim = TRUE)
+
         appendTab(inputId = "tabs", select = TRUE,
             tabPanel("Ready Graduates",
                 h4("About your school's 2017 ready graduates"),
@@ -128,6 +134,7 @@ function(input, output, session) {
                 )
             )
         )
+
     })
 
     observeEvent(input$button_ready_grad, once = TRUE, {
@@ -142,10 +149,10 @@ function(input, output, session) {
                     selectInput("elpa_eligible", label = "Does your school have 10 or more
                         students who took an English Language Proficiency Assessment (ELPA)?",
                         choices = c("", "Yes", "No")),
-                    br(),
                     hidden(div(id = "elpa_table_container",
-                        p("Schools are graded on the percentage of students who meet the
-                            growth standard on the English Language Proficiency Assessment."),
+                        p("Schools are graded on the percentage of students who meet the",
+                            strong("growth standard"), "on the English Language Proficiency Assessment."),
+                        br(),
                         strong(p("Answer the following about your school's ELPA growth.")),
                         rHandsontableOutput("elpa_table")
                     )),
@@ -158,6 +165,7 @@ function(input, output, session) {
                 )
             )
         }
+
     })
 
     observeEvent(input$elpa_eligible, {
@@ -177,6 +185,7 @@ function(input, output, session) {
     })
 
     observeEvent(input$button_elpa, once = TRUE, {
+
         hide("elpa_eligible", anim = TRUE)
         hide("done_elpa", anim = TRUE)
 
@@ -200,11 +209,14 @@ function(input, output, session) {
                 )
             )
         }
+
     })
 
     observeEvent(input$skip_elpa, once = TRUE, {
+
         hide("elpa", anim = TRUE)
         hide("skip_elpa", anim = TRUE)
+
         show("done_absenteeism", anim = TRUE)
         appendTab(inputId = "tabs", select = TRUE,
             tabPanel("Absenteeism",
@@ -224,6 +236,7 @@ function(input, output, session) {
                 )
             )
         )
+
     })
 
     observeEvent(input$button_absenteeism, once = TRUE,  {
@@ -497,7 +510,7 @@ function(input, output, session) {
                     "grad_abs", "grad_target", "ready_grad_abs", "ready_grad_target",
                     "elpa_growth", "absenteeism_abs", "absenteeism_target"),
                 funs(if_else(as.numeric(.) == 1, NA_real_, as.numeric(.) - 2))) %>%
-            # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and target grades
+        # Not setting na.rm = TRUE so that schools are only evaluated if they have absolute and target grades
             mutate(grade_achievement = pmax(success_rate, success_target),
                 grade_growth = if_else(Subgroup == "All Students", TVAAS, subgroup_growth),
                 grade_grad = pmax(grad_abs, grad_target),
@@ -544,7 +557,13 @@ function(input, output, session) {
 
     output$heatmap <- renderTable(
         heat_map() %>%
-            mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa"), as.numeric) %>%
+        # Drop Super Subgroup if other subgroups are present
+            mutate(temp = !is.na(subgroup_average),
+                subgroups_count = sum(temp, na.rm = TRUE)) %>%
+            filter(!(Subgroup == "Super Subgroup" & subgroups_count > 2 |
+                Subgroup == "Super Subgroup" & is.na(subgroup_average))) %>%
+            mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa"),
+                as.numeric) %>%
             mutate_at(c("grade_achievement", "grade_growth", "grade_grad", "grade_ready_grad", "grade_absenteeism", "grade_elpa"),
                 funs(recode(.,  "4" = "A", "3" = "B", "2" = "C", "1" = "D", "0" = "F"))) %>%
             transmute(Subgroup,
@@ -557,6 +576,7 @@ function(input, output, session) {
     )
 
     final_grades <- reactive({
+
         ach_average <- heat_map() %>%
             filter(Subgroup == "All Students") %>%
             magrittr::extract2("subgroup_average")
@@ -608,6 +628,7 @@ function(input, output, session) {
             "Average", ach_average, gap_average, final_average,
             "Grade", ach_grade, gap_grade, final_grade
         )
+
     })
 
     output$final_grades <- renderTable(width = "100%", final_grades())
@@ -636,7 +657,7 @@ function(input, output, session) {
                 unless its grade is D or F.")
         }
 
-        })
+    })
 
     output$priority_grad_warning <- renderText(
         if (is.na(heat_map()[1, ]$grad_abs || heat_map()[1, ]$grad_abs != 0)) {
@@ -670,34 +691,30 @@ function(input, output, session) {
                             `Graduation Rate Grade` = grade_grad,
                             `Ready Graduates Grade` = grade_ready_grad,
                             `ELPA Grade` = grade_elpa,
-                            `Absenteeism Grade` = grade_absenteeism
-                        ),
+                            `Absenteeism Grade` = grade_absenteeism),
                     "Achievement" = letter_grades %>%
                         select(Subgroup,
                             `Success Rate` = success_rate,
                             `Success Rate Target` = success_target,
                             `TVAAS` = TVAAS,
-                            `Subgroup Growth` = subgroup_growth
-                        ),
+                            `Subgroup Growth` = subgroup_growth),
                     "Graduation" = letter_grades %>%
                         select(Subgroup,
                             `Graduation Rate` = grad_abs,
                             `Graduation Rate Target` = grad_target,
                             `Ready Graduates` = ready_grad_abs,
-                            `Ready Graduates Target` = ready_grad_target
-                        ),
+                            `Ready Graduates Target` = ready_grad_target),
                     "ELPA" = letter_grades %>%
                         select(Subgroup,
-                            `ELPA Growth Standard` = elpa_growth
-                        ),
+                            `ELPA Growth Standard` = elpa_growth),
                     "Absenteeism" = letter_grades %>%
                         select(Subgroup,
                             `Chronic Absenteeism` = absenteeism_abs,
-                            `Chronic Absenteeism Reduction Target` = absenteeism_target
-                        )
+                            `Chronic Absenteeism Reduction Target` = absenteeism_target)
                 )
             )
         }
+
     )
 
 }

@@ -51,10 +51,10 @@ fluidPage(theme = "doe-style.css",
             )),
 
         hidden(div(id = "tabs_panel",
-            br(),
+            hr(),
             p("You will be presented with a series of tables corresponding to each school
                 grading indicator. Please fill in the tables with the appropriate data
-                in order to estimate a grade."),
+                in order to calculate a grade."),
             br(),
             tabsetPanel(id = "tabs",
                 tabPanel("Achievement",
@@ -129,7 +129,8 @@ fluidPage(theme = "doe-style.css",
 
         # Footer
         hr(),
-        p("© 2017 Tennessee Department of Education. Please email", tags$a(href = "tned.accountability@tn.gov", "tned.accountability@tn.gov"), "with any questions."),
+        p("© 2017 Tennessee Department of Education. Email", tags$a(href = "tned.accountability@tn.gov", "tned.accountability@tn.gov"),
+            "with any questions."),
         br(),
         br()
 
