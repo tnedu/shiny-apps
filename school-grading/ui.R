@@ -22,12 +22,14 @@ fluidPage(theme = "doe-style.css",
                 achievement, growth, and other indicators of school success."),
             strong(p("We'll use your answers to project a grade under the new A-F
                 school grading system. When you are ready, click the button below.")),
+            p("You may wish to consult", downloadLink("download_presentation", "this guide"),
+                "to the school grading tool."),
             br(),
             p("Note: This tool is for planning purposes only. Data thresholds
                 and what it means to earn each letter grade on each indicator
                 is subject to change."),
-            br(),
-            actionButton("button_intro", label = "Go!")
+            actionButton("button_intro", label = "Go!"),
+            br()
         ),
 
         # Priority (F) Schools

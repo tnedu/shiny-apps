@@ -663,6 +663,13 @@ function(input, output, session) {
         }
     )
 
+    output$download_presentation <- downloadHandler(
+        filename = "school_grading_user_guide.pdf",
+        content = function(file) {
+            file.copy("school_grading_user_guide.pdf", file)
+        }
+    )
+
     output$download_data <- downloadHandler(
         filename = "school_grading.xlsx",
         content = function(file) {
