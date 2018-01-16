@@ -119,11 +119,6 @@ function(input, output, session) {
                 br(),
                 p(strong("Ready graduates"), "refers to 2017 graduates who earned
                     an ACT composite score of 21 or higher."),
-                p("In future years, ready graduates will also include students who
-                    complete four early postsecondary opportunities, complete two
-                    postsecondary opportunities and earn an industry certification,
-                    or complete two postsecondary opportunities and meet specified
-                    criteria on the AFQT."),
                 br(),
                 strong(p("Answer the following about your school's ready graduates.")),
                 rHandsontableOutput("ready_grad_table"),

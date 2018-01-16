@@ -99,12 +99,7 @@ fluidPage(theme = "doe-style.css",
             p("Your school's", strong("Absenteeism Grade"), "is the better of its",
                 strong("Absenteeism"), "and", strong("Absenteeism Reduction Target"), "grades."),
             br(),
-            p("For Achievement, Graduation Rate, Ready Graduates, and Absenteeism, a school only
-                receives a grade if it has both the absolute and target components."),
-            p("Super Subgroup results only count toward school grading if no other
-                subgroup meets the minimum N count for any indicator."),
             hidden(div(id = "done_heatmap",
-                br(),
                 p("Click the button below to see your school's projected final grade."),
                 actionButton("button_heatmap", label = "Show Final Grade")
             ))
