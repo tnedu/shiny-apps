@@ -19,17 +19,17 @@ fluidPage(theme = "doe-style.css",
         div(id = "intro",
             hr(),
             h4("We're going to ask a series of questions about your school's
-                achievement, growth, and other indicators of school success."),
+                achievement, growth, and other indicators of school success.
+                You may wish to consult", downloadLink("download_presentation", "this guide"),
+                "as you work your way through the tool."),
             strong(p("We'll use your answers to project a grade under the new A-F
                 school grading system. When you are ready, click the button below.")),
-            p("You may wish to consult", downloadLink("download_presentation", "this guide"),
-                "to the school grading tool."),
             br(),
             p("Note: This tool is for planning purposes only. Data thresholds
                 and what it means to earn each letter grade on each indicator
                 is subject to change."),
-            actionButton("button_intro", label = "Go!"),
-            br()
+            br(),
+            actionButton("button_intro", label = "Go!")
         ),
 
         # Priority (F) Schools
