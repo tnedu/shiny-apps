@@ -65,9 +65,6 @@ fluidPage(theme = "doe-style.css",
                     p("Recall that a", strong("success rate"), "is the percentage of students on track
                         or mastered in math, ELA, and science (including ACT for high schools),
                         aggregated across subjects with at least 30 tests."),
-                    p(strong("Subgroup growth"), "refers to the percentage of students in a
-                        particular subgroup who improved their performance level compared
-                        to the prior year or maintained the highest level of achievement."),
                     br(),
                     strong(p("Answer the following about your school's achievement and growth.")),
                     rHandsontableOutput("achievement_table"),
@@ -90,8 +87,7 @@ fluidPage(theme = "doe-style.css",
             br(),
             p("Your school's", strong("Achievement Grade"), "is the better of its",
                 strong("Success Rate"), "and", strong("Success Rate Target"), "grades."),
-            p("Your school's", strong("Growth Grade"), "is determined by",
-                strong("TVAAS"), "for All Students and", strong("Subgroup Growth"), "for subgroups."),
+            p("Your school's", strong("Growth Grade"), "is determined by its", strong("TVAAS"), "grades."),
             p("Your school's", strong("Graduation Rate Grade"), "is the better of its",
                 strong("Graduation Rate"), "and", strong("Graduation Rate Target"), "grades."),
             p("Your school's", strong("Ready Graduates Grade"), "is the better of its",
@@ -115,18 +111,18 @@ fluidPage(theme = "doe-style.css",
             p("Based on the information you provided, we project the following grades:"),
             br(),
             tableOutput("final_grades"),
+            # br(),
+            # textOutput("priority_grad_warning"),
+            # br(),
+            # textOutput("focus_warning"),
             br(),
-            textOutput("priority_grad_warning"),
-            br(),
-            textOutput("focus_warning"),
-            br(),
-            p("Adjust any inputs to see how your school's grade is affected."),
-            downloadLink("download_data", "Click here"), "to download this data."
+            p("Adjust any inputs to see how your school's grade is affected.")
+            # downloadLink("download_data", "Click here"), "to download this data."
         )),
 
         # Footer
         hr(),
-        p("© 2017 Tennessee Department of Education. Email", tags$a(href = "tned.accountability@tn.gov", "tned.accountability@tn.gov"),
+        p("© 2018 Tennessee Department of Education. Email", tags$a(href = "tned.accountability@tn.gov", "tned.accountability@tn.gov"),
             "with any questions."),
         br(),
         br()
