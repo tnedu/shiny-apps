@@ -14,7 +14,8 @@ server <- function(input, output, session) {
     output$name <- renderText(
         names %>%
             filter(system == input$system, school == input$school) %>%
-            magrittrextract2("school_name")
+            transmute(name = paste(system_name, school_name, sep = "/")) %>%
+            magrittr::extract2("name")
     )
 
 }
